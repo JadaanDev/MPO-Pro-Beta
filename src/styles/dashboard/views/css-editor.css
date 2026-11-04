@@ -1,0 +1,25 @@
+/* ==========================================================================
+   CSS Editor & System Settings
+   ========================================================================== */
+.css-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.css-editor-header { display: flex; align-items: center; justify-content: space-between; }
+.css-header-left { display: flex; align-items: center; gap: 12px; }
+.css-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.css-title span { color: var(--accent-primary); }
+.css-subtitle { font-size: 11.5px; color: #64748b; }
+.css-actions { display: flex; align-items: center; gap: 10px; }
+.action-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+.action-btn.secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; }
+.action-btn.primary { background: var(--accent-primary); border: 1px solid transparent; color: #fff; }
+.code-editor-box { background: #06080e; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6); }
+.css-textarea { width: 100%; height: 280px; background: transparent; border: none; outline: none; color: #38bdf8; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; resize: vertical; }
+.css-help-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 10px; }
+.css-help-text { font-size: 11.5px; color: #cbd5e1; line-height: 1.5; }
+.css-help-text ul { margin-top: 6px; padding-left: 18px; }
+.css-help-text code { font-family: var(--font-mono); color: #a5b4fc; }

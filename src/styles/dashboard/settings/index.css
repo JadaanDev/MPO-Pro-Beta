@@ -1,0 +1,12 @@
+/* ==========================================================================
+   SETTINGS STYLES MASTER ORCHESTRATOR (v4.7.1)
+   Modular domain-specific stylesheets for MPO-pro Settings Dashboard
+   ========================================================================== */
+
+@import "./settings-layout.css";
+@import "./settings-header.css";
+@import "./settings-feeds.css";
+@import "./settings-players.css";
+@import "./settings-hotkeys.css";
+@import "./settings-system.css";
+@import "./settings-about.css";

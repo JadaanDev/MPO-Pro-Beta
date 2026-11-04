@@ -1,0 +1,8 @@
+.design-desktop-focus .collection-card {width:390px;grid-template-columns:min(var(--collection-art-size, 48px), 50%) minmax(0,1fr);border-radius:4px;}
+.design-desktop-focus .collection-art {width:48px;height:48px;border-radius:3px;filter:grayscale(.65);}
+.design-desktop-focus .collection-kicker {letter-spacing:.22em;}
+.design-desktop-focus .collection-progress-track {height:2px;}
+
+.design-desktop-focus .collection-ornament{background:linear-gradient(90deg,rgba(255,255,255,.12),transparent 40%)}
+.design-desktop-focus .collection-info{border-left:1px solid rgba(255,255,255,.35);padding-left:10px}
+.design-desktop-focus .collection-kicker{color:#fff}

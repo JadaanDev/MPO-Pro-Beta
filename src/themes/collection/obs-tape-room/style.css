@@ -1,0 +1,6 @@
+.design-obs-tape-room .collection-card {border-radius:12px;background-image:repeating-linear-gradient(90deg,transparent 0 4px,rgba(255,255,255,.025) 5px);}
+.design-obs-tape-room .collection-art {border-radius:50%;border:5px double rgba(255,255,255,.25);}
+
+.design-obs-tape-room .collection-ornament{background:linear-gradient(135deg,rgba(176,108,49,.24),transparent 65%),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.035) 5px)}
+.design-obs-tape-room .collection-info{border-top:1px dashed rgba(255,211,158,.32);padding-top:8px}
+.design-obs-tape-room .collection-badge{border:1px solid rgba(255,211,158,.35);padding:2px 5px}

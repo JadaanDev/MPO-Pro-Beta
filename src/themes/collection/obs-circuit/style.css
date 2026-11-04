@@ -1,0 +1,8 @@
+.design-obs-circuit .collection-card {border:1px solid var(--accent-primary);border-radius:6px;background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.025) 6px);}
+.design-obs-circuit .collection-art {border-radius:3px;border:1px solid var(--accent-primary);}
+.design-obs-circuit .collection-title {text-transform:uppercase;letter-spacing:.025em;}
+.design-obs-circuit .collection-kicker {font-family:monospace;}
+
+.design-obs-circuit .collection-ornament{background:linear-gradient(90deg,rgba(18,179,183,.23),transparent 55%),repeating-linear-gradient(0deg,transparent 0 7px,rgba(115,255,245,.05) 8px)}
+.design-obs-circuit .collection-art{border:2px solid var(--accent-primary)}
+.design-obs-circuit .collection-kicker{letter-spacing:.26em}

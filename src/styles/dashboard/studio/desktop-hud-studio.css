@@ -1,0 +1,6 @@
+/* ==========================================================================
+   DESKTOP OVERLAY STUDIO (v4.7.1 Modular Architecture)
+   Imports all modular CSS components from ./desktop/
+   ========================================================================== */
+
+@import "./desktop/index.css";

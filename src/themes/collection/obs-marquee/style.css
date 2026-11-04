@@ -1,0 +1,8 @@
+.design-obs-marquee .collection-card {grid-template-columns:min(var(--collection-art-size, 80px), 50%) minmax(0,1fr);border-radius:4px;border-bottom:4px double var(--accent-primary);}
+.design-obs-marquee .collection-art {width:80px;height:80px;border-radius:4px;}
+.design-obs-marquee .collection-title {text-transform:uppercase;letter-spacing:.025em;}
+.design-obs-marquee .collection-kicker {font-family:monospace;}
+
+.design-obs-marquee .collection-ornament{background:linear-gradient(90deg,rgba(236,155,48,.29),transparent 62%)}
+.design-obs-marquee .collection-kicker{border:1px solid var(--accent-primary);padding:2px 6px}
+.design-obs-marquee .collection-title{letter-spacing:.06em;text-transform:uppercase}

@@ -1,0 +1,6 @@
+.design-tiktok-prism .collection-card {border-radius:20px;background-image:linear-gradient(140deg,rgba(113,176,255,.18),transparent 45%,rgba(204,144,255,.13));}
+.design-tiktok-prism .collection-art {border-radius:16px;}
+
+.design-tiktok-prism .collection-art{aspect-ratio:16/10}
+.design-tiktok-prism .collection-ornament{background:linear-gradient(135deg,rgba(90,154,245,.35),transparent 48%,rgba(201,114,255,.3))}
+.design-tiktok-prism .collection-info{padding:0 5px}

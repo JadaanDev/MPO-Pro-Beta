@@ -1,0 +1,10 @@
+.design-obs-editorial .collection-card {border-top:2px solid var(--accent-primary);border-radius:3px;}
+.design-obs-editorial .collection-art {border-radius:2px;filter:saturate(.7);}
+.design-obs-editorial .collection-title {font-family:Georgia,serif;letter-spacing:-.035em;}
+.design-obs-editorial .collection-kicker {letter-spacing:.23em;}
+
+.design-obs-editorial .collection-card{grid-template-columns:min(var(--collection-art-size, 72px), 50%) minmax(0,1fr)}
+.design-obs-editorial .collection-art{width:72px;height:90px}
+.design-obs-editorial .collection-info{padding-left:14px;border-left:1px solid rgba(255,255,255,.35)}
+.design-obs-editorial .collection-ornament{background:linear-gradient(110deg,rgba(207,172,119,.18),transparent 55%)}
+.design-obs-editorial .collection-kicker{font-family:Georgia,serif;font-style:italic}

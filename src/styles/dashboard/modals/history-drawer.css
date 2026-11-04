@@ -1,0 +1,227 @@
+/* 5. Version History Right Slide-over Drawer */
+.history-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+.history-drawer {
+  width: 390px;
+  max-width: 90vw;
+  height: 100%;
+  background: #0b0f19;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  animation: slideDrawer 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideDrawer {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.history-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 18, 28, 0.85);
+}
+.drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.drawer-title {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.drawer-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.drawer-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.drawer-step-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.drawer-step-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.drawer-step-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.drawer-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.history-drawer-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 240, 255, 0.06);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.12);
+  font-size: 10.5px;
+  color: #7dd3fc;
+  line-height: 1.4;
+}
+.history-timeline-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-checkpoint-card {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(18, 24, 38, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+.history-checkpoint-card:hover {
+  background: rgba(24, 32, 50, 0.7);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.history-checkpoint-card.active-checkpoint {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.15);
+}
+.history-checkpoint-card.future-checkpoint {
+  opacity: 0.65;
+  border-style: dashed;
+}
+.checkpoint-indicator-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 16px;
+  flex-shrink: 0;
+}
+.checkpoint-node {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+.checkpoint-node.node-active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+.checkpoint-connecting-line {
+  width: 2px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+.checkpoint-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.checkpoint-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.checkpoint-desc {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+.checkpoint-time {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.checkpoint-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+.checkpoint-layer-meta {
+  font-size: 10px;
+  color: #64748b;
+}
+.checkpoint-status-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.checkpoint-status-tag.current {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+.checkpoint-status-tag.future {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+.checkpoint-revert-btn {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 10px;
+  font-weight: 600;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.checkpoint-revert-btn:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #fff;
+}

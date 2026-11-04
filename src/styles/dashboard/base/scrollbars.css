@@ -1,0 +1,34 @@
+/* ==========================================================================
+   Universal MPO-pro Glowing Dark Scrollbars (v4.0.0)
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.35) rgba(9, 13, 22, 0.6);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(9, 13, 22, 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6), 0 0 14px rgba(0, 240, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+}

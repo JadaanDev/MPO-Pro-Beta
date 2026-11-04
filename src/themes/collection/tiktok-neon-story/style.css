@@ -1,0 +1,8 @@
+.design-tiktok-neon-story .collection-card {border-radius:10px;border:1px solid var(--accent-primary);background-image:repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.022) 6px);}
+.design-tiktok-neon-story .collection-art {border-radius:5px;}
+.design-tiktok-neon-story .collection-title {text-transform:uppercase;letter-spacing:.025em;}
+.design-tiktok-neon-story .collection-kicker {font-family:monospace;}
+
+.design-tiktok-neon-story .collection-art{width:72%;margin:0 auto;border:2px solid var(--accent-primary)}
+.design-tiktok-neon-story .collection-ornament{background:linear-gradient(135deg,rgba(30,210,193,.25),transparent 65%),repeating-linear-gradient(0deg,transparent 0 8px,rgba(255,255,255,.04) 9px)}
+.design-tiktok-neon-story .collection-info{border-top:1px solid var(--accent-primary);padding-top:10px}

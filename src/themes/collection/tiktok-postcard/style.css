@@ -1,0 +1,8 @@
+.design-tiktok-postcard .collection-card {border-radius:12px;background-image:linear-gradient(135deg,rgba(255,192,170,.15),transparent 60%);}
+.design-tiktok-postcard .collection-art {border-radius:5px;transform:rotate(-2deg);}
+.design-tiktok-postcard .collection-art {margin:4px 0;}
+
+.design-tiktok-postcard .collection-card{gap:13px}
+.design-tiktok-postcard .collection-art{width:78%;margin:4px auto 9px;border:6px solid rgba(255,238,221,.75);box-shadow:0 5px 14px #0006}
+.design-tiktok-postcard .collection-ornament{background:linear-gradient(135deg,rgba(251,159,130,.33),transparent 70%)}
+.design-tiktok-postcard .collection-kicker{font-family:Georgia,serif;font-style:italic}

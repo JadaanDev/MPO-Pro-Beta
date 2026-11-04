@@ -1,0 +1,6 @@
+.design-desktop-meter .collection-card {width:390px;grid-template-columns:min(var(--collection-art-size, 48px), 50%) minmax(0,1fr);border-radius:7px;border-bottom:2px solid var(--accent-primary);}
+.design-desktop-meter .collection-art {width:48px;height:48px;border-radius:5px;}
+.design-desktop-meter .collection-title {font-size:15px;}
+
+.design-desktop-meter .collection-ornament{background:linear-gradient(90deg,rgba(43,184,160,.25),transparent 48%)}
+.design-desktop-meter .collection-kicker{font-family:monospace;letter-spacing:.23em}

@@ -1,0 +1,190 @@
+/* -------------------------------------------------------------------------
+   Desktop Overlay HUD Container & Hover Bar
+   ------------------------------------------------------------------------- */
+.desktop-overlay-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.desktop-hud-hover-bar {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 12px;
+  background: rgba(13, 17, 27, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease, top 0.2s ease;
+  user-select: none;
+}
+
+.desktop-overlay-container:hover .desktop-hud-hover-bar {
+  opacity: 1;
+  top: 4px;
+}
+
+.hud-drag-grip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: grab;
+  color: #94a3b8;
+  padding: 2px 4px;
+}
+
+.hud-drag-grip:active {
+  cursor: grabbing;
+}
+
+.grip-icon {
+  color: var(--accent-primary);
+}
+
+.drag-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.hud-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-action-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.hud-action-btn.lock:hover {
+  border-color: #10b981;
+}
+
+.hud-action-btn.close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.hud-eco-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.hud-toast-banner {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(9, 12, 20, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  animation: toast-fade 0.3s ease;
+}
+
+@keyframes toast-fade {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Ghost Peek Mode (Fade on hover when locked to reveal desktop/game behind it) */
+.desktop-overlay-container.ghost-peek {
+  opacity: 0.18 !important;
+  pointer-events: none !important;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.desktop-overlay-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.desktop-overlay-container.unlocked {
+  user-select: none;
+}
+
+.desktop-overlay-container.unlocked .desktop-overlay-content {
+  cursor: grab;
+}
+
+.desktop-overlay-container.unlocked .desktop-overlay-content:active {
+  cursor: grabbing;
+}
+
+.desktop-overlay-container.unlocked .desktop-overlay-content button,
+.desktop-overlay-container.unlocked .desktop-overlay-content a,
+.desktop-overlay-container.unlocked .desktop-overlay-content input,
+.desktop-overlay-container.unlocked .desktop-overlay-content [data-interactive] {
+  cursor: pointer;
+}
+
+
+/* Overlay controls stay inside the transparent window and remain reachable while moving the pointer. */
+.desktop-overlay-container{width:100%;height:100%;min-width:0;min-height:0;box-sizing:border-box;transition:opacity .2s ease}
+.desktop-hud-hover-bar{position:fixed;top:8px;left:50%;max-width:calc(100vw - 20px);gap:6px;padding:5px 6px;border-radius:12px;background:rgba(20,22,31,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 6px 18px rgba(0,0,0,.3);opacity:0;pointer-events:none;transform:translate(-50%,-4px);transition:opacity .16s ease,transform .16s ease;white-space:nowrap}
+.desktop-overlay-container:hover .desktop-hud-hover-bar,.desktop-overlay-container:focus-within .desktop-hud-hover-bar{top:8px;opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.hud-drag-grip{gap:6px;min-height:30px;padding:0 9px;border-radius:8px;background:rgba(255,255,255,.07);color:#c8c8d3}
+.drag-label{font-family:var(--font-body);font-size:11px;text-transform:none;letter-spacing:0;color:#e8e7ed}
+.hud-actions-right{gap:3px}
+.hud-action-btn{min-width:30px;min-height:30px;justify-content:center;gap:5px;padding:0 8px;border:1px solid transparent;border-radius:8px;background:transparent;color:#c7c8d3;font-family:var(--font-body);font-size:11px;white-space:nowrap}
+.hud-action-btn:hover,.hud-action-btn:focus-visible{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.14);color:#fff}
+.hud-action-btn:focus-visible{outline:2px solid #c4b3fb;outline-offset:2px}
+.hud-action-btn.close:hover{background:rgba(239,68,68,.2);border-color:transparent}
+.hud-eco-badge{padding:4px 6px;border:0;background:rgba(16,185,129,.1);font-size:10px;white-space:nowrap}
+.hud-toast-banner{position:fixed;bottom:8px;max-width:calc(100vw - 24px);padding:6px 10px;border-radius:8px;border-color:rgba(199,184,250,.25);background:rgba(20,22,31,.96);box-shadow:0 5px 16px rgba(0,0,0,.3);font-family:var(--font-body);color:#f3eefb;pointer-events:none;text-align:center}
+@media(max-width:460px){.hud-action-btn span,.hud-eco-badge span{display:none}.hud-action-btn{padding:0 7px}.desktop-hud-hover-bar{gap:4px}}
+@media(prefers-reduced-motion:reduce){.desktop-hud-hover-bar,.desktop-overlay-container{transition:none}.hud-toast-banner{animation:none}}

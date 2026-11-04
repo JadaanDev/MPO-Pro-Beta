@@ -1,0 +1,6 @@
+.design-desktop-desk .collection-card {border-radius:10px;border-top:2px solid var(--accent-primary);}
+.design-desktop-desk .collection-art {border-radius:7px;}
+
+.design-desktop-desk .collection-ornament{background:linear-gradient(115deg,rgba(83,181,152,.25),transparent 55%)}
+.design-desktop-desk .collection-kicker{letter-spacing:.24em}
+.design-desktop-desk .collection-info{border-top:1px solid rgba(255,255,255,.18);padding-top:5px}

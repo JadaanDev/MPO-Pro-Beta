@@ -1,0 +1,5 @@
+.design-obs-signal-desk .collection-card {border-left:4px solid var(--accent-primary);border-radius:8px;}
+.design-obs-signal-desk .collection-art {border-radius:8px;}
+
+.design-obs-signal-desk .collection-ornament{background:linear-gradient(90deg,rgba(34,195,173,.25),transparent 40%)}
+.design-obs-signal-desk .collection-kicker{letter-spacing:.23em}

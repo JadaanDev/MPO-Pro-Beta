@@ -1,0 +1,8 @@
+.design-obs-mono-frame .collection-card {grid-template-columns:min(var(--collection-art-size, 60px), 50%) minmax(0,1fr);border-radius:2px;border-top:1px solid rgba(255,255,255,.55);}
+.design-obs-mono-frame .collection-art {width:60px;height:60px;border-radius:0;filter:grayscale(1);}
+.design-obs-mono-frame .collection-kicker {letter-spacing:.22em;}
+.design-obs-mono-frame .collection-progress-track {height:2px;}
+
+.design-obs-mono-frame .collection-ornament{background:linear-gradient(90deg,rgba(255,255,255,.11),transparent 50%)}
+.design-obs-mono-frame .collection-info{border-left:1px solid rgba(255,255,255,.5);padding-left:14px}
+.design-obs-mono-frame .collection-kicker{color:#fff}

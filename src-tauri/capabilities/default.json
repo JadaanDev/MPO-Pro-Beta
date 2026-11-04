@@ -1,0 +1,9 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capabilities for MPO-pro desktop windows",
+  "windows": ["main", "overlay", "big-studio"],
+  "permissions": [
+    "core:default"
+  ]
+}

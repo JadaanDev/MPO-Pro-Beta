@@ -1,0 +1,175 @@
+/* Arrange uses the same quiet surfaces and lavender accents as the studio. */
+.arrange-toggle { margin-left: auto; }
+.arrange-toggle.active {
+  background: #393149 !important;
+  border-color: #bca6ed66 !important;
+  color: #eadfff !important;
+  box-shadow: none !important;
+}
+.arrange-toggle.active .panel-state-pill { background: #bca6ed30; color: #dfd0ff; }
+.arrange-toggle:focus-visible, .context-editor-header button:focus-visible {
+  outline: 2px solid #cdbcf5;
+  outline-offset: 2px;
+}
+.arrange-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid #bca6ed33;
+  border-radius: 6px;
+  background: #302a3e;
+  color: #d0bdfb;
+  font-size: 10px;
+  font-weight: 700;
+}
+.arrange-mode :is(.single-preview-mount,.big-preview-frame) :is(
+  .mpo-title, [data-theme-role="title"], [class*="track-title"], [class*="title-text"],
+  .mpo-artist, [data-theme-role="artist"], [class*="track-subtitle"], [class*="artist-text"],
+  .mpo-album, [data-theme-role="album"], [class*="track-album"],
+  .mpo-theme-label, [data-theme-role="themeLabel"],
+  .mpo-badge, [data-theme-role="badge"], [class*="route-pill"], [class*="audio-route"],
+  .mpo-universal-timestamps, [data-theme-role="timestamps"], [class*="timestamps"],
+  .mpo-playback-status, [data-theme-role="status"], [class*="status-badge"], [class*="playback-status"],
+  .mpo-art, [data-theme-role="artwork"], [class*="artwork-container"], [class*="artwork-frame"],
+  .mpo-progress, [data-theme-role="progress"], [class*="scrubber-section"], [class*="progress-track"],
+  .mpo-universal-visualizer, .mpo-visualizer, [data-theme-role="indicator"], [class*="equalizer"],
+  .mpo-card, [class*="-card"]
+) { cursor: pointer; }
+
+.arrange-mode[data-arrange-hovered="title"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-title, [data-theme-role="title"], [class*="track-title"], [class*="title-text"]),
+.arrange-mode[data-arrange-hovered="artist"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-artist, [data-theme-role="artist"], [class*="track-subtitle"], [class*="artist-text"]),
+.arrange-mode[data-arrange-hovered="album"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-album, [data-theme-role="album"], [class*="track-album"]),
+.arrange-mode[data-arrange-hovered="themeLabel"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-theme-label, [data-theme-role="themeLabel"]),
+.arrange-mode[data-arrange-hovered="badge"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-badge, [data-theme-role="badge"], [class*="route-pill"], [class*="audio-route"]),
+.arrange-mode[data-arrange-hovered="timestamps"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-universal-timestamps, [data-theme-role="timestamps"], [class*="timestamps"], .apple-timestamps-row,.cyber-timestamps,.glass-timestamps,.zen-time),
+.arrange-mode[data-arrange-hovered="status"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-playback-status, [data-theme-role="status"], [class*="status-badge"], [class*="playback-status"]),
+.arrange-mode[data-arrange-hovered="artwork"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-art, [data-theme-role="artwork"], [class*="artwork-container"], [class*="artwork-frame"]),
+.arrange-mode[data-arrange-hovered="progress"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-progress, [data-theme-role="progress"], [class*="scrubber-section"], [class*="progress-track"]),
+.arrange-mode[data-arrange-hovered="indicator"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-universal-visualizer, .mpo-visualizer, [data-theme-role="indicator"], [class*="equalizer"]),
+.arrange-mode[data-arrange-hovered="frame"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-card, [class*="-card"]) { outline: 1px solid #d0bdfb !important; outline-offset: 3px; }
+
+.arrange-mode[data-arrange-selected="title"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-title, [data-theme-role="title"], [class*="track-title"], [class*="title-text"]),
+.arrange-mode[data-arrange-selected="artist"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-artist, [data-theme-role="artist"], [class*="track-subtitle"], [class*="artist-text"]),
+.arrange-mode[data-arrange-selected="album"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-album, [data-theme-role="album"], [class*="track-album"]),
+.arrange-mode[data-arrange-selected="themeLabel"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-theme-label, [data-theme-role="themeLabel"]),
+.arrange-mode[data-arrange-selected="badge"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-badge, [data-theme-role="badge"], [class*="route-pill"], [class*="audio-route"]),
+.arrange-mode[data-arrange-selected="timestamps"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-universal-timestamps, [data-theme-role="timestamps"], [class*="timestamps"], .apple-timestamps-row,.cyber-timestamps,.glass-timestamps,.zen-time),
+.arrange-mode[data-arrange-selected="status"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-playback-status, [data-theme-role="status"], [class*="status-badge"], [class*="playback-status"]),
+.arrange-mode[data-arrange-selected="artwork"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-art, [data-theme-role="artwork"], [class*="artwork-container"], [class*="artwork-frame"]),
+.arrange-mode[data-arrange-selected="progress"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-progress, [data-theme-role="progress"], [class*="scrubber-section"], [class*="progress-track"]),
+.arrange-mode[data-arrange-selected="indicator"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-universal-visualizer, .mpo-visualizer, [data-theme-role="indicator"], [class*="equalizer"]),
+.arrange-mode[data-arrange-selected="frame"] :is(.single-preview-mount,.big-preview-frame) :is(.mpo-card, [class*="-card"]) { outline: 2px solid #e1d2ff !important; outline-offset: 3px; }
+.context-editor-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #ffffff0e;
+  background: #1b1c27;
+}
+.arrange-hint-icon, .context-editor-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #bca6ed2e;
+  border-radius: 9px;
+  background: #bba6ee16;
+  color: #d0bdfb;
+}
+.context-editor-hint strong, .context-editor-hint small { display: block; }
+.context-editor-hint strong { color: #f1edf8; font-size: 12px; }
+.context-editor-hint small { margin-top: 3px; color: #a5a1b2; font-size: 11px; line-height: 1.4; }
+.context-editor {
+  flex: 0 0 auto;
+  max-height: 45%;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #ffffff14;
+  background: #1b1c27;
+  color: #f3f0fa;
+  scrollbar-color: #6a5d7e transparent;
+  scrollbar-width: thin;
+}
+.context-editor-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ffffff0d;
+  background: #1b1c27;
+}
+.context-editor-heading { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.context-editor-heading small, .context-editor-heading strong { display: block; }
+.context-editor-heading small { color: #aaa2bb; font-size: 9px; font-weight: 700; letter-spacing: .08em; }
+.context-editor-heading strong { margin-top: 2px; color: #f3f0fa; font-size: 13px; }
+.context-editor-header button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ffffff14;
+  border-radius: 8px;
+  background: #ffffff08;
+  color: #aaa4b7;
+  cursor: pointer;
+}
+.context-editor-header button:hover { color: #f3f0fa; background: #ffffff12; }
+.context-editor-footer { padding: 0 16px 12px; color: #9995a7; font-size: 10px; }
+.context-editor .typography-controls {
+  margin: 12px 16px 0;
+  padding: 12px;
+  border: 1px solid #ffffff12;
+  border-radius: 10px;
+  background: #171923;
+}
+.context-editor .typography-controls h3, .context-editor .typography-controls p { display: none; }
+.context-editor .typography-element { border-top: 0; }
+.context-editor .typography-element summary { padding-top: 2px; color: #eee8f7; }
+.context-editor .typography-grid label { color: #c4becd; }
+.context-editor .typography-grid button { background: #393149; border-color: #bca6ed44; color: #eadfff; }
+.context-editor .typography-grid :is(input, select) { accent-color: #b8a2ec; }
+.arrange-setting-icon { background: #bba6ee18; color: #d0bdfb; }
+.arrange-sidebar:not(.focused-inspector) :is(.element-section-frame,.element-section-badge,.element-section-title,.element-section-artist,.element-section-album,.element-section-artwork,.element-section-progress,.element-section-visualizer) { display: none; }
+.focused-inspector { width: 100% !important; border: 0; background: transparent !important; }
+.focused-inspector .styling-accordion-header-bar, .focused-inspector .independent-visibility, .focused-inspector .shared-css-toggle, .focused-inspector .style-accordion-item { display: none; }
+.focused-inspector.focus-frame .element-section-frame, .focused-inspector.focus-badge .element-section-badge, .focused-inspector.focus-title .element-section-title, .focused-inspector.focus-artist .element-section-artist, .focused-inspector.focus-album .element-section-album, .focused-inspector.focus-artwork .element-section-artwork, .focused-inspector.focus-progress .element-section-progress, .focused-inspector.focus-indicator .element-section-visualizer { display: block; }
+.context-editor .focused-inspector .styling-accordions-scroll { max-height: none; overflow: visible; padding: 12px 16px; scrollbar-gutter: auto; }
+.context-editor .focused-inspector .style-accordion-item { border-color: #ffffff12; background: #171923; box-shadow: none; }
+.context-editor .focused-inspector .style-accordion-item.expanded .style-accordion-header { background: #bba6ee0b; }
+.context-editor .focused-inspector .style-accordion-item.expanded .acc-icon { background: #393149; color: #d0bdfb; box-shadow: none; }
+
+/* Keep the selected element as the only editor header, with one scrolling area. */
+.context-editor .typography-controls { margin: 0; padding: 16px; border: 0; border-radius: 0; background: transparent; }
+.context-editor .typography-element > summary { display: none; }
+.context-editor .focused-inspector .styling-accordions-scroll { display:block; padding: 0 16px 16px; overflow: visible; }
+.context-editor .focused-inspector .style-accordion-item { border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+.context-editor .focused-inspector .style-accordion-header { display: none; }
+.context-editor .focused-inspector .style-accordion-body { padding: 0; }
+.context-editor .focused-inspector .beta-frame-controls { padding: 0; border: 0; background: transparent; }
+.context-editor .focused-inspector .beta-frame-controls > div:first-child { display: none; }
+.source-guide-row {display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.source-guide-row + .source-guide-row {margin-top:6px}
+.source-guide-row code {min-width:0;max-width:100%;overflow-wrap:anywhere;color:#d5c6f6;font-size:11px}
+.context-editor .focused-inspector .style-control-group {background:#171923;border:1px solid #ffffff12;border-radius:9px;padding:12px;margin:0 0 10px;box-shadow:none}
+.context-editor .focused-inspector .style-control-group :is(input[type=range],input[type=checkbox]) {accent-color:#b8a2ec}
+.context-editor .focused-inspector .style-control-group :is(select,input[type=text],input[type=number]) {background:#191b25;border:1px solid #ffffff24;border-radius:7px;color:#eee8f7;padding:7px 9px}
+.context-editor .focused-inspector :is(.val-badge,.editable-value-badge) {color:#d0bdfb;background:#bba6ee16}
+.context-editor .focused-inspector .beta-frame-controls label {color:#cbc5d4;font-size:12px}
+.context-editor .typography-grid {grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.context-editor .typography-grid input[type=color] {height:34px}
+.context-editor .typography-custom-font {grid-column:1/-1}
+.context-editor .typography-custom-font-row {display:flex;gap:8px}
+.context-editor .typography-custom-font-row input {min-width:0;flex:1;padding:7px 9px;border:1px solid #ffffff24;border-radius:7px;color:#eee8f7;background:#191b25}
+
+/* Shared metadata is non-interactive in output feeds; only Arrange enables its children. */
+.arrange-mode :is(.single-preview-mount,.big-preview-frame) .mpo-theme-supplement > * { pointer-events:auto; }
+.arrange-accessible-tools {display:flex;align-items:center;gap:10px;padding:8px 16px;border-top:1px solid #ffffff0e;background:#1b1c27;color:#aaa4b5;font-size:10px}
+.arrange-accessible-tools button {border:1px solid #bca6ed44;border-radius:7px;padding:6px 9px;background:#393149;color:#eadfff;cursor:pointer;font-size:11px}

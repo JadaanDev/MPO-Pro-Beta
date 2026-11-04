@@ -1,0 +1,106 @@
+/* -------------------------------------------------------------------------
+   Dual Import Modal
+   ------------------------------------------------------------------------- */
+.dual-import-modal {
+  width: 580px;
+}
+
+.dual-import-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+}
+
+.import-box {
+  background: rgba(18, 23, 36, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.import-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.import-box-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.file-dropzone-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  border: 1.5px dashed rgba(99, 102, 241, 0.4);
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-dropzone-area:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: #818cf8;
+}
+
+.dropzone-icon {
+  color: var(--accent-primary);
+}
+
+.dropzone-text {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.file-ready-text {
+  font-family: var(--font-mono);
+  color: #10b981;
+  font-weight: 700;
+}
+
+.import-action-btn {
+  margin-top: 4px;
+  align-self: flex-end;
+}
+
+.import-box-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.import-box-divider::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.import-box-divider span {
+  position: relative;
+  background: #0f1422;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.modal-footer-close {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 18px 14px 18px;
+}

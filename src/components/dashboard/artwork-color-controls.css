@@ -1,0 +1,12 @@
+.artwork-color-controls { display:grid; gap:10px; padding:14px; border:1px solid #bba6ee24; border-radius:10px; background:#bba6ee0b; }
+.artwork-color-heading {display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;}
+.artwork-color-heading strong {font-size:12px; color:#ece7f6;}
+.artwork-color-status {font-size:10px; color:#a8a1b3;}
+.artwork-color-status.available {color:#c9b5ed;}
+.artwork-color-controls p, .artwork-color-controls small {margin:0; font-size:11px; line-height:1.5; color:#a6a2b1;}
+.artwork-color-actions {display:flex; flex-wrap:wrap; gap:6px;}
+.artwork-color-actions button {padding:6px 9px; border:1px solid #bca6ed33; border-radius:7px; background:#bba6ee12; color:#dfd4ef; font-size:10px; font-weight:600; cursor:pointer;}
+.artwork-color-actions button:hover {background:#bba6ee25;}
+.artwork-color-grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;}
+.artwork-color-grid label {display:grid; gap:5px; font-size:11px; color:#c9c4d3;}
+.artwork-color-grid select {width:100%; min-width:0; border:1px solid #ffffff22; border-radius:7px; padding:7px 8px; color:#ece7f6; background:#191b25;}

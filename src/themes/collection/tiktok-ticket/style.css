@@ -1,0 +1,8 @@
+.design-tiktok-ticket .collection-card {border-radius:5px;border-style:dashed;background-image:repeating-linear-gradient(0deg,transparent 0 15px,rgba(255,255,255,.02) 16px);}
+.design-tiktok-ticket .collection-art {border-radius:3px;}
+.design-tiktok-ticket .collection-header {padding-bottom:9px;border-bottom:1px dashed rgba(255,255,255,.25);}
+
+.design-tiktok-ticket .collection-card{gap:12px}
+.design-tiktok-ticket .collection-art{width:62%;margin:0 auto;aspect-ratio:1}
+.design-tiktok-ticket .collection-ornament{background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(255,222,164,.06) 13px),linear-gradient(155deg,rgba(204,135,52,.32),transparent 65%)}
+.design-tiktok-ticket .collection-kicker{font-family:monospace;letter-spacing:.2em}

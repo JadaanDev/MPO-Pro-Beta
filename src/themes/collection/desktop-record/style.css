@@ -1,0 +1,6 @@
+.design-desktop-record .collection-card {border-radius:12px;}
+.design-desktop-record .collection-art {border-radius:50%;border:4px double rgba(255,255,255,.3);}
+
+.design-desktop-record .collection-ornament{background:linear-gradient(105deg,rgba(198,127,69,.25),transparent 55%)}
+.design-desktop-record .collection-art{border:4px double rgba(255,255,255,.4)}
+.design-desktop-record .collection-kicker{font-family:Georgia,serif;font-style:italic}

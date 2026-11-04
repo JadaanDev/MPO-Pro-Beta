@@ -1,0 +1,382 @@
+/* ==========================================================================
+   DESKTOP OVERLAY - INSPECTOR ELEMENTS STYLING (v4.7.1 Modular)
+   ========================================================================== */
+
+/* Accordion Section Cards - CRITICAL: flex-shrink 0 prevents flexbox squashing */
+.hud-accordion-item {
+  flex-shrink: 0 !important;
+  min-height: max-content;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(16, 22, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.hud-accordion-item.expanded {
+  background: rgba(18, 25, 42, 0.95);
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(99, 102, 241, 0.18);
+}
+
+.hud-accordion-header {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  color: #f1f5f9;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.18s ease;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.hud-accordion-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.hud-accordion-item.expanded .hud-accordion-header {
+  background: rgba(99, 102, 241, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hud-accordion-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-accordion-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hud-accordion-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.hud-accordion-item.expanded .hud-accordion-icon {
+  background: linear-gradient(135deg, #6366f1 0%, #38bdf8 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.hud-accordion-chevron {
+  color: #94a3b8;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hud-accordion-chevron.open {
+  transform: rotate(180deg);
+  color: #818cf8;
+}
+
+.hud-accordion-body {
+  padding: 14px 16px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(10, 14, 24, 0.7);
+  box-sizing: border-box;
+}
+
+/* Control Rows and Columns */
+.hud-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hud-control-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.hud-control-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-control-sublabel {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: -3px;
+}
+
+/* Subsection Divider */
+.hud-subsection-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hud-subsection-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #818cf8;
+}
+
+/* Slider with Value Display */
+.hud-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.hud-slider {
+  flex: 1;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  accent-color: #6366f1;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.hud-slider:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.hud-slider-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #a5b4fc;
+  min-width: 44px;
+  text-align: right;
+  font-weight: 700;
+}
+
+/* Color Swatches and Pickers */
+.hud-swatch-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hud-color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  padding: 0;
+}
+
+.hud-color-swatch:hover {
+  transform: scale(1.18);
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.hud-color-swatch.active {
+  border-color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px currentColor;
+  outline: 2px solid rgba(255, 255, 255, 0.75);
+  outline-offset: 1px;
+}
+
+.hud-color-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.hud-native-color-picker {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.hud-native-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 50%;
+}
+
+.hud-native-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.hud-color-hex-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #cbd5e1;
+  background: transparent;
+  border: none;
+  width: 70px;
+  outline: none;
+}
+
+/* Select and Pill Option Groups */
+.hud-select {
+  width: 100%;
+  background: rgba(10, 14, 23, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #f1f5f9;
+  font-size: 11.5px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.hud-select:focus {
+  border-color: #6366f1;
+}
+
+.hud-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-pill-btn {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.hud-pill-btn:hover {
+  color: #f1f5f9;
+}
+
+.hud-pill-btn.active {
+  background: rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Preset Cards Grid */
+.hud-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.hud-preset-chip {
+  padding: 8px 6px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  user-select: none;
+}
+
+.hud-preset-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.hud-preset-chip.active {
+  border: 1.5px solid #38bdf8;
+  background: rgba(56, 189, 248, 0.22);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.hud-preset-chip-sub {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.hud-preset-chip.active .hud-preset-chip-sub {
+  color: rgba(56, 189, 248, 0.85);
+}
+
+/* Custom CSS Area */
+.hud-css-textarea {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.hud-css-textarea:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}

@@ -1,0 +1,8 @@
+.design-desktop-edge .collection-card {grid-template-columns:minmax(0,1fr) min(var(--collection-art-size, 64px), 50%);direction:rtl;border-right:3px solid var(--accent-primary);border-radius:8px;}
+.design-desktop-edge .collection-art {border-radius:8px;}
+.design-desktop-edge .collection-info,.design-desktop-edge .collection-art {direction:ltr;}
+
+.design-desktop-edge .collection-card{direction:ltr;grid-template-columns:minmax(0,1fr) min(var(--collection-art-size, 64px), 50%)}
+.design-desktop-edge .collection-art{grid-column:2;grid-row:1}
+.design-desktop-edge .collection-info{grid-column:1;grid-row:1}
+.design-desktop-edge .collection-ornament{background:linear-gradient(270deg,rgba(244,133,151,.3),transparent 55%)}

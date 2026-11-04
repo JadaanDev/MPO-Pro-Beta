@@ -1,0 +1,161 @@
+/* ==========================================================================
+   DESKTOP OVERLAY - HUD LAYOUT & WORKSPACE (v4.7.1)
+   ========================================================================== */
+
+.desktop-hud-studio-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #080b12;
+}
+
+/* Sleek Top Bar */
+.hud-studio-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background: rgba(10, 14, 23, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  gap: 14px;
+  z-index: 10;
+}
+
+.hud-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-title-text {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #f8fafc;
+}
+
+.hud-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.desktop-studio-controls { overflow-x: auto; }
+.desktop-studio-controls .desktop-studio-heading { order: 0; flex: 1; min-width: max-content; }
+.desktop-studio-controls .hud-studio-top-bar { width: 100%; box-sizing: border-box; padding: 0; border: 0; background: transparent; backdrop-filter: none; }
+.desktop-studio-controls .left-panel-toggle-wrapper { order: 1; flex-shrink: 0; }
+.desktop-studio-controls .arrange-toggle { order: 2; flex-shrink: 0; }
+
+.hud-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.hud-action-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.hud-action-pill-btn.active-live {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.hud-action-pill-btn.active-cyan {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+/* 3-Pane Body Workspace */
+.hud-studio-workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 350px;
+  grid-template-areas: "themes canvas inspector";
+  flex: 1;
+  min-height: 0;
+  height: calc(100% - 48px);
+  width: 100%;
+  overflow: hidden;
+  transition: grid-template-columns 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hud-theme-gallery-pane {
+  grid-area: themes;
+  min-width: 0;
+}
+
+.hud-stage-area {
+  grid-area: canvas;
+  min-width: 0;
+  width: 100%;
+}
+
+.hud-studio-right-inspector {
+  grid-area: inspector;
+  min-width: 0;
+}
+
+/* Left sidebar hidden, Canvas & Inspector visible */
+.hud-studio-workspace.no-left,
+.hud-studio-workspace.left-collapsed {
+  grid-template-columns: minmax(0, 1fr) 350px;
+  grid-template-areas: "canvas inspector";
+}
+
+/* Right inspector hidden, Themes & Canvas visible */
+.hud-studio-workspace.no-right {
+  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-areas: "themes canvas";
+}
+
+/* Both sidebars hidden: Full-screen Desktop Canvas Preview */
+.hud-studio-workspace.no-left.no-right,
+.hud-studio-workspace.left-collapsed.no-right {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "canvas";
+}
+
+@media (max-width: 1180px) {
+  .hud-studio-workspace {
+    grid-template-columns: 240px minmax(0, 1fr) 320px;
+  }
+  .hud-studio-workspace.no-left,
+  .hud-studio-workspace.left-collapsed {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+  .hud-studio-workspace.no-right {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .hud-studio-workspace.no-left.no-right,
+  .hud-studio-workspace.left-collapsed.no-right {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.shared-hud-inspector {display:flex;min-height:0;overflow:hidden}
+.shared-hud-inspector .studio-right-column {width:100%;height:100%;min-width:0;flex:1}

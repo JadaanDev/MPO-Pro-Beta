@@ -1,0 +1,29 @@
+/* 9. Distinct Split Dual Frames */
+.split-dual-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 10px;
+}
+.split-frame-wrapper.horizontal-frame {
+  max-width: 500px;
+  width: 100%;
+}
+.split-frame-wrapper.vertical-frame {
+  width: 320px;
+  max-width: 100%;
+}
+.split-component-mount.horizontal-mount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+.split-component-mount.vertical-mount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+}

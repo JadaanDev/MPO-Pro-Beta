@@ -1,0 +1,6 @@
+.design-desktop-island .collection-card {border-radius:999px;grid-template-columns:min(var(--collection-art-size, 52px), 50%) minmax(0,1fr);padding:10px 18px;}
+.design-desktop-island .collection-art {width:52px;height:52px;border-radius:50%;}
+.design-desktop-island .collection-kicker {font-size:8px;}
+
+.design-desktop-island .collection-ornament{background:radial-gradient(circle at 12% 50%,rgba(135,145,230,.25),transparent 48%)}
+.design-desktop-island .collection-badge{padding:2px 6px;background:rgba(255,255,255,.08);border-radius:99px}

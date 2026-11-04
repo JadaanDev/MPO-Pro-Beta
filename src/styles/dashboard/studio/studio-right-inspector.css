@@ -1,0 +1,316 @@
+/* -------------------------------------------------------------------------
+   RIGHT COLUMN (45%): Dedicated Overlay Styling Options
+   ------------------------------------------------------------------------- */
+.studio-right-column.pane-45 {
+  flex: 1;
+  min-width: 360px;
+  background: rgba(13, 17, 27, 0.98);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.styling-panel-header-v4 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 8px 14px;
+  background: rgba(9, 12, 20, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.styling-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.styling-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.styling-focus-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.styling-subtabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.subtab-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.subtab-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+}
+
+.subtab-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #e0e7ff;
+}
+
+.styling-controls-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.styling-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.style-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(18, 23, 36, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  padding: 9px 11px;
+}
+
+.group-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.val-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.val-badge.editable {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.val-badge.editable:hover {
+  background: rgba(99, 102, 241, 0.35);
+  color: #ffffff;
+}
+
+.edit-hint-icon {
+  font-size: 9px;
+  opacity: 0.6;
+}
+
+.val-badge-input {
+  width: 52px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #080b12;
+  border: 1px solid var(--accent-primary);
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-align: right;
+  outline: none;
+}
+
+.style-select-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  outline: none;
+}
+
+.element-css-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 1px 0 4px 0;
+}
+
+.element-css-hint code {
+  font-family: var(--font-mono);
+  color: #38bdf8;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.element-css-textarea {
+  width: 100%;
+  background: #080b12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 8px 10px;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+}
+
+.style-control-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+  height: 5px;
+}
+
+.mimic-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+
+.mimic-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.mimic-toggle-btn.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.color-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.color-swatch-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.color-swatch-btn:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch-btn.active {
+  border-color: #fff;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.color-custom-input {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.high-contrast-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 8px;
+}
+
+.hc-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hc-title {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.hc-desc {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.high-contrast-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+
+.studio-right-column {
+  background: rgba(13, 17, 27, 0.98);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

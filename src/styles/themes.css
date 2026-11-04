@@ -1,0 +1,1338 @@
+/* ==========================================================================
+   MPO-pro v2.0.0 — Comprehensive Modular Theme Design System
+   ========================================================================== */
+
+.mpo-theme-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   1. Aero Glass Theme (Ultra-minimal Frosted Glass)
+   -------------------------------------------------------------------------- */
+.aero-glass-root .aero-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 400px;
+  max-width: 540px;
+  transition: all 0.3s ease;
+}
+
+.aero-art {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #090c14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aero-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.aero-no-art {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aero-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.aero-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aero-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+}
+
+.aero-wave {
+  display: flex;
+  align-items: center;
+  gap: 2.5px;
+}
+
+.aero-wave span {
+  width: 2.5px;
+  height: 12px;
+  border-radius: 2px;
+  animation: eq-anim 1s ease-in-out infinite alternate;
+}
+
+.aero-wave span:nth-child(1) { height: 7px; animation-delay: 0.1s; }
+.aero-wave span:nth-child(2) { height: 13px; animation-delay: 0.3s; }
+.aero-wave span:nth-child(3) { height: 9px; animation-delay: 0.2s; }
+
+.aero-wave.paused span {
+  animation-play-state: paused;
+  height: 3px !important;
+  opacity: 0.3;
+}
+
+.aero-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aero-artist {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aero-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.aero-track {
+  width: 100%;
+  height: 3.5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.aero-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.aero-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   2. Zen Mono Theme (Swiss Minimalist Typography)
+   -------------------------------------------------------------------------- */
+.zen-mono-root .zen-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+  min-width: 380px;
+  max-width: 500px;
+}
+
+.zen-art-wrap {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border: 1px solid #333;
+  overflow: hidden;
+  background: #000;
+}
+
+.zen-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.1);
+}
+
+.zen-art-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #18181b;
+}
+
+.zen-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.zen-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.zen-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #a1a1aa;
+  font-weight: 700;
+}
+
+.zen-dot-matrix {
+  display: flex;
+  gap: 3px;
+}
+
+.zen-dot-matrix span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0.2;
+}
+
+.zen-dot-matrix span.active {
+  animation: zen-blink 1.2s infinite alternate;
+}
+
+.zen-dot-matrix span:nth-child(1) { animation-delay: 0.1s; }
+.zen-dot-matrix span:nth-child(2) { animation-delay: 0.3s; }
+.zen-dot-matrix span:nth-child(3) { animation-delay: 0.2s; }
+.zen-dot-matrix span:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes zen-blink {
+  0% { opacity: 0.2; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+.zen-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.zen-artist {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #a1a1aa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zen-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.zen-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zen-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.zen-time {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #71717a;
+}
+
+/* --------------------------------------------------------------------------
+   3. Neon Blade Theme (Razor Horizontal Bar)
+   -------------------------------------------------------------------------- */
+.neon-blade-root .blade-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  min-width: 440px;
+  max-width: 580px;
+}
+
+.blade-art {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.blade-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blade-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blade-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.blade-titles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.blade-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blade-artist {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blade-progress-line {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  margin-top: 2px;
+}
+
+.blade-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.blade-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+/* --------------------------------------------------------------------------
+   4. Floating Orb Theme (Holographic Acoustic Ripple)
+   -------------------------------------------------------------------------- */
+.floating-orb-root .orb-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 20px;
+  border: 1px solid;
+  min-width: 420px;
+  max-width: 520px;
+}
+
+.orb-art-section {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-disc {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.orb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.orb-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-acoustic-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  animation: orb-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes orb-pulse {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.orb-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.orb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orb-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.orb-status {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #94a3b8;
+}
+
+.orb-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orb-artist {
+  font-size: 12.5px;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orb-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.orb-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.orb-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.orb-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   5. Compact Tag Theme
+   -------------------------------------------------------------------------- */
+.compact-tag-root .tag-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  min-width: 380px;
+  max-width: 500px;
+}
+
+.tag-art {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #090c14;
+}
+
+.tag-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tag-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tag-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tag-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.tag-status-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #64748b;
+}
+
+.tag-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag-artist {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.tag-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tag-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.tag-time {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   6. Dynamic Island Mini Theme
+   -------------------------------------------------------------------------- */
+.dynamic-island-root .island-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  min-width: 300px;
+  max-width: 440px;
+}
+
+.island-art {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.island-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.island-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 10px auto;
+}
+
+.island-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.island-text-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.island-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.island-artist {
+  font-size: 11.5px;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.island-scrub {
+  width: 100%;
+}
+
+.island-track {
+  width: 100%;
+  height: 2.5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.island-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.island-wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.island-wave span {
+  width: 2.5px;
+  height: 12px;
+  border-radius: 1px;
+  animation: eq-anim 0.9s ease-in-out infinite alternate;
+}
+
+.island-wave span:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+.island-wave span:nth-child(2) { height: 13px; animation-delay: 0.3s; }
+.island-wave span:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+.island-wave span:nth-child(4) { height: 11px; animation-delay: 0.4s; }
+
+.island-wave.paused span {
+  animation-play-state: paused;
+  height: 3px !important;
+  opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------------
+   7. Split Horizon Theme
+   -------------------------------------------------------------------------- */
+.split-horizon-root .split-card {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  min-width: 440px;
+  max-width: 560px;
+  overflow: hidden;
+}
+
+.split-art-side {
+  position: relative;
+  width: 100px;
+  flex-shrink: 0;
+  background: #000;
+}
+
+.split-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.split-art-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.split-art-shadow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.5) 100%);
+}
+
+.split-info-side {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 18px;
+  gap: 3px;
+}
+
+.split-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.split-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.split-eq {
+  display: flex;
+  gap: 2px;
+}
+
+.split-eq span {
+  width: 2px;
+  height: 10px;
+  animation: eq-anim 1s infinite alternate;
+}
+
+.split-eq.idle span {
+  animation-play-state: paused;
+  height: 3px !important;
+}
+
+.split-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.split-artist {
+  font-size: 12.5px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.split-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.split-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.split-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.split-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   8. TikTok Vertical Story Theme (Dedicated 9:16 Mobile Layout)
+   -------------------------------------------------------------------------- */
+.vertical-story-root .story-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 20px;
+  border: 1px solid;
+  width: 360px;
+  gap: 16px;
+  text-align: center;
+}
+
+.story-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.story-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+}
+
+.story-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.story-art-box {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15);
+  background: #000;
+}
+
+.story-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-no-art {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-art-reflection {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.story-info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.story-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.story-artist {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.story-progress-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.story-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.story-fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+}
+
+.story-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* --------------------------------------------------------------------------
+   Existing Retained Themes (Obsidian Glass, Cyberpunk HUD, Capsule, Vinyl, Banner)
+   -------------------------------------------------------------------------- */
+.glass-modern-root .glass-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75);
+  min-width: 420px;
+  max-width: 540px;
+}
+.glass-ambient-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 28px;
+  filter: blur(28px);
+  z-index: -1;
+  pointer-events: none;
+}
+.glass-art-box {
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #0b0e17;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.glass-art-img { width: 100%; height: 100%; object-fit: cover; }
+.glass-no-art { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.glass-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.glass-header { display: flex; align-items: center; justify-content: space-between; }
+.glass-badge { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; border: 1px solid; }
+.glass-eq { display: flex; align-items: center; gap: 3px; }
+.glass-eq span { width: 2.5px; height: 12px; border-radius: 2px; animation: eq-anim 1s ease-in-out infinite alternate; }
+.glass-eq span:nth-child(1) { height: 7px; animation-delay: 0.1s; }
+.glass-eq span:nth-child(2) { height: 14px; animation-delay: 0.3s; }
+.glass-eq span:nth-child(3) { height: 9px; animation-delay: 0.2s; }
+.glass-eq span:nth-child(4) { height: 12px; animation-delay: 0.4s; }
+.glass-eq.paused span { animation-play-state: paused; height: 3px !important; opacity: 0.4; }
+.glass-title { font-family: var(--font-display); font-size: 16.5px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.glass-artist { font-size: 13px; font-weight: 500; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.glass-progress-wrap { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.glass-progress-track { width: 100%; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.glass-progress-fill { width: 100%; height: 100%; transform-origin: left; will-change: transform; }
+.glass-timestamps { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10.5px; color: #64748b; }
+
+/* Cyberpunk HUD */
+.cyber-hud-root .cyber-card { position: relative; display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid #00f0ff; min-width: 440px; max-width: 560px; }
+.cyber-corner { position: absolute; width: 6px; height: 6px; border-color: #00f0ff; border-style: solid; }
+.cyber-corner.top-left { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+.cyber-corner.top-right { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+.cyber-corner.bottom-left { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+.cyber-corner.bottom-right { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+.cyber-art-box { width: 74px; height: 74px; flex-shrink: 0; border: 1px solid rgba(0, 240, 255, 0.4); background: #02060e; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+.cyber-art-img { width: 100%; height: 100%; object-fit: cover; }
+.cyber-art-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.cyber-scanline { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0, 240, 255, 0.1) 51%, transparent 52%); background-size: 100% 4px; pointer-events: none; }
+.cyber-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cyber-header { display: flex; align-items: center; justify-content: space-between; }
+.cyber-tag { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: #00f0ff; }
+.cyber-status-pill { display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; padding: 1px 6px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); color: #00f0ff; }
+.blink-dot { width: 5px; height: 5px; border-radius: 50%; background: #00f0ff; animation: blink 1.2s infinite; }
+.cyber-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+.cyber-artist { font-family: var(--font-mono); font-size: 12px; color: #a5f3fc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cyber-progress-section { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+.cyber-track { width: 100%; height: 3px; background: rgba(0, 240, 255, 0.15); }
+.cyber-fill { width: 100%; height: 100%; background: #00f0ff; transform-origin: left; }
+.cyber-timestamps { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9.5px; color: #67e8f9; }
+
+/* Streamer Capsule */
+.minimal-pill-root .pill-card { display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 10px; border: 1px solid; border-radius: 9999px; min-width: 320px; max-width: 480px; }
+.pill-art-circle { width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; }
+.pill-img { width: 100%; height: 100%; object-fit: cover; }
+.pill-no-art { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.pill-details { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.pill-text-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+.pill-title { font-size: 13.5px; font-weight: 700; color: #ffffff; overflow: hidden; text-overflow: ellipsis; }
+.pill-dot { color: #64748b; font-size: 11px; }
+.pill-artist { font-size: 12px; font-weight: 500; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; }
+.pill-progress-row { display: flex; align-items: center; gap: 8px; }
+.pill-track { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.15); border-radius: 3px; overflow: hidden; }
+.pill-fill { width: 100%; height: 100%; transform-origin: left; }
+.pill-time { font-family: var(--font-mono); font-size: 9.5px; color: #64748b; }
+
+/* Turntable Vinyl */
+.vinyl-retro-root .vinyl-card { display: flex; align-items: center; gap: 20px; padding: 14px 20px; border: 1px solid #f59e0b; min-width: 440px; max-width: 560px; }
+.vinyl-sleeve-box { position: relative; width: 76px; height: 76px; flex-shrink: 0; }
+.vinyl-jacket { position: absolute; inset: 0; border-radius: 6px; overflow: hidden; border: 1px solid rgba(245, 158, 11, 0.4); background: #1c1510; z-index: 2; box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.6); }
+.vinyl-cover-img { width: 100%; height: 100%; object-fit: cover; }
+.vinyl-jacket-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(245, 158, 11, 0.08); }
+.vinyl-spinning-disc { position: absolute; top: 3px; right: -24px; width: 70px; height: 70px; border-radius: 50%; background: repeating-radial-gradient(circle at center, #0f0d0b 0px, #1c1814 2px, #0a0807 3px, #241f1a 4px); border: 2px solid #382c1f; z-index: 1; display: flex; align-items: center; justify-content: center; }
+.vinyl-spinning-disc.spinning { animation: spin-slow 4s linear infinite; }
+.vinyl-spinning-disc.paused { animation-play-state: paused; }
+.vinyl-center-hole { width: 18px; height: 18px; border-radius: 50%; background: #f59e0b; border: 2px solid #000; }
+.vinyl-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; margin-left: 14px; }
+.vinyl-header { display: flex; align-items: center; justify-content: space-between; }
+.vinyl-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: #f59e0b; }
+.vinyl-needle { font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: #d97706; }
+.vinyl-title { font-family: var(--font-display); font-size: 16.5px; font-weight: 700; color: #fffbeb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vinyl-artist { font-size: 13px; color: #fde68a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vinyl-progress { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+.vinyl-track { width: 100%; height: 4px; background: rgba(245, 158, 11, 0.18); border-radius: 2px; overflow: hidden; }
+.vinyl-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #ef4444); transform-origin: left; }
+.vinyl-times { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: #d97706; }
+
+/* Streamer Banner */
+.streamer-banner-root .streamer-card { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px 20px; border: 1px solid; min-width: 480px; max-width: 620px; overflow: hidden; }
+.streamer-art-wrapper { position: relative; width: 72px; height: 72px; flex-shrink: 0; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.16); }
+.streamer-art { width: 100%; height: 100%; object-fit: cover; }
+.streamer-no-art { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.streamer-live-tag { position: absolute; bottom: 4px; left: 4px; right: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); border-radius: 4px; font-family: var(--font-mono); font-size: 8.5px; font-weight: 800; padding: 1px 4px; color: #fff; }
+.live-dot { width: 5px; height: 5px; border-radius: 50%; background: #10b981; }
+.live-dot.active { animation: blink 1s infinite; }
+.live-dot.paused { background: #f59e0b; }
+.streamer-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.streamer-top-row { display: flex; align-items: center; justify-content: space-between; }
+.streamer-source { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid; }
+.streamer-time { font-family: var(--font-mono); font-size: 11px; color: #94a3b8; }
+.streamer-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.streamer-artist { font-size: 13px; font-weight: 500; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.streamer-progress-line { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(255, 255, 255, 0.1); }
+.streamer-progress-bar { width: 100%; height: 100%; transform-origin: left; }
+
+@keyframes eq-anim { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1.3); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+@keyframes spin-slow { 100% { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------------------
+   14. Apple Music Live Theme (iOS 18 Live Activity & Dynamic Island)
+   -------------------------------------------------------------------------- */
+.apple-music-live-root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-music-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-music-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.apple-music-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 3px 10px 3px 4px;
+}
+
+.apple-music-icon-bubble {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple-music-badge-text {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.apple-music-source-tag {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.apple-eq-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 16px;
+  padding: 2px 4px;
+}
+
+.apple-eq-bar {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  transform-origin: bottom;
+  transform: scaleY(0.2);
+}
+
+.apple-eq-bar.animating.eq-1 { animation: apple-eq-bounce 0.85s infinite ease-in-out alternate; }
+.apple-eq-bar.animating.eq-2 { animation: apple-eq-bounce 0.65s infinite ease-in-out 0.2s alternate; }
+.apple-eq-bar.animating.eq-3 { animation: apple-eq-bounce 0.95s infinite ease-in-out 0.4s alternate; }
+.apple-eq-bar.animating.eq-4 { animation: apple-eq-bounce 0.75s infinite ease-in-out 0.1s alternate; }
+
+@keyframes apple-eq-bounce {
+  0% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1.0); }
+  100% { transform: scaleY(0.4); }
+}
+
+.apple-music-content {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.apple-music-content.vertical-layout {
+  flex-direction: column;
+  text-align: center;
+  gap: 18px;
+}
+
+.apple-art-box {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.apple-art-img {
+  position: relative;
+  object-fit: cover;
+  display: block;
+}
+
+.apple-art-placeholder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple-track-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.apple-title {
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.apple-artist {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.apple-album {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.apple-scrubber-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.apple-scrubber-section.horizontal-scrubber {
+  margin-top: 6px;
+}
+
+.apple-scrubber-section.vertical-scrubber {
+  margin-top: 14px;
+}
+
+.apple-progress-bar-track {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.apple-progress-bar-fill {
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.1s linear;
+}
+
+.apple-scrubber-thumb {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.apple-timestamps-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.apple-time {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+}
+/* Shared optional theme elements, laid out consistently in all studios and feeds. */
+.mpo-theme-supplement {position:absolute;left:12px;right:12px;bottom:6px;display:flex;align-items:flex-end;gap:8px;min-width:0;pointer-events:none;z-index:3}
+.mpo-supplement-badge {flex:none;max-width:30%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--accent-primary);}
+.mpo-supplement-album {flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:rgba(255,255,255,.72)}
+.mpo-universal-visualizer {margin-left:auto;flex:none;display:flex;align-items:flex-end;gap:2px;max-width:40%;overflow:hidden}
+.mpo-universal-visualizer span {display:block;width:3px;min-width:1px;min-height:3px;flex:1 1 0;border-radius:2px;background:var(--accent-primary);opacity:.8;transform-origin:bottom}
+.mpo-universal-visualizer.playing span {animation:mpo-shared-eq .8s ease-in-out infinite alternate}
+@keyframes mpo-shared-eq {from {transform:scaleY(.35)} to {transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce) {.mpo-universal-visualizer span {animation:none!important}}
+.eco-gpu-mode .mpo-universal-visualizer span,.game-mode-active .mpo-universal-visualizer span {animation:none!important}
+@keyframes mpo-art-spin {to {transform:rotate(360deg)}}
+.mpo-universal-visualizer.style-dots span {height:4px!important;width:4px;border-radius:50%;align-self:center}
+.mpo-universal-visualizer.style-pulse span {height:55%!important;border-radius:6px;animation-duration:1.2s}
+.mpo-universal-visualizer.style-wave span {border-radius:5px;animation-duration:1.1s}
+.eco-gpu-mode .mpo-art-img,.game-mode-active .mpo-art-img {animation:none!important}
+@media (prefers-reduced-motion:reduce) {.mpo-art-img {animation:none!important}}
+.mpo-playback-status,.mpo-universal-timestamps{flex:none;color:rgba(255,255,255,.72);font-size:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.mpo-theme-custom-label {font-size: 10px; font-weight: 700; letter-spacing: .08em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}

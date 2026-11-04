@@ -1,0 +1,8 @@
+.design-tiktok-minimal .collection-card {border-radius:2px;gap:12px;border-left:2px solid var(--accent-primary);}
+.design-tiktok-minimal .collection-art {width:110px;height:110px;border-radius:2px;}
+.design-tiktok-minimal .collection-kicker {letter-spacing:.22em;}
+.design-tiktok-minimal .collection-progress-track {height:2px;}
+
+.design-tiktok-minimal .collection-ornament{background:linear-gradient(90deg,rgba(154,189,159,.16),transparent 40%)}
+.design-tiktok-minimal .collection-info{border-top:1px solid rgba(255,255,255,.32);padding-top:12px}
+.design-tiktok-minimal .collection-kicker{letter-spacing:.25em}

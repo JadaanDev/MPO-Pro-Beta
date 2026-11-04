@@ -1,0 +1,8 @@
+.design-tiktok-spotlight .collection-card {border-radius:28px;text-align:center;}
+.design-tiktok-spotlight .collection-art {width:76%;margin:auto;border-radius:50%;}
+.design-tiktok-spotlight .collection-header {justify-content:center;flex-wrap:wrap;}
+.design-tiktok-spotlight .collection-info {align-items:center;}
+
+.design-tiktok-spotlight .collection-art{width:72%;margin:auto}
+.design-tiktok-spotlight .collection-ornament{background:radial-gradient(circle at 50% 32%,rgba(244,104,197,.44),transparent 52%)}
+.design-tiktok-spotlight .collection-info{border-top:1px solid rgba(255,255,255,.2);padding-top:12px}

@@ -1,0 +1,9 @@
+.design-obs-on-air .collection-card {grid-template-columns:minmax(0,1fr) min(var(--collection-art-size, 76px), 50%);direction:rtl;border-bottom:3px solid var(--accent-primary);}
+.design-obs-on-air .collection-art {width:76px;height:76px;border-radius:50%;}
+.design-obs-on-air .collection-info,.design-obs-on-air .collection-art {direction:ltr;}
+
+.design-obs-on-air .collection-card{direction:ltr;grid-template-columns:minmax(0,1fr) min(var(--collection-art-size, 76px), 50%)}
+.design-obs-on-air .collection-art{grid-column:2;grid-row:1}
+.design-obs-on-air .collection-info{grid-column:1;grid-row:1}
+.design-obs-on-air .collection-ornament{background:linear-gradient(100deg,rgba(220,56,80,.26),transparent 55%)}
+.design-obs-on-air .collection-kicker{background:rgba(244,80,105,.22);padding:3px 7px;border-radius:3px}

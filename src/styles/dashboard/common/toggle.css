@@ -1,0 +1,76 @@
+.unt-toggle-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.unt-toggle-wrapper.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.unt-toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+}
+.unt-toggle-switch:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.unt-toggle-switch.checked {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+.unt-toggle-switch.sm {
+  width: 30px;
+  height: 18px;
+  padding: 2px;
+}
+.unt-toggle-switch.sm .unt-toggle-thumb {
+  width: 12px;
+  height: 12px;
+}
+.unt-toggle-switch.sm.checked .unt-toggle-thumb {
+  transform: translateX(12px);
+}
+.unt-toggle-switch.md {
+  width: 40px;
+  height: 22px;
+  padding: 2.5px;
+}
+.unt-toggle-switch.md .unt-toggle-thumb {
+  width: 15px;
+  height: 15px;
+}
+.unt-toggle-switch.md.checked .unt-toggle-thumb {
+  transform: translateX(18px);
+}
+.unt-toggle-thumb {
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.unt-toggle-labels {
+  display: flex;
+  flex-direction: column;
+}
+.unt-toggle-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.unt-toggle-sublabel {
+  font-size: 10px;
+  color: #94a3b8;
+}

@@ -1,0 +1,10 @@
+.design-tiktok-cover-story .collection-card {border-radius:3px;border-top:3px solid var(--accent-primary);}
+.design-tiktok-cover-story .collection-art {border-radius:0;}
+.design-tiktok-cover-story .collection-title {font-family:Georgia,serif;letter-spacing:-.035em;}
+.design-tiktok-cover-story .collection-kicker {letter-spacing:.23em;}
+
+.design-tiktok-cover-story .collection-card{gap:12px}
+.design-tiktok-cover-story .collection-art{width:72%;margin:0 auto 4px;aspect-ratio:4/5}
+.design-tiktok-cover-story .collection-info{border-top:1px solid rgba(255,255,255,.4);padding-top:12px}
+.design-tiktok-cover-story .collection-ornament{background:linear-gradient(140deg,rgba(222,181,134,.23),transparent 50%)}
+.design-tiktok-cover-story .collection-title{font-style:italic;letter-spacing:-.025em}

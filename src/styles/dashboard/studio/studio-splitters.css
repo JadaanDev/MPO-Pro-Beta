@@ -1,0 +1,23 @@
+/* 3. Resizable Splitters */
+.studio-columns-resizable-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.studio-resizer {
+  width: 6px;
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.studio-resizer:hover,
+.studio-resizer:active {
+  background: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+}

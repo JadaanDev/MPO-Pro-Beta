@@ -1,0 +1,48 @@
+/* ==========================================================================
+   3-COLUMN OVERLAY STUDIO (v3.0.0)
+   ========================================================================== */
+
+.studio-3col-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #080b12;
+}
+
+
+/* 2. THREE-COLUMN WORKSPACE */
+.studio-3col-workspace {
+  display: flex;
+  flex: 1;
+  height: calc(100% - 48px);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   3-COLUMN OVERLAY STUDIO (v4.0.0)
+   20% Left Browser • 30% Center Preview • 45% Right Styling Inspector
+   ========================================================================== */
+
+.studio-3col-workspace.v4-proportions {
+  display: flex;
+  flex: 1;
+  height: calc(100% - 48px);
+  overflow: hidden;
+}
+
+
+/* ==========================================================================
+   v4.1.0 UPDATES: Untitled UI Toggles, Layer Dropdown, Resizers, Accordions
+   ========================================================================== */
+
+/* 10. Top Controls Strip & Left Themes Panel (v4.1.0) */
+.overlay-studio-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}

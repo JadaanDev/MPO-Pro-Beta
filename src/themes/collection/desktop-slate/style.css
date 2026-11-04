@@ -1,0 +1,5 @@
+.design-desktop-slate .collection-card {border-radius:8px;border-left:3px solid var(--accent-primary);}
+.design-desktop-slate .collection-art {border-radius:5px;}
+
+.design-desktop-slate .collection-ornament{background:linear-gradient(90deg,rgba(118,128,221,.22),transparent 55%)}
+.design-desktop-slate .collection-info{border-left:1px solid rgba(255,255,255,.15);padding-left:10px}

@@ -1,0 +1,25 @@
+/* Shared semantic structure for the 5.2 collection. Individual files own the visual composition. */
+.collection-root {width:max-content;max-width:none;}
+.collection-root .collection-card {position:relative;display:grid;grid-template-columns:min(var(--collection-art-size, 88px), 50%) minmax(0,1fr);gap:16px;align-items:center;width:480px;max-width:none;min-width:0;padding:18px 20px;overflow:hidden;border:1px solid rgba(255,255,255,.13);border-radius:18px;color:#fff;box-sizing:border-box;isolation:isolate;}
+.collection-tiktok .collection-card {width:320px;grid-template-columns:minmax(0,1fr);gap:18px;padding:20px;}
+.collection-desktop .collection-card {width:430px;grid-template-columns:min(var(--collection-art-size, 64px), 50%) minmax(0,1fr);gap:13px;padding:14px 16px;}
+.collection-root .collection-card[data-art="false"] {grid-template-columns:minmax(0,1fr)!important}
+.collection-ornament {position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:var(--surface-alpha,1);}
+.collection-art {position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;width:88px;height:88px;min-width:0;min-height:0;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);}
+.collection-tiktok .collection-art {width:100%;height:auto;aspect-ratio:1;}
+.collection-desktop .collection-art {width:64px;height:64px;}
+.collection-art-image {display:block;width:100%;height:100%;object-fit:cover;}
+.collection-art-empty {display:grid;place-items:center;width:100%;height:100%;color:var(--accent-primary);background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.015));}
+.collection-info {display:flex;flex-direction:column;gap:5px;min-width:0;}
+.collection-header {display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;}
+.collection-kicker {min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-primary);white-space:nowrap;}
+.collection-badge {font-size:9px;font-weight:700;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.66);}
+.collection-title,.collection-artist,.collection-album {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.collection-title {font-size:18px;line-height:1.22;font-weight:750;color:#fff;}
+.collection-artist {font-size:13px;line-height:1.25;color:rgba(255,255,255,.72);}
+.collection-album {font-size:11px;color:rgba(255,255,255,.5);}
+.collection-tiktok .collection-title {font-size:23px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.collection-progress {width:100%;margin-top:5px;}
+.collection-progress-track {width:100%;height:3px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden;}
+.collection-progress-fill {width:100%;height:100%;background:var(--accent-primary);transform-origin:left;}
+.collection-card .mpo-theme-supplement {left:16px;right:16px;}

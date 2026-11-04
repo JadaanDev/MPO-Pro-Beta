@@ -1,0 +1,8 @@
+.design-tiktok-player .collection-card {border-radius:26px;}
+.design-tiktok-player .collection-art {width:86%;margin:auto;border-radius:18px;}
+.design-tiktok-player .collection-info {text-align:center;align-items:center;}
+.design-tiktok-player .collection-header {width:100%;}
+
+.design-tiktok-player .collection-ornament{background:radial-gradient(circle at 50% 15%,rgba(242,119,142,.32),transparent 62%)}
+.design-tiktok-player .collection-progress-track{height:5px}
+.design-tiktok-player .collection-badge{padding:3px 8px;border-radius:20px;border:1px solid rgba(255,255,255,.25)}

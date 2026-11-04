@@ -1,0 +1,7 @@
+.design-obs-lower-third .collection-card {width:560px;grid-template-columns:min(var(--collection-art-size, 62px), 50%) minmax(0,1fr);border-left:8px solid var(--accent-primary);border-radius:3px;}
+.design-obs-lower-third .collection-art {width:62px;height:62px;border-radius:3px;}
+.design-obs-lower-third .collection-title {font-size:20px;}
+
+.design-obs-lower-third .collection-ornament{background:linear-gradient(90deg,rgba(122,91,219,.55) 0 16%,rgba(122,91,219,.14) 16% 42%,transparent 72%)}
+.design-obs-lower-third .collection-info{padding-left:6px}
+.design-obs-lower-third .collection-kicker{letter-spacing:.22em}

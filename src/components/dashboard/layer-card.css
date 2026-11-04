@@ -1,0 +1,34 @@
+/* Shared layer cards and browser chrome for all three studios. */
+.unified-layer-browser { display:flex; flex:1; flex-direction:column; min-height:0; overflow:hidden; padding:12px; gap:10px; background:#171923; }
+.unified-layer-browser .unified-search-row { display:flex; align-items:center; gap:8px; padding:0; border:0; background:transparent; }
+.unified-layer-browser .unified-search-wrap { position:relative; display:flex; align-items:center; flex:1; min-width:0; }
+.unified-layer-browser .unified-search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#94909f; pointer-events:none; }
+.unified-layer-browser .unified-search-input { box-sizing:border-box; width:100%; min-width:0; height:34px; padding:7px 9px 7px 30px; border:1px solid #ffffff18; border-radius:8px; outline:none; background:#10121a; color:#f2eff7; font:500 11px var(--font-body); }
+.unified-layer-browser .unified-search-input:focus { border-color:#bca6ed88; }
+.unified-layer-browser .unified-add-btn { display:inline-flex; align-items:center; justify-content:center; gap:5px; flex:none; min-height:34px; padding:0 11px; border:1px solid #bca6ed44; border-radius:8px; background:#393149; color:#eadfff; font-size:11px; font-weight:700; cursor:pointer; box-shadow:none; }
+.unified-layer-browser .unified-add-btn:hover { background:#493c5e; }
+.unified-layer-browser .unified-layer-list { display:flex; flex:1; flex-direction:column; gap:8px; min-height:0; overflow-y:auto; padding:1px 3px 6px 0; }
+.unified-layer-card { display:flex; flex-direction:column; gap:10px; padding:12px; border:1px solid #ffffff12; border-radius:10px; background:#1b1d27; cursor:pointer; transition:border-color .15s,background .15s; }
+.unified-layer-card:hover { border-color:#bca6ed55; background:#23212e; }
+.unified-layer-card.is-active { border-color:#bca6ed88; background:#2c2738; box-shadow:inset 0 0 0 1px #bca6ed24; }
+.unified-layer-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; min-width:0; }
+.unified-layer-title { flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:5px; }
+.unified-layer-active { padding:2px 6px; border:1px solid #bca6ed3b; border-radius:4px; background:#bba6ee1b; color:#d5c3f5; font-size:9px; font-weight:800; line-height:1.2; letter-spacing:.04em; text-transform:uppercase; }
+.unified-layer-select { width:100%; padding:0; border:0; background:none; color:#f3f0fa; font:700 12px/1.35 var(--font-body); text-align:left; overflow-wrap:anywhere; cursor:pointer; }
+.unified-layer-rename { box-sizing:border-box; width:100%; min-width:0; padding:4px 6px; border:1px solid #bca6ed77; border-radius:5px; background:#10121a; color:#f3f0fa; font:600 12px var(--font-body); }
+.unified-layer-actions { display:flex; align-items:center; gap:1px; padding:2px; border:1px solid #ffffff0d; border-radius:7px; background:#11131bb3; flex-shrink:0; }
+.unified-layer-actions button { display:grid; place-items:center; width:25px; height:25px; padding:0; border:0; border-radius:5px; background:transparent; color:#a9a5b4; cursor:pointer; }
+.unified-layer-actions button:hover { background:#bba6ee20; color:#eee8fa; }
+.unified-layer-actions .unified-layer-delete:hover { background:#ef444420; color:#fca5a5; }
+.unified-layer-actions button:disabled { opacity:.35; cursor:not-allowed; }
+.unified-layer-meta { display:flex; justify-content:space-between; align-items:center; gap:8px; min-width:0; padding-top:8px; border-top:1px solid #ffffff10; font-size:10px; }
+.unified-layer-theme { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#d0bdfb; font-weight:600; }
+.unified-layer-spec { flex-shrink:0; color:#a5a0b0; font-size:9px; white-space:nowrap; }
+.unified-layer-browser .unified-host-row { display:flex; justify-content:space-between; align-items:center; gap:6px; color:#aaa4b5; font-size:10px; }
+.unified-host-actions { display:flex; gap:4px; }
+.unified-host-actions button { padding:3px 6px; border:1px solid #ffffff15; border-radius:5px; background:transparent; color:#aaa4b5; font-size:9px; cursor:pointer; }
+.unified-host-actions button.is-active { border-color:#bca6ed55; background:#bba6ee1b; color:#e3d6fa; }
+
+.unified-layer-card-top { position:relative; display:block; padding-top:34px; }
+.unified-layer-actions { position:absolute; right:0; top:0; }
+.unified-layer-active { position:absolute; left:0; top:5px; white-space:nowrap; }

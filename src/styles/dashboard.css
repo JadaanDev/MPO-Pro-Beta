@@ -1,0 +1,47 @@
+/* ==========================================================================
+   MPO-pro Dashboard Styles - Master Orchestrator
+   Decomposed into domain & component-focused modular stylesheets
+   ========================================================================== */
+
+/* 1. Base Foundation & App Shell */
+@import "./dashboard/base/scrollbars.css";
+@import "./dashboard/base/dashboard-layout.css";
+@import "./dashboard/layout/header.css";
+@import "./dashboard/layout/sidebar-rail.css";
+@import "./dashboard/layout/footer.css";
+
+/* 2. Reusable Component Controls */
+@import "./dashboard/common/toggle.css";
+@import "./dashboard/common/layer-select-dropdown.css";
+
+/* 3. 3-Column Overlay Studio Workspace */
+@import "./dashboard/studio/studio-layout.css";
+@import "./dashboard/studio/studio-top-controls.css";
+@import "./dashboard/studio/studio-splitters.css";
+@import "./dashboard/studio/studio-left-themes.css";
+@import "./dashboard/studio/layer-browser.css";
+@import "./dashboard/studio/studio-center-preview.css";
+@import "./dashboard/studio/split-dual-frames.css";
+@import "./dashboard/studio/studio-right-inspector.css";
+@import "./dashboard/studio/styling-accordions.css";
+@import "./dashboard/studio/font-loader.css";
+
+/* 4. Dashboard Views & Tabs */
+@import "./dashboard/views/layer-manager-bar.css";
+@import "./dashboard/views/streaming-hub.css";
+@import "./dashboard/views/css-editor.css";
+@import "./dashboard/settings/index.css";
+
+/* 5. Modals & Slide-Over Drawers */
+@import "./dashboard/modals/modal-base.css";
+@import "./dashboard/modals/dual-import-modal.css";
+@import "./dashboard/modals/history-drawer.css";
+@import "./dashboard/modals/css-reference-modal.css";
+@import "./dashboard/modals/diagnostics-modal.css";
+
+/* 6. Desktop Floating Overlay HUD */
+@import "./dashboard/overlay/desktop-hud.css";
+@import "./dashboard/studio/desktop-hud-studio.css";
+
+@import "./dashboard/new-home.css";
+@import "./dashboard/redesign.css";
