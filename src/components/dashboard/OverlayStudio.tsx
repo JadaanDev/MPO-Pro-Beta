@@ -6,6 +6,7 @@ import { Layer, LayerFormat } from "../../types/layers";
 import { LayerBrowser } from "./LayerBrowser";
 import { SharedStyleInspector } from "./SharedStyleInspector";
 import { ContextualThemeEditor, findThemeElement, ThemeElement } from "./ContextualThemeEditor";
+import { ArrangeCanvas } from "./ArrangeCanvas";
 import { ArrangeElementPicker } from "./ArrangeElementPicker";
 import {
   Search,
@@ -504,8 +505,8 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
                 <div className="source-guide-row"><span>URL for this layer</span><code title={sourceUrl}>{sourceUrl}</code><button type="button" onClick={() => copySource(sourceUrl, "URL")}>Copy URL</button>{sourceCopyStatus && <span role="status">{sourceCopyStatus}</span>}</div>
                 <small>Set your Browser Source in {activeSurface === "tiktok" ? "TikTok LIVE Studio" : "OBS"} to this exact Width &amp; Height to eliminate dead space. For full-screen canvases (1920×1080 / 1080×1920), add <code>&amp;align=bottom</code> to pin the overlay to the bottom.</small>
               </div>}
-              <div className={`canvas-viewport-v4 auto-fit-viewport ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={(event) => { if (arrangeMode) setHoveredElement(findThemeElement(event.target as Element)); }} onPointerLeave={() => setHoveredElement(null)} onClick={(event) => { if (arrangeMode) setSelectedElement(findThemeElement(event.target as Element)); }}><div className="checkerboard-bg" />
-                <AutoFitPreview configScale={config.scale} contentKey={currentTheme + JSON.stringify(config)} onContentSize={receiveSourceSize}>
+              <ArrangeCanvas enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={config} onConfigChange={onConfigChange} onCommitHistory={onCommitHistory} layerKey={activeLayerId} className={`canvas-viewport-v4 auto-fit-viewport ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={(event) => { if (arrangeMode) setHoveredElement(findThemeElement(event.target as Element)); }} onPointerLeave={() => setHoveredElement(null)} onClick={(event) => { if (arrangeMode) setSelectedElement(findThemeElement(event.target as Element)); }}><div className="checkerboard-bg" />
+                <AutoFitPreview config={previewConfig} configScale={config.scale} contentKey={currentTheme + JSON.stringify(config)} onContentSize={receiveSourceSize}>
                   <div className={`single-preview-mount preview-canvas-scope ${format === "vertical" ? "vertical-viewport" : ""}`}>
                     {singlePreviewGeneratedCss && <style>{singlePreviewGeneratedCss}</style>}
                     <TrackTransitionWrapper transitionKey={activeTransitionKey} style={config.transitionStyle || "focus"} direction={config.transitionDirection || "left"} intensity={config.transitionIntensity || "standard"} durationMs={config.transitionDurationMs ?? (config.transitionDuration != null ? config.transitionDuration * 1000 : 350)} delayMs={config.transitionDelayMs ?? (config.transitionDelay != null ? config.transitionDelay * 1000 : 0)}>
@@ -513,7 +514,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
                     </TrackTransitionWrapper>
                   </div>
                 </AutoFitPreview>
-              </div>
+              </ArrangeCanvas>
               {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
               {arrangeMode && (selectedElement ? (
                 <ContextualThemeEditor
@@ -547,6 +548,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
         {/* COLUMN 3: Dedicated Overlay Styling Accordion */}
         {showInspector && (
           <SharedStyleInspector
+            studioSurface={activeSurface}
             arrangePlacement
             config={config}
             extractedColor={extractedColor}

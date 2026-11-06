@@ -1,3 +1,4 @@
+import { resizeHudScale } from "../../utils/arrangeGeometry";
 import React, { useState, useEffect, useRef } from "react";
 import { 
   GripHorizontal, 
@@ -12,13 +13,24 @@ import {
 interface DesktopOverlayWidgetProps {
   children: React.ReactNode;
   format?: "horizontal" | "vertical";
+  scale?:number;
+  onScaleCancel?:()=>void;
+  onScaleChange?:(scale:number,persist:boolean)=>void|Promise<void>;
 }
 
 export const DesktopOverlayWidget: React.FC<DesktopOverlayWidgetProps> = ({
   children,
   format = "horizontal",
+  scale = 1,
+  onScaleChange,
+  onScaleCancel,
 }) => {
   const container = useRef<HTMLDivElement>(null);
+  const scaleRef=useRef(scale);scaleRef.current=scale;
+  const scaleChange=useRef(onScaleChange);scaleChange.current=onScaleChange;
+  const cancelScale=useRef(onScaleCancel);cancelScale.current=onScaleCancel;
+  const stopResize=useRef<(()=>void)|null>(null);
+  useEffect(()=>()=>stopResize.current?.(),[]);
   useEffect(() => {
     if (!(window as any).__TAURI_INTERNALS__) return;
     const boundary = container.current?.querySelector<HTMLElement>(".mpo-theme-effect-boundary");
@@ -50,6 +62,7 @@ export const DesktopOverlayWidget: React.FC<DesktopOverlayWidgetProps> = ({
       return false;
     }
   });
+  useEffect(()=>{if(isLocked)stopResize.current?.();},[isLocked]);
   const [showToast, setShowToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
@@ -193,6 +206,21 @@ export const DesktopOverlayWidget: React.FC<DesktopOverlayWidgetProps> = ({
     setShowToast(true);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setShowToast(false), 2500);
+  };
+
+  const startScale = (event:React.PointerEvent<HTMLButtonElement>) => {
+    if(isLocked || event.button!==0 || !scaleChange.current || !container.current)return;
+    event.preventDefault();event.stopPropagation();const grip=event.currentTarget,pointer=event.pointerId;
+    const before=scaleRef.current,rect=container.current.getBoundingClientRect(),paint=container.current.querySelector<HTMLElement>(".mpo-theme-effect-boundary"),logicalWidth=paint?.offsetWidth||container.current.offsetWidth,logicalHeight=paint?.offsetHeight||container.current.offsetHeight,zoom=rect.width/Math.max(1,container.current.offsetWidth),x=event.clientX,y=event.clientY,dpi=window.devicePixelRatio;
+    let cancelled=false,value=before,raf=0,pending:PointerEvent|null=null;grip.setPointerCapture(pointer);
+    const apply=(e:PointerEvent)=>{if(window.devicePixelRatio!==dpi){cancel();return;}const dx=(e.clientX-x)/zoom,dy=(e.clientY-y)/zoom;value=Math.round(resizeHudScale(before,logicalWidth,logicalHeight,dx,dy)*1000)/1000;void scaleChange.current?.(value,false);};
+    const move=(e:PointerEvent)=>{if(e.pointerId!==pointer)return;pending=e;if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(pending)apply(pending);});};
+    const cleanup=()=>{cancelAnimationFrame(raf);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',cancel);window.removeEventListener('keydown',key,true);if(grip.hasPointerCapture(pointer))grip.releasePointerCapture(pointer);stopResize.current=null;};
+    const save=()=>Promise.resolve(scaleChange.current?.(value,true)).then(()=>triggerToast('Desktop scale saved: '+Math.round(value*100)+'%')).catch(()=>triggerToast('Could not confirm the saved scale. Check the studio settings.'));
+    const up=(e:PointerEvent)=>{if(e.pointerId!==pointer)return;apply(e);if(cancelled)return;cleanup();void save();};
+    const cancel=()=>{cancelled=true;cleanup();cancelScale.current?.();};
+    const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel();}};
+    stopResize.current=cancel;window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel);window.addEventListener('keydown',key,true);
   };
 
   const handleStartDrag = async (e: React.MouseEvent) => {
@@ -352,6 +380,7 @@ export const DesktopOverlayWidget: React.FC<DesktopOverlayWidgetProps> = ({
         </div>
       )}
 
+      {!isLocked && onScaleChange && <button type="button" className="hud-scale-grip" data-interactive aria-label="Resize desktop overlay" title={'Drag to scale '+Math.round(scale*100)+'%; Escape cancels; arrow keys adjust'} onMouseDown={e=>e.stopPropagation()} onPointerDown={startScale} onKeyDown={e=>{if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const delta=(e.shiftKey?.1:.05)*(['ArrowUp','ArrowRight'].includes(e.key)?1:-1);Promise.resolve(onScaleChange(Math.max(.01,scale+delta),true)).catch(()=>triggerToast('Could not save desktop scale'));}}>↘<span>{Math.round(scale*100)}%</span></button>}
       {/* Ephemeral Notification Toast */}
       {showToast && (
         <div className="hud-toast-banner" role="status" aria-live="polite">

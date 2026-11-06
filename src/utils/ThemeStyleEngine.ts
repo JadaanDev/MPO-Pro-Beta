@@ -69,7 +69,7 @@ export function generateEffectiveThemeCss(
   `);
 
   // 2. Custom Dimensions (Width & Height) & Responsive Aspect-Ratio Adaptation
-  if (config.customWidth && config.customWidth > 0) {
+  if (config.widthMode!=='content' && config.customWidth && config.customWidth > 0) {
     rules.push(`
       ${cardSelector} {
         width: ${config.customWidth}px !important;
@@ -492,6 +492,12 @@ export function generateEffectiveThemeCss(
   if (indicatorColor) rules.push(`${scope} :is(.mpo-vis-bar,.apple-eq-bar,.zen-bars span,.island-waves span,.cyber-visualizer span,.split-visualizer span) { background: ${indicatorColor} !important; background-color: ${indicatorColor} !important; }`);
   if (indicatorColor) rules.push(`${role("indicator-bar")} { background: ${indicatorColor} !important; }`);
 
+  if(config.widthMode==='content') rules.push(`${cardSelector} { box-sizing:border-box !important; width:var(--mpo-content-width, ${Math.max(config.contentMinWidth||320,config.contentMaxWidth||600)}px) !important; min-width:0 !important; max-width:none !important; flex-shrink:0 !important; } ${scope} :is(.mpo-theme-container,[class*="-root"]):not([data-theme-layout-root]):not(.mpo-sdk-host):not([data-theme-role="host"]):not([data-theme-role="frame"]) {width:max-content !important;max-width:none !important;} ${scope} :is(.mpo-title,.mpo-artist,.mpo-album,[data-theme-role="title"],[data-theme-role="artist"],[data-theme-role="album"]) {white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;min-width:0;}`);
+  if(config.layoutBoundary && config.layoutBoundary!=='legacy') rules.push(`${cardSelector} { overflow:${config.layoutBoundary==='constrain'?'hidden':'visible'} !important; }`);
+  rules.push(`${scope} [data-mpo-grow-frame] { background:transparent !important; border-color:transparent !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }`);
+  rules.push(`${scope} [data-mpo-constrained] { translate:var(--mpo-constrained-translate) !important; scale:var(--mpo-constrained-scale) !important; }`);
+  rules.push(`${scope} [data-mpo-text-overflow="shrink"] { font-size:var(--mpo-fit-font-size) !important; }`);
+  rules.push(`${scope} [data-mpo-marquee-active="true"] { -webkit-text-fill-color:transparent !important; text-shadow:none !important; } ${scope} [data-mpo-marquee-active="true"]::after { -webkit-text-fill-color:var(--mpo-marquee-color); } @media(prefers-reduced-motion:reduce) { ${scope} [data-mpo-marquee-active="true"] {color:var(--mpo-marquee-color) !important; -webkit-text-fill-color:var(--mpo-marquee-color) !important;} }`);
   rules.push(scopeElementCss(mergeLegacyCss(customCss, config.elementCss), scope));
 
   return rules.join("\n\n");

@@ -1,12 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { recommendedSourceSize } from "../../utils/browserSource";
+import { recommendedSourceSize, SOURCE_QUALITY_SCALE } from "../../utils/browserSource";
 import { themeEffectSize, themeLayoutSize } from "../../utils/themeEffects";
 import { ThemeEffectBoundary } from "../common/ThemeEffectBoundary";
+import type { ThemeConfig } from '../../types/themes';
 
 const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /** Fit using layout zoom so WebView renders text at the final size instead of scaling a bitmap. */
-export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: number; contentKey: string; onContentSize?: (size: { width: number; height: number }) => void }> = ({ children, configScale, contentKey, onContentSize }) => {
+export const AutoFitPreview: React.FC<{ children: React.ReactNode; config?:ThemeConfig; configScale: number; contentKey: string; onContentSize?: (size: { width: number; height: number }) => void }> = ({ children, config, configScale, contentKey, onContentSize }) => {
   const viewport = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -22,14 +23,15 @@ export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: 
       const layout = root ? themeLayoutSize(root) : { width: 0, height: 0 };
       const rootWidth = layout.width;
       const rootHeight = layout.height;
+      const boundary=inner.querySelector<HTMLElement>('.mpo-theme-effect-boundary');
       if (rootWidth && rootHeight) {
-        const size = recommendedSourceSize(rootWidth, rootHeight, themeScale);
+        const size = boundary?.offsetWidth && boundary?.offsetHeight ? {width:Math.ceil(boundary.offsetWidth*SOURCE_QUALITY_SCALE),height:Math.ceil(boundary.offsetHeight*SOURCE_QUALITY_SCALE)} : recommendedSourceSize(rootWidth, rootHeight, themeScale);
         if (size.width !== lastSize.current?.width || size.height !== lastSize.current?.height) {
           lastSize.current = size;
           onContentSize?.(size);
         }
       }
-      const { width, height } = rootWidth && rootHeight
+      const { width, height } = boundary?.offsetWidth && boundary.offsetHeight ? {width:boundary.offsetWidth,height:boundary.offsetHeight} : rootWidth && rootHeight
         ? themeEffectSize(rootWidth, rootHeight, themeScale)
         : { width: inner.offsetWidth, height: inner.offsetHeight };
       if (!width || !height || !container.clientWidth || !container.clientHeight) return;
@@ -42,6 +44,7 @@ export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: 
     const observer = new ResizeObserver(measure);
     observer.observe(container);
     observer.observe(inner);
+    const boundary=inner.querySelector<HTMLElement>('.mpo-theme-effect-boundary');if(boundary)observer.observe(boundary);
     const root = inner.querySelector<HTMLElement>("[data-theme-layout-root]") || inner.querySelector<HTMLElement>(".mpo-theme-container");
     if (root) observer.observe(root);
     // WebView2 can suspend resize notifications while the window is minimized.
@@ -51,5 +54,5 @@ export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: 
     measure();
     return () => { observer.disconnect(); window.removeEventListener("resize", remeasure); document.removeEventListener("visibilitychange", remeasure); };
   }, [configScale, contentKey, onContentSize]);
-  return <div className="auto-fit-preview" ref={viewport}><div ref={content} className="auto-fit-content" style={{ zoom: scale < 0.999 ? scale : 1 }}><ThemeEffectBoundary configScale={configScale}>{children}</ThemeEffectBoundary></div></div>;
+  return <div className="auto-fit-preview" ref={viewport}><div ref={content} className="auto-fit-content" style={{ zoom: scale < 0.999 ? scale : 1 }}><ThemeEffectBoundary config={config} configScale={configScale}>{children}</ThemeEffectBoundary></div></div>;
 };

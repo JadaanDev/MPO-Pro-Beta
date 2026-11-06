@@ -49,7 +49,7 @@ const root = (width, height, nominal = true) => ({
       useEffect(callback) { effects.push(callback); },
       useLayoutEffect(callback) { effects.push(callback); },
       useRef() { return { current: inner }; },
-      useState() { return [null, update => { measured = typeof update === "function" ? update(measured) : update; }]; },
+      useState(initial) { return [initial, update => { measured = typeof update === "function" ? update(measured) : update; }]; },
     } : name === "react/jsx-runtime" ? { jsx() {}, jsxs() {} } : require(name);
     new Function("require", "module", "exports", output.outputFiles[0].text)(testRequire, mod, mod.exports);
     const { ThemeEffectBoundary, themeLayoutSize, themeEffectSize } = mod.exports;
@@ -57,7 +57,7 @@ const root = (width, height, nominal = true) => ({
     assert.deepEqual(themeLayoutSize(currentRoot), { width: 640, height: 180 }, "Percentage SDK canvas must ignore transformed descendant scroll overflow");
     assert.deepEqual(themeLayoutSize(root(480, 146, false)), { width: 960, height: 292 }, "Legacy unbounded roots retain their overflow dimensions");
     ThemeEffectBoundary({ children: null, configScale: 1.5 });
-    const cleanup = effects[0]();
+    const cleanup = effects.map(effect => effect()).find(result => typeof result === "function");
     assert.deepEqual(measured, { width: 960, height: 270 });
     assert.deepEqual(themeEffectSize(640, 180, 1.5), { width: 1056, height: 366 });
 

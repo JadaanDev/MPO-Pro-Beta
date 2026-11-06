@@ -184,7 +184,7 @@ export function sdkBridgeCss(config: Partial<ThemeConfig>, scope: string): strin
     "--mpo-glow-color": config.accentColor,
   };
   const vars = Object.entries(variables).filter(([, value]) => value !== undefined && value !== "").map(([key, value]) => `${key}: ${value};`).join("\n");
-  const dimensions = `${config.customWidth && config.customWidth > 0 ? "width: 100% !important; max-width: none !important;" : ""}${config.customHeight && config.customHeight > 0 ? "height: 100% !important; max-height: none !important;" : ""}`;
+  const dimensions = `${config.widthMode!=="content" && config.customWidth && config.customWidth > 0 ? "width: 100% !important; max-width: none !important;" : ""}${config.customHeight && config.customHeight > 0 ? "height: 100% !important; max-height: none !important;" : ""}`;
   const textProperties = {
     title: { ...{ color: config.titleColor, size: config.titleSize, weight: config.titleWeight, font: config.titleFont || config.fontFamily, transform: config.titleTransform }, ...config.typography?.title },
     artist: { ...{ color: config.artistColor, size: config.artistSize, weight: config.artistWeight, font: config.fontFamily, transform: config.artistTransform }, ...config.typography?.artist },
@@ -194,7 +194,7 @@ export function sdkBridgeCss(config: Partial<ThemeConfig>, scope: string): strin
   };
   const inheritedText = Object.entries(textProperties).map(([role, properties]) => {
     const cssNames: Record<string, string> = { color: "color", size: "font-size", weight: "font-weight", font: "font-family", transform: "text-transform", italic: "font-style" };
-    const declarations = Object.entries(properties).filter(([, value]) => value !== undefined && value !== "").map(([key]) => `${cssNames[key]}: inherit !important;${key === "color" ? " -webkit-text-fill-color: inherit !important;" : ""}`).join(" ");
+    const declarations = Object.entries(properties).filter(([key, value]) => key in cssNames && value !== undefined && value !== "").map(([key]) => `${cssNames[key]}: inherit !important;${key === "color" ? " -webkit-text-fill-color: inherit !important;" : ""}`).join(" ");
     return declarations ? `${scope} [data-theme-role="${role}"] :is(span, strong, b, em, i, a):not([data-theme-role]):not([data-theme-role="${role}"] [data-theme-role] *) { ${declarations} }` : "";
   }).join("\n");
   const reveal = Object.entries(SDK_VISIBILITY_KEYS).filter(([, key]) => config.visibilityOverrides?.[key] === true).map(([role]) => {

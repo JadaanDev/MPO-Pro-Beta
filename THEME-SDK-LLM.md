@@ -1,6 +1,6 @@
 # MPO-pro Theme SDK: complete authoring and Arrange contract
 
-Release target: **`7.0.0-beta.13`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
+Release target: **`7.0.0-beta.14`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
 
 You are creating a portable React theme for MPO-pro. Deliver `manifest.json`, `Theme.tsx`, and `style.css`, with optional local component files. Support the four studio surfaces, semantic element selection, independent shared controls, Arrange offsets and scale, and soft transparent outer edges. Follow the contract below and the acceptance checklist. Preserve the author's native design as the fallback when no layer configuration is supplied.
 
@@ -84,7 +84,7 @@ The host freezes stale samples on pause and resumes without adding the paused in
 | `desktop` | Floating desktop HUD | 490 × 180 |
 | `big` | Presentation stage | 1280 × 720 |
 
-Optional manifest `canvasSizes` overrides the design size per surface. Layer `customWidth` and `customHeight`, when positive, take priority. Zero uses the manifest/default size. The layer's overall scale is applied by the mount outside the theme; do not reapply `config.scale` inside your component. Desktop and Big Studio can have their own sizing settings; use the dimensions supplied by the host instead of reading another studio's state.
+Optional manifest `canvasSizes` overrides the design size per surface. In Fixed/theme width mode, layer `customWidth` and `customHeight`, when positive, take priority. Bounded-content width is an explicit alternative described in section 10. Zero uses the manifest/default size. The layer's overall scale is applied by the mount outside the theme; do not reapply `config.scale` inside your component. Desktop and Big Studio can have their own sizing settings; use the dimensions supplied by the host instead of reading another studio's state.
 
 A full-canvas card should use `width:100%; height:100%; box-sizing:border-box; min-width:0; min-height:0`. Avoid fixed `min-width`/`max-width`, fixed `min-height`/`max-height`, another root `transform:scale(...)`, or a viewport-sized inner wrapper that blocks layer sizing. Adapt layout with `surface`; `format` distinguishes horizontal and vertical orientation. The SDK preview without a layer configuration is the native-design preview, while studio layer previews and live outputs apply the same shared controls.
 
@@ -391,7 +391,43 @@ export default function Theme({
 
 The example keeps native effects on children, local crop/ellipsis at each field, and all general positioning ancestors open. Studio layer controls can replace native typography/material values, relocate elements, and supply the shared visualizer without changing the source.
 
-## 10. Acceptance checklist
+## 10. Beta 14 sizing, fitting and direct Arrange
+
+Builder, package generation and runtime mounting use one nominal canvas resolver: OBS 640×180, TikTok 360×640, Desktop 490×180, Big 1280×720, unless the theme declares another size. Builder fits that complete canvas uniformly; a smaller preview never changes pixel fonts or authored percentages. The Canvas tab edits width/height independently per studio and writes matching manifest sizes. Legacy themes retain their existing live-output defaults, and explicit existing manifest sizes are preserved.
+
+Studio Arrange wraps native, compiled and declarative content with the same host interaction layer. Drag a semantic target to move it, use Arrow keys for 1px or Shift+Arrow for 10px, and choose the resize handle's mode. Proportional scale changes elementPositions[role].scale; dimension mode changes frame width/height, artSize, typography[role].size, progressHeight or visualizerHeight. Pointer movement is converted through preview/ancestor scale; the author does not need to wire studio drag callbacks. Escape/pointer cancellation restores the pre-gesture configuration, and each completed gesture has one undo entry. Gesture undo preserves independent properties edited afterward. CSS rotation and progress transforms remain separate from Arrange translate/scale.
+
+The visual Builder edits authored percentage geometry directly, with its own handles, arrow nudging, Undo/Redo and a New visual theme action. Generated bundles contain mpo-builder.json with geometry and source fingerprints, preserving visual editing after disk reload. Retain this file in packages. If Theme.tsx or style.css is externally changed, Builder treats that bundle as a code theme instead of overwriting those edits with stale geometry; use the studio Arrange layer or the source editor. Additional source files are retained during normal visual saves.
+
+Optional shared layer configuration:
+
+```ts
+layoutBoundary?: "legacy" | "constrain" | "overflow" | "grow";
+widthMode?: "fixed" | "content";
+contentMinWidth?: number; // defaults to 320 when bounded-content mode is enabled
+contentMaxWidth?: number; // defaults to 600; never less than the minimum
+// Each entry remains independent of its color, weight and font settings.
+typography?: Partial<Record<TextElement, {
+  overflow?: "theme" | "ellipsis" | "shrink" | "marquee";
+  minSize?: number;       // readable minimum for auto-shrink, default 12px
+  marqueeSpeed?: number; // pixels/second, default 30
+}>>;
+```
+
+- **Theme default / legacy:** leaves existing frame behavior unchanged. Existing projects do not automatically expand.
+- **Constrain:** limits rendered element bounds inside the card, with direct manipulation/nudging respecting those limits. Requested numeric offsets can be limited by the frame; direct manipulation starts from the effective visible placement.
+- **Allow overflow:** leaves the frame background at its nominal size and reserves transparent paint space for moved/scaled roles plus the normal shadow gutter.
+- **Grow frame surface:** extends the background, border, radius and shadow around arranged content. The nominal layout and percentage anchors stay fixed, preventing feedback-driven growth. This extends the frame surface rather than reflowing all children. Local artwork/text clipping remains deliberate.
+
+Bounded-content width measures loaded text, clamps the card between min/max bounds, and reserves the maximum width for the outer capture canvas. Short and long titles can change card width without changing that width recommendation. Auto height and explicitly overflowing/growing content can still require different capture height/bounds; use fixed height when the scene requires it. Primary metadata stays on one line in this mode. Keep flexible text columns and min-width:0; fixed inner widths can still defeat any responsive authoring contract.
+
+Text modes are opt-in per field; theme keeps the native behavior. Auto-shrink stops at the configured readable minimum and uses ellipsis if text still cannot fit. Marquee activates only for overflow, respects explicit direction or infers direction from text, pauses on hover/focus, and uses static ellipsis for reduced-motion preferences. Recognizable native marquee/ticker/scroll CSS animations are stopped when a host text fitting policy replaces them, avoiding two scrolling systems. Generated marquee text is decorative for accessibility; the original readable text remains available. General authors should keep a field's own text box constrained and separate from artwork/icons.
+
+The host owns data-mpo-* sizing/fitting attributes and --mpo-content-*, --mpo-fit-*, --mpo-marquee-* and --mpo-constrained-* variables. Do not hardcode or animate those internals. Layer Custom CSS remains the final override; intentionally overriding layout/clipping rules can override a chosen policy.
+
+The unlocked Desktop HUD scale grip updates independent desktop scale and copies active dimensions when first enabling separate Desktop sizing, preserving stream output. It saves only the selected layer's Desktop sizing under the existing local write/origin policy. The 50–200% slider range is a convenience, not a hard limit on exact scale or the grip; native window/platform size limits still apply. Big Studio retains stage content scale (all layers) × selected layer scale, shows effective scale, and provides separate resets; Advanced styling no longer duplicates the selected-layer scale control.
+
+## 11. Acceptance checklist
 
 - [ ] Default component, manifest, CSS, and optional local imports load with empty artwork and stopped media.
 - [ ] OBS, TikTok, Desktop, and Big Studio each use the intended manifest canvas and adapt their inner layout.
@@ -411,3 +447,8 @@ The example keeps native effects on children, local crop/ellipsis at each field,
 Do not claim desktop/OBS/Tauri visual verification without testing those surfaces. A source or unit check does not establish Windows compositor behavior. When delivering theme source, list the checks performed and any remaining live visual checks.
 
 - [ ] Time and progress come from the shared host props, with no private interpolation timer. Unknown duration shows elapsed-only time, unavailable position shows --:--, and indeterminate progress has no exact percentage. Pause, resume, seeks, 0.5x/2x rates and identical-title source switches preserve the host behavior.
+
+- [ ] Drag, proportional and dimension resize, arrow nudging, cancel and undo work through preview fitting and overall layer scale.
+- [ ] Boundary policies preserve nominal SDK percentage geometry, include paint bounds and do not recursively enlarge the canvas.
+- [ ] Short/long/Arabic metadata, loaded fonts, auto-shrink minimums, marquee direction and reduced motion behave consistently.
+- [ ] Builder design dimensions, exported manifests and live studio canvases agree; generated visual projects reopen without overwriting external code edits.

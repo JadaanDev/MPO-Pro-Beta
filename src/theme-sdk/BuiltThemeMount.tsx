@@ -3,20 +3,16 @@ import type { MediaState } from "../types/media";
 import type { ThemeConfig } from "../types/themes";
 import type { ThemeDefinition, ThemeSurface } from "./schema";
 import { ThemeRenderer } from "./ThemeRenderer";
-
-const DEFAULT_CANVASES: Record<ThemeSurface, { width: number; height: number }> = {
-  obs: { width: 640, height: 180 }, tiktok: { width: 360, height: 640 },
-  desktop: { width: 490, height: 180 }, big: { width: 1280, height: 720 },
-};
+import { themeCanvasSize } from './canvasSizes';
 
 /** Layer dimensions take priority over the theme's per-studio design canvas. */
-export function builtThemeSize(theme: ThemeDefinition, surface: ThemeSurface, config: Pick<ThemeConfig, "customWidth" | "customHeight">) {
-  const design = theme.bundle?.manifest.canvasSizes?.[surface];
+export function builtThemeSize(theme: ThemeDefinition, surface: ThemeSurface, config: Pick<ThemeConfig, "customWidth" | "customHeight" | "widthMode" | "contentMinWidth" | "contentMaxWidth">) {
+  const design = themeCanvasSize(theme, surface);
   const dimension = (custom: number, authored: number | undefined, fallback: number) =>
     Number.isFinite(custom) && custom > 0 ? custom : Number.isFinite(authored) && authored! > 0 ? authored! : fallback;
   return {
-    width: dimension(config.customWidth, design?.width, DEFAULT_CANVASES[surface].width),
-    height: dimension(config.customHeight, design?.height, DEFAULT_CANVASES[surface].height),
+    width: config.widthMode==='content' ? Math.max(config.contentMinWidth || 320,config.contentMaxWidth || 600) : dimension(config.customWidth, design.width, design.width),
+    height: dimension(config.customHeight, design.height, design.height),
   };
 }
 

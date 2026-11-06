@@ -1,6 +1,8 @@
 import { THEME_SURFACES, type ThemeDefinition, type ThemeElement } from "../schema";
 import type { ThemeBundle } from "../compiler/types";
 import { withBundleAuthoringFiles } from "./bundleAuthoring";
+import { migrateThemeCanvases } from '../canvasSizes';
+import { visualProjectFile } from '../visualProject';
 
 function renderElement(element: ThemeElement): string {
   const role = element.type === "source" ? "badge" : element.type === "text" ? "themeLabel" : element.type;
@@ -42,14 +44,16 @@ function renderElement(element: ThemeElement): string {
 
 export function generateBundleFromDeclarative(theme: ThemeDefinition): ThemeBundle {
   const manifest = {
+    ...theme.sourceBundle?.manifest,
     schemaVersion: 2 as const,
     id: theme.id,
     name: theme.name,
-    version: "1.0.0",
-    author: "MPO Studio Creator",
-    description: `React theme compiled from ${theme.name}`,
+    version: theme.sourceBundle?.manifest.version || "1.0.0",
+    author: theme.sourceBundle?.manifest.author || "MPO Studio Creator",
+    description: theme.sourceBundle?.manifest.description || `React theme compiled from ${theme.name}`,
     targetStudios: [...THEME_SURFACES],
     entryPoint: "Theme.tsx",
+    canvasSizes: migrateThemeCanvases(theme).canvasSizes,
   };
   // Keep every surface layout and hidden element in the portable source export.
   const surfaceLayouts = THEME_SURFACES.map(surface => `      {surface === ${JSON.stringify(surface)} && (<>
@@ -107,5 +111,5 @@ ${surfaceLayouts}
 .progress-bar { height: 100%; border-radius: inherit; transition: width 0.3s ease; }
 @keyframes mpoGeneratedSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 `;
-  return withBundleAuthoringFiles({ schemaVersion: 2, manifest, files: { "Theme.tsx": tsx, "style.css": css } });
+  return withBundleAuthoringFiles({ schemaVersion: 2, manifest, files: { ...theme.sourceBundle?.files, "Theme.tsx": tsx, "style.css": css, 'mpo-builder.json':visualProjectFile(theme,tsx,css) } });
 }

@@ -21,3 +21,9 @@ export function applyDesktopEdit(config: ThemeConfig, updater: (view: ThemeConfi
     desktopCustomHeight: next.customHeight !== view.customHeight ? next.customHeight : next.desktopCustomHeight,
   };
 }
+
+/** A HUD grip preserves stream sizes by enabling independent desktop scale. */
+export function resizedDesktopConfig(config:ThemeConfig,scale:number):ThemeConfig {
+  if(!Number.isFinite(scale)||scale<=0)return config;
+  return {...config,useSeparateDesktopSize:true,desktopScale:scale,desktopCustomWidth:config.useSeparateDesktopSize?config.desktopCustomWidth??config.customWidth:config.customWidth,desktopCustomHeight:config.useSeparateDesktopSize?config.desktopCustomHeight??config.customHeight:config.customHeight};
+}

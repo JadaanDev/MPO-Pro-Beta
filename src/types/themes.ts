@@ -89,7 +89,7 @@ export type TransitionDirection = "left" | "right" | "up" | "down" | "center";
 export type TransitionIntensity = "subtle" | "standard" | "dramatic" | "extreme";
 
 export type TextElement = "title" | "artist" | "album" | "themeLabel" | "badge" | "timestamps" | "status";
-export interface TextAppearance { color?: string; size?: number; weight?: number; italic?: boolean; transform?: "none" | "uppercase" | "lowercase" | "capitalize"; font?: string; }
+export interface TextAppearance { color?: string; size?: number; weight?: number; italic?: boolean; transform?: "none" | "uppercase" | "lowercase" | "capitalize"; font?: string; overflow?: 'theme' | 'ellipsis' | 'shrink' | 'marquee'; minSize?: number; marqueeSpeed?: number; }
 export type ArtworkColorTarget = "surface" | "accent" | "text" | "border" | "progress" | "indicator";
 export type ArtworkColorMode = "manual" | "artwork" | "contrast";
 export interface ThemeConfig {
@@ -103,6 +103,10 @@ export interface ThemeConfig {
   autoAlbumColor: boolean;
   customWidth: number; // 0 = auto
   customHeight: number; // 0 = auto
+  layoutBoundary?: 'legacy' | 'constrain' | 'overflow' | 'grow';
+  widthMode?: 'fixed' | 'content';
+  contentMinWidth?: number;
+  contentMaxWidth?: number;
   // Optional presentation branding; embedded raster logos travel with exported layers.
   bigBrandName?: string;
   bigBrandLogo?: string;

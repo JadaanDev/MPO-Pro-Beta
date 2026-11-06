@@ -1,10 +1,11 @@
 import { validateThemeDefinition, type ThemeDefinition } from "./schema";
+import { migrateThemeCanvases } from './canvasSizes';
 export const LIBRARY_KEY = "mpo_theme_library_v1";
 export const LIBRARY_EVENT = "mpo-theme-library";
 export function readThemeLibrary(): ThemeDefinition[] {
   const raw: unknown = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]");
   if (!Array.isArray(raw) || raw.some(theme => validateThemeDefinition(theme).length) || new Set(raw.map(t=>t.id)).size !== raw.length) throw Error("The saved theme library is invalid. Export or repair the saved data before replacing it.");
-  return raw;
+  return raw.map(migrateThemeCanvases);
 }
 export function writeThemeLibrary(themes: ThemeDefinition[]) {
   if (themes.some(theme => validateThemeDefinition(theme).length) || new Set(themes.map(t=>t.id)).size !== themes.length) throw Error("Invalid theme library.");

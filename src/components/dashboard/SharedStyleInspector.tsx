@@ -1,3 +1,4 @@
+import { LayoutSizingControls, studioSizePresets } from "./LayoutSizingControls";
 import { TypographyControls } from "./TypographyControls";
 import { ArtworkColorControls } from "./ArtworkColorControls";
 import { artworkSurface, bestContrastColor, parseHex, readableArtworkColor } from "../../utils/artworkColors";
@@ -18,10 +19,10 @@ interface Props {
   onConfigChange: (updater: (prev: ThemeConfig) => ThemeConfig) => void;
   onCustomCssChange: (css: string) => void;
   onCommitHistory?: (desc?: string) => void; onOpenCssReference?: () => void;
-  onReplay?: () => void; width?: string; presentationMode?: boolean; arrangePlacement?: boolean; focusedElement?: string;
+  onReplay?: () => void; width?: string; presentationMode?: boolean; arrangePlacement?: boolean; focusedElement?: string; hideScaleControl?: boolean; studioSurface?: "obs" | "tiktok" | "desktop" | "big";
 }
 const PRESET_COLORS = ["#6366f1", "#00f0ff", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#38bdf8", "#ffffff"];
-export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, customCss, onConfigChange, onCustomCssChange, onCommitHistory, onOpenCssReference, onReplay, width, presentationMode = false, arrangePlacement = false, focusedElement }) => {
+export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, customCss, onConfigChange, onCustomCssChange, onCommitHistory, onOpenCssReference, onReplay, width, presentationMode = false, arrangePlacement = false, focusedElement, hideScaleControl = false, studioSurface }) => {
   // Custom Google Font input
   const [customFontInput, setCustomFontInput] = useState("");
   const [fontLoadedNotice, setFontLoadedNotice] = useState<string | null>(null);
@@ -181,7 +182,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
               {openAccordions.frame && (
                 <div className="style-accordion-body">
-                  <div className="beta-frame-controls"><div><strong>Fine styling</strong><small>Refine the frame for this layer</small></div>
+                  <LayoutSizingControls config={config} onChange={onConfigChange} onCommit={onCommitHistory}/><div className="beta-frame-controls"><div><strong>Fine styling</strong><small>Refine the frame for this layer</small></div>
                     <label>Border width <output>{config.frameBorderWidth === undefined ? "Theme default" : `${config.frameBorderWidth}px`}</output><input type="range" min="0" max="12" step="1" value={config.frameBorderWidth ?? 0} onChange={(e) => onConfigChange(c => ({...c, frameBorderWidth: Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed frame border")} /></label>
                     <BigNumberInput label="Exact border width" unit="px" value={config.frameBorderWidth} onCommit={value => onConfigChange(c => ({ ...c, frameBorderWidth: value }))} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}><span style={{ fontSize: 11, color: "inherit" }}>Border color</span><HexColorPicker value={config.frameBorderColor || "#FFFFFF"} onChange={(color) => onConfigChange(c => ({...c, frameBorderColor: color}))} onBlur={() => onCommitHistory?.("Changed frame border color")} /></div>
@@ -192,18 +193,14 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <button type="button" onClick={() => { onConfigChange(c => ({...c, frameShadow:undefined})); onCommitHistory?.("Reset shadow"); }}>Reset shadow</button>
                     </div>
                   </div>
-                  {!presentationMode && <div className="style-control-group"><span>Size presets (changes scale, width and height)</span><div className="shared-size-presets">{[
-                    {label:"Compact", width:380, height:140, scale:.85}, {label:"Mini", width:420, height:160, scale:.9},
-                    {label:"Wide", width:560, height:130, scale:.9}, {label:"Standard", width:490, height:180, scale:1},
-                    {label:"Expanded", width:600, height:220, scale:1.05}, {label:"Auto", width:0, height:0, scale:1},
-                  ].map(preset => <button type="button" key={preset.label} onClick={() => { onConfigChange(c => ({...c, customWidth:preset.width, customHeight:preset.height, scale:preset.scale})); onCommitHistory?.(`Applied ${preset.label} size`); }}>{preset.label}</button>)}</div></div>}
+                  {!presentationMode && <div className="style-control-group"><span>Size presets (changes scale, width and height)</span><div className="shared-size-presets">{studioSizePresets(studioSurface).map(preset => <button type="button" key={preset.label} onClick={() => { onConfigChange(c => ({...c, customWidth:preset.width, customHeight:preset.height, scale:preset.scale, widthMode:"fixed"})); onCommitHistory?.(`Applied ${preset.label} size`); }}>{preset.label}</button>)}</div></div>}
                   {/* Card Scale */}
-                  <div className="style-control-group">
+                  {!hideScaleControl && <div className="style-control-group">
                     <div className="group-label-row">
-                      <span>Card Scale</span>
+                      <span>{presentationMode ? "Selected layer scale" : "Card Scale"}</span>
                       <EditableValueBadge
                         value={config.scale}
-                        min={presentationMode ? 0 : 0.5}
+                        min={0.01}
                         step={0.05}
                         unit="%"
                         displayMultiplier={100}
@@ -224,6 +221,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                     />
                   </div>
 
+                  }
                   {/* Dimensions: Width & Height */}
                   {!presentationMode && <>
                   <div className="style-control-group">

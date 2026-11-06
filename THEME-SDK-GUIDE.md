@@ -1,8 +1,8 @@
-# MPO-pro Theme SDK — Developer Guide (`v7.0.0-beta.13`)
+# MPO-pro Theme SDK — Developer Guide (`v7.0.0-beta.14`)
 
 All studios provide the shared projected playhead through `media.position_ms`, `progress` and `formattedTime`; do not add another interpolation timer. `rawMedia` retains the backend publication and provider tuple for diagnostics. Use `timeline.positionKnown` and `timeline.durationKnown` independently: elapsed-only time when the total is unknown, `--:--` when position is unavailable, and an indeterminate rail without a percentage when progress is unknown. Missing duration is not LIVE evidence. The [complete playback contract](THEME-SDK-LLM.md#playback-clock-and-unknown-data) documents rates, bounds, uncertainty and recovery.
 
-Welcome to the **MPO-pro Theme Development Platform**. With v7.0.0-beta.13, you can author high-performance, broadcast-ready media overlay themes using **modern React (TSX/JSX) and scoped CSS**, compiled in real time directly inside MPO-pro.
+Welcome to the **MPO-pro Theme Development Platform**. With v7.0.0-beta.14, you can author high-performance, broadcast-ready media overlay themes using **modern React (TSX/JSX) and scoped CSS**, compiled in real time directly inside MPO-pro.
 
 ---
 
@@ -110,3 +110,9 @@ export default function Theme({ surface, ...props }: MpoThemeProps) {
 }
 ```
 
+
+## Beta 14 sizing and Arrange
+
+Direct dragging, resize modes, keyboard nudging, cancellation and gesture undo now work across native and SDK studio themes. Shared frame policies offer Constrain, Allow overflow or Grow frame surface while preserving legacy defaults. Bounded-content width reserves maximum-width capture space; per-text Ellipsis, minimum-size Auto-shrink and RTL/reduced-motion Marquee are opt-in. The unlocked HUD grip saves independent Desktop scale; Big Studio shows stage × layer scale with separate resets.
+
+Builder shares nominal dimensions with live outputs, exposes per-surface canvas width/height, and supports visual drag/resize plus undo. Generated source retains mpo-builder.json for reopening editable visual projects; external TSX/CSS edits are preserved by treating changed bundles as code themes. See [the complete beta 14 contract](THEME-SDK-LLM.md#10-beta-14-sizing-fitting-and-direct-arrange).

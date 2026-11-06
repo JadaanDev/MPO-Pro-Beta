@@ -188,3 +188,5 @@
 .hud-toast-banner{position:fixed;bottom:8px;max-width:calc(100vw - 24px);padding:6px 10px;border-radius:8px;border-color:rgba(199,184,250,.25);background:rgba(20,22,31,.96);box-shadow:0 5px 16px rgba(0,0,0,.3);font-family:var(--font-body);color:#f3eefb;pointer-events:none;text-align:center}
 @media(max-width:460px){.hud-action-btn span,.hud-eco-badge span{display:none}.hud-action-btn{padding:0 7px}.desktop-hud-hover-bar{gap:4px}}
 @media(prefers-reduced-motion:reduce){.desktop-hud-hover-bar,.desktop-overlay-container{transition:none}.hud-toast-banner{animation:none}}
+
+.hud-scale-grip{position:absolute;right:7px;bottom:7px;z-index:1000;display:flex;gap:4px;align-items:center;background:#192132;color:#dfd3ff;border:1px solid #a78bfa;border-radius:5px;padding:3px 6px;cursor:nwse-resize;touch-action:none;font:11px system-ui}.hud-scale-grip:focus-visible{outline:2px solid white;outline-offset:2px}

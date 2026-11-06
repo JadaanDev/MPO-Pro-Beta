@@ -2069,7 +2069,7 @@ dependencies = [
 
 [[package]]
 name = "mpo-pro-beta"
-version = "7.0.0-beta.13"
+version = "7.0.0-beta.14"
 dependencies = [
  "axum",
  "futures-util",

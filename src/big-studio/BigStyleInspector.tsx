@@ -5,8 +5,8 @@ import { Toggle } from "../components/common/Toggle";
 import { HexColorPicker } from "../components/common/HexColorPicker";
 import { BigNumberInput } from "./BigNumberInput";
 import { setVisibility, type VisibilityKey } from "../utils/visibility";
-type Props = { config: ThemeConfig; onChange: (update: (config: ThemeConfig) => ThemeConfig) => void };
-export function BigStyleInspector({ config, onChange }: Props) {
+type Props = { config: ThemeConfig; stageScale?: number; onStageScaleChange?: (scale:number)=>void; onChange: (update: (config: ThemeConfig) => ThemeConfig) => void };
+export function BigStyleInspector({ config, onChange, stageScale = 1, onStageScaleChange }: Props) {
   const set = (patch: Partial<ThemeConfig>) => onChange(old => ({ ...old, ...patch }));
   const fileInput = useRef<HTMLInputElement>(null);
   const [error,setError] = useState("");
@@ -29,6 +29,6 @@ export function BigStyleInspector({ config, onChange }: Props) {
       <small>PNG, JPEG or WebP, up to 256 KB. Included when exporting this layer.</small>{error && <p role="alert" className="big-brand-error">{error}</p>}
     </section>
     <section className="big-settings-card"><div className="big-settings-heading"><div><h4>Visible elements</h4><p>Choose what appears on the stage.</p></div></div><div className="big-visibility-grid">{visibility.map(([key,label])=><Toggle key={key} label={label} title={label} size="sm" checked={key === "showVisualizer" ? Boolean(config[key]) : config[key] !== false} onChange={value=>onChange(old=>setVisibility(old,key,value))}/>)}</div></section>
-    <details className="big-settings-details"><summary>Presentation size</summary><div><BigNumberInput label="Content scale" unit="%" value={(config.scale ?? 1)*100} onCommit={value=>set({scale:(value ?? 100)/100})}/><BigNumberInput label="Content width" unit="px" value={config.bigCustomWidth || undefined} onCommit={value=>set({bigCustomWidth:value || 0})}/><BigNumberInput label="Content height" unit="px" value={config.bigCustomHeight || undefined} onCommit={value=>set({bigCustomHeight:value || 0})}/><small>Leave dimensions empty to use the responsive layout.</small></div></details>
+    <details className="big-settings-details"><summary>Presentation size</summary><div>{onStageScaleChange && <><BigNumberInput label="Stage content scale (all layers)" unit="%" value={stageScale*100} onCommit={value=>onStageScaleChange(Math.max(0,(value ?? 100)/100))}/><button type="button" onClick={()=>onStageScaleChange(1)}>Reset stage scale</button></>}<p>Effective scale: {Math.round(stageScale * (config.scale ?? 1) * 10000)/100}% = stage × selected layer</p><button type="button" onClick={()=>set({scale:1})}>Reset selected layer scale</button><BigNumberInput label="Selected layer scale" unit="%" value={(config.scale ?? 1)*100} onCommit={value=>set({scale:(value ?? 100)/100})}/><BigNumberInput label="Content width" unit="px" value={config.bigCustomWidth || undefined} onCommit={value=>set({bigCustomWidth:value || 0})}/><BigNumberInput label="Content height" unit="px" value={config.bigCustomHeight || undefined} onCommit={value=>set({bigCustomHeight:value || 0})}/><small>Leave dimensions empty to use the responsive layout.</small></div></details>
   </section>;
 }

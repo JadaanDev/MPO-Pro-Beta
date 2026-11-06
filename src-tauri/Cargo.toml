@@ -1,6 +1,6 @@
 [package]
 name = "mpo-pro-beta"
-version = "7.0.0-beta.13"
+version = "7.0.0-beta.14"
 description = "High-Performance Windows Media Overlay for Desktop HUD and OBS/TikTok Live Studio"
 authors = ["MD-J"]
 edition = "2021"

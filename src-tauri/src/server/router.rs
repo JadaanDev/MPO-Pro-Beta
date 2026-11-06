@@ -127,6 +127,7 @@ pub async fn start_server(
         .route("/api/art", get(get_art))
         .route("/api/control", post(handle_control))
         .route("/api/layers", get(get_layers).post(set_layers))
+        .route("/api/layers/desktop-scale", post(set_desktop_scale))
         .route("/api/app-sources", get(get_app_sources).post(set_app_sources))
         .route("/api/themes", get(get_themes))
         .route("/api/themes/:id/bundle", get(get_theme_bundle))
@@ -209,6 +210,36 @@ async fn set_layers(
     *state.layers.write().await = payload.clone();
     let _ = state.layers_tx.send(payload);
     (StatusCode::OK, "OK").into_response()
+}
+
+#[derive(serde::Deserialize)]
+struct DesktopScalePayload { layer_id: String, scale: f64 }
+
+fn apply_desktop_scale(payload: &mut serde_json::Value, id: &str, scale: f64) -> Result<(), StatusCode> {
+    if !scale.is_finite() || scale <= 0.0 { return Err(StatusCode::BAD_REQUEST); }
+    let key = if payload.get("desktopLayers").and_then(|v| v.as_array()).is_some_and(|layers| layers.iter().any(|layer| layer.get("id").and_then(|v| v.as_str()) == Some(id))) { "desktopLayers" } else { "layers" };
+    let layer = payload.get_mut(key).and_then(|v| v.as_array_mut()).and_then(|layers| layers.iter_mut().find(|layer| layer.get("id").and_then(|v| v.as_str()) == Some(id))).ok_or(StatusCode::NOT_FOUND)?;
+    let config = layer.get_mut("config").and_then(|v| v.as_object_mut()).ok_or(StatusCode::BAD_REQUEST)?;
+    if config.get("useSeparateDesktopSize").and_then(|v| v.as_bool()) != Some(true) {
+        config.insert("desktopCustomWidth".into(), config.get("customWidth").cloned().unwrap_or(serde_json::json!(0)));
+        config.insert("desktopCustomHeight".into(), config.get("customHeight").cloned().unwrap_or(serde_json::json!(0)));
+    }
+    config.insert("useSeparateDesktopSize".into(), serde_json::json!(true));
+    config.insert("desktopScale".into(), serde_json::json!(scale));
+    Ok(())
+}
+
+/// Update only the selected HUD scale under the same write/origin boundary as
+/// layer edits. A HUD gesture never posts a stale copy of the entire project.
+async fn set_desktop_scale(State(state): State<Arc<ServerState>>, Json(request): Json<DesktopScalePayload>) -> Response {
+    let _guard = state.write_lock.lock().await;
+    let mut payload = state.layers.read().await.clone();
+    if let Err(status) = apply_desktop_scale(&mut payload, &request.layer_id, request.scale) { return (status, "Invalid HUD layer or scale").into_response(); }
+    let json = match serde_json::to_vec_pretty(&payload) { Ok(value) => value, Err(_) => return StatusCode::BAD_REQUEST.into_response() };
+    if tokio::fs::write(&state.config_file_path,json).await.is_err() { return StatusCode::INTERNAL_SERVER_ERROR.into_response(); }
+    *state.layers.write().await = payload.clone();
+    let _ = state.layers_tx.send(payload.clone());
+    Json(payload).into_response()
 }
 
 async fn get_app_sources(State(state): State<Arc<ServerState>>) -> Json<Vec<AppFilterRule>> {
@@ -360,6 +391,33 @@ async fn handle_socket(socket: WebSocket, state: Arc<ServerState>) {
 #[cfg(test)]
 mod security_tests {
     use super::*;
+    #[test]
+    fn hud_scale_updates_only_selected_desktop_fields() {
+        let mut payload=serde_json::json!({"layers":[{"id":"obs","config":{"scale":0.8}}],"desktopLayers":[{"id":"hud","config":{"scale":1.2,"customWidth":490,"customHeight":180,"titleColor":"#abcdef"}}],"bigProject":{"layers":[{"id":"big"}]},"themeLibrary":[{"id":"custom"}]});
+        let before=payload.clone();
+        apply_desktop_scale(&mut payload,"hud",3.5).unwrap();
+        assert_eq!(payload["layers"],before["layers"]);
+        assert_eq!(payload["bigProject"],before["bigProject"]);
+        assert_eq!(payload["themeLibrary"],before["themeLibrary"]);
+        let config=&payload["desktopLayers"][0]["config"];
+        assert_eq!(config["scale"],1.2);assert_eq!(config["customWidth"],490);
+        assert_eq!(config["desktopScale"],3.5);assert_eq!(config["desktopCustomWidth"],490);
+        assert_eq!(config["desktopCustomHeight"],180);assert_eq!(config["titleColor"],"#abcdef");
+        payload["desktopLayers"][0]["config"]["desktopCustomWidth"]=serde_json::json!(620);
+        apply_desktop_scale(&mut payload,"hud",0.25).unwrap();
+        assert_eq!(payload["desktopLayers"][0]["config"]["desktopCustomWidth"],620);
+        let good=payload.clone();
+        assert!(apply_desktop_scale(&mut payload,"hud",f64::NAN).is_err());
+        assert!(apply_desktop_scale(&mut payload,"hud",-1.0).is_err());
+        assert!(apply_desktop_scale(&mut payload,"missing",1.0).is_err());
+        assert_eq!(payload,good);
+        let mut headers=HeaderMap::new();
+        assert!(!request_origin_allowed(&Method::POST,"/api/layers/desktop-scale",&headers));
+        headers.insert(header::ORIGIN,"https://evil.example".parse().unwrap());
+        assert!(!request_origin_allowed(&Method::POST,"/api/layers/desktop-scale",&headers));
+        headers.insert(header::ORIGIN,"https://tauri.localhost".parse().unwrap());
+        assert!(request_origin_allowed(&Method::POST,"/api/layers/desktop-scale",&headers));
+    }
     #[test]
     fn rejects_untrusted_browser_origins_and_originless_writes() {
         let mut h = HeaderMap::new();

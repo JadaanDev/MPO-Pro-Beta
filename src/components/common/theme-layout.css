@@ -1,0 +1,14 @@
+[data-mpo-content-width] { box-sizing:border-box !important; width:var(--mpo-content-width) !important; min-width:0 !important; max-width:none !important; margin-inline:auto; }
+[data-mpo-grow-frame] { position:relative; isolation:isolate; background:transparent !important; border-color:transparent !important; box-shadow:none !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important; overflow:visible !important; }
+[data-mpo-constrained] { translate:var(--mpo-constrained-translate) !important; scale:var(--mpo-constrained-scale) !important; }
+[data-mpo-text-overflow] { min-width:0; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; }
+[data-mpo-text-overflow="shrink"] { font-size:var(--mpo-fit-font-size) !important; }
+[data-mpo-text-overflow] > :is(span,div) { min-width:0; max-width:100%; white-space:nowrap !important; overflow:hidden; text-overflow:ellipsis; font-size:inherit !important; }
+[data-mpo-marquee-active="true"] { position:relative; -webkit-text-fill-color:transparent !important; text-shadow:none !important; }
+[data-mpo-marquee-active="true"] > * { opacity:0 !important; }
+[data-mpo-marquee-active="true"]::after { content:attr(data-mpo-marquee-text) / ""; position:absolute; inset-inline-start:0; top:50%; transform:translateY(-50%); color:var(--mpo-marquee-color); text-shadow:var(--mpo-marquee-shadow); white-space:nowrap; max-width:none; animation:mpo-text-marquee var(--mpo-marquee-duration) linear infinite alternate; }
+@keyframes mpo-text-marquee { 0%,15% { translate:0 0; } 85%,100% { translate:var(--mpo-marquee-distance) 0; } }
+[data-mpo-marquee-active="true"]:hover::after,[data-mpo-marquee-active="true"]:focus-within::after { animation-play-state:paused; }
+@media (prefers-reduced-motion:reduce) { [data-mpo-marquee-active="true"] { color:var(--mpo-marquee-color) !important; text-shadow:var(--mpo-marquee-shadow) !important; } [data-mpo-marquee-active="true"] > * { opacity:1 !important; } [data-mpo-marquee-active="true"]::after { content:none; animation:none; } }
+
+[data-mpo-stop-text-scroll] { animation:none !important; }

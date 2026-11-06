@@ -19,6 +19,7 @@ import { MediaState } from "../types/media";
 import { isTauriEnvironment } from "../hooks/useMediaState";
 import { SharedStyleInspector } from "../components/dashboard/SharedStyleInspector";
 import { ContextualThemeEditor, findThemeElement, type ThemeElement } from "../components/dashboard/ContextualThemeEditor";
+import { ArrangeCanvas } from "../components/dashboard/ArrangeCanvas";
 import { ArrangeElementPicker } from "../components/dashboard/ArrangeElementPicker";
 import { LayerContextMenu } from "../components/dashboard/LayerContextMenu";
 import { LayerCard } from "../components/dashboard/LayerCard";
@@ -26,7 +27,7 @@ import { extractDominantColor } from "../utils/colorExtractor";
 import { loadGoogleFont } from "../utils/fontLoader";
 import { presentationEditorConfig, applyPresentationEdit } from "../utils/presentationEditorConfig";
 import { BIG_THEMES } from "./themes";
-import { readBigSettings } from "./settings";
+import { readBigSettings, writeBigSettings } from "./settings";
 import { useBigLayers, exportBigLayer } from "./useBigLayers";
 import type { BigLayer } from "./types";
 import { BigStage } from "./BigStage";
@@ -449,7 +450,7 @@ export function BigStudio({
               </div>
               <div className="canvas-viewport-v4 auto-fit-viewport" style={{ padding: "16px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "14px" }}>
                 <div className="checkerboard-bg" />
-                <div className={`big-preview-stage ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={event => {if(arrangeMode)setHoveredElement(findThemeElement(event.target as Element));}} onPointerLeave={()=>setHoveredElement(null)} onClick={event=>{if(arrangeMode)setSelectedElement(findThemeElement(event.target as Element));}}>
+                <ArrangeCanvas enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={presentationEditorConfig(active.config)} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} layerKey={active.id} className={`big-preview-stage ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={event => {if(arrangeMode)setHoveredElement(findThemeElement(event.target as Element));}} onPointerLeave={()=>setHoveredElement(null)} onClick={event=>{if(arrangeMode)setSelectedElement(findThemeElement(event.target as Element));}}>
                 <BigPreview>
                   <BigStage
                     theme={theme}
@@ -463,7 +464,7 @@ export function BigStudio({
                     replay={replay}
                   />
                 </BigPreview>
-                </div>
+                </ArrangeCanvas>
                 <span className="big-preview-hint">Live presentation preview · press F11 in the presentation window for full screen</span>
               </div>
               {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
@@ -484,9 +485,10 @@ export function BigStudio({
         {/* COLUMN 3: Dedicated Overlay Styling Accordion (100% Card Customizer Options) */}
         {showInspector && (
           <div className="big-inspector-column" style={{ width: !showPreview && !showLeftPanel ? "100%" : !showPreview ? `${layoutWidths.right + layoutWidths.center}%` : `${layoutWidths.right}%` }}>
-          <BigStyleInspector config={active.config} onChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))} />
+          <BigStyleInspector stageScale={settings.scale} onStageScaleChange={scale => {const next={...settings,scale};setSettings(next);writeBigSettings(next);}} config={active.config} onChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))} />
           <details><summary>Advanced styling</summary><SharedStyleInspector
             presentationMode
+            hideScaleControl
             config={presentationEditorConfig(active.config)}
             extractedColor={effectiveExtractedColor}
             customCss={active.customCss}

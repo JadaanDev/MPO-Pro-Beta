@@ -15,6 +15,7 @@ import { DesktopOverlayWidget } from "./components/overlay/DesktopOverlayWidget"
 import { generateEffectiveThemeCss } from "./utils/ThemeStyleEngine";
 import { TrackTransitionWrapper } from "./components/common/TrackTransitionWrapper";
 import { sourceResolutionScale } from "./utils/browserSource";
+import { resizedDesktopConfig } from "./utils/desktopEditorConfig";
 import { ThemeEffectBoundary } from "./components/common/ThemeEffectBoundary";
 
 export const App: React.FC = () => {
@@ -102,6 +103,7 @@ export const App: React.FC = () => {
   });
 
   const { media, artUrl, getApiBaseUrl, isConnected } = useMediaState();
+  const [hudScalePreview,setHudScalePreview]=useState<{id:string;scale:number}|null>(null);
 
   // Dynamic dominant color extracted from album art
   const [extractedColor, setExtractedColor] = useState<string | null>(null);
@@ -349,24 +351,25 @@ export const App: React.FC = () => {
     }
 
     // Apply auto album accent color and separate desktop overlay sizing if enabled
+    const hudConfig = isDesktopHud && hudScalePreview?.id===targetLayer.id ? resizedDesktopConfig(targetLayer.config,hudScalePreview.scale) : targetLayer.config;
     const effectiveConfig = {
-      ...targetLayer.config,
+      ...hudConfig,
       scale:
-        isDesktopHud && targetLayer.config.useSeparateDesktopSize && targetLayer.config.desktopScale
-          ? targetLayer.config.desktopScale
-          : targetLayer.config.scale,
+        isDesktopHud && hudConfig.useSeparateDesktopSize && hudConfig.desktopScale
+          ? hudConfig.desktopScale
+          : hudConfig.scale,
       customWidth:
-        isDesktopHud && targetLayer.config.useSeparateDesktopSize && typeof targetLayer.config.desktopCustomWidth === "number"
-          ? targetLayer.config.desktopCustomWidth
-          : targetLayer.config.customWidth,
+        isDesktopHud && hudConfig.useSeparateDesktopSize && typeof hudConfig.desktopCustomWidth === "number"
+          ? hudConfig.desktopCustomWidth
+          : hudConfig.customWidth,
       customHeight:
-        isDesktopHud && targetLayer.config.useSeparateDesktopSize && typeof targetLayer.config.desktopCustomHeight === "number"
-          ? targetLayer.config.desktopCustomHeight
-          : targetLayer.config.customHeight,
+        isDesktopHud && hudConfig.useSeparateDesktopSize && typeof hudConfig.desktopCustomHeight === "number"
+          ? hudConfig.desktopCustomHeight
+          : hudConfig.customHeight,
       accentColor:
-        targetLayer.config.autoAlbumColor && extractedColor
+        hudConfig.autoAlbumColor && extractedColor
           ? extractedColor
-          : targetLayer.config.accentColor,
+          : hudConfig.accentColor,
     };
 
     const effectiveCustomCss = targetLayer.customCss;
@@ -451,11 +454,15 @@ export const App: React.FC = () => {
         }}
       >
         {isDesktopHud ? (
-          <DesktopOverlayWidget format={targetLayer.format}>
-            <ThemeEffectBoundary configScale={effectiveConfig.scale}>{themeContent}</ThemeEffectBoundary>
+          <DesktopOverlayWidget format={targetLayer.format} scale={effectiveConfig.scale} onScaleCancel={()=>setHudScalePreview(null)} onScaleChange={async (scale,persist)=>{
+            setHudScalePreview({id:targetLayer.id,scale});
+            if(!persist)return;
+            try {const response=await fetch(getApiBaseUrl()+'/api/layers/desktop-scale',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({layer_id:targetLayer.id,scale})});if(!response.ok)throw Error('Could not save HUD scale');const payload=await response.json();applyLayersPayload(payload);} finally {setHudScalePreview(null);}
+          }}>
+            <ThemeEffectBoundary config={effectiveConfig} configScale={effectiveConfig.scale}>{themeContent}</ThemeEffectBoundary>
           </DesktopOverlayWidget>
         ) : (
-          <div className="mpo-source-resolution" style={{ zoom: sourceResolutionScale(searchParams.get("quality")), flex: "none" }}><ThemeEffectBoundary configScale={effectiveConfig.scale}>{themeContent}</ThemeEffectBoundary></div>
+          <div className="mpo-source-resolution" style={{ zoom: sourceResolutionScale(searchParams.get("quality")), flex: "none" }}><ThemeEffectBoundary config={effectiveConfig} configScale={effectiveConfig.scale}>{themeContent}</ThemeEffectBoundary></div>
         )}
       </div>
     );

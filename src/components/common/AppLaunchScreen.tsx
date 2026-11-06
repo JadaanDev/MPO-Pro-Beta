@@ -92,7 +92,7 @@ export const AppLaunchScreen: React.FC<AppLaunchScreenProps> = ({
               borderRadius: "999px",
             }}
           >
-            v7.0.0-beta.13
+            v7.0.0-beta.14
           </span>
         </div>
       </div>

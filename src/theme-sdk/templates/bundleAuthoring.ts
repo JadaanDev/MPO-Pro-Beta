@@ -1,11 +1,6 @@
 import type { ThemeBundle } from "../compiler/types";
-
-export const DEFAULT_THEME_CANVAS_SIZES = {
-  obs: { width: 640, height: 180 },
-  tiktok: { width: 360, height: 640 },
-  desktop: { width: 490, height: 180 },
-  big: { width: 1280, height: 720 },
-};
+import { DEFAULT_THEME_CANVAS_SIZES } from '../canvasSizes';
+export { DEFAULT_THEME_CANVAS_SIZES } from '../canvasSizes';
 
 const AUTHORING_TYPES = `import type React from "react";
 
@@ -53,6 +48,14 @@ export interface MpoThemeColors {
   muted?: string;
 }
 export interface MpoThemeTime { current: string; duration: string; }
+export interface MpoTextFit { overflow?: "theme" | "ellipsis" | "shrink" | "marquee"; minSize?: number; marqueeSpeed?: number; }
+export interface MpoLayoutControls {
+  layoutBoundary?: "legacy" | "constrain" | "overflow" | "grow";
+  widthMode?: "fixed" | "content";
+  contentMinWidth?: number;
+  contentMaxWidth?: number;
+  typography?: Partial<Record<"title" | "artist" | "album" | "themeLabel" | "badge" | "status" | "timestamps", MpoTextFit & Record<string, any>>>;
+}
 export interface MpoThemeProps {
   media: MediaState;
   rawMedia?: MediaState;
@@ -63,7 +66,7 @@ export interface MpoThemeProps {
   format: "horizontal" | "vertical";
   progress: number;
   formattedTime: MpoThemeTime;
-  config?: Record<string, any>;
+  config?: Record<string, any> & MpoLayoutControls;
 }
 export type MpoThemeComponent = React.ComponentType<MpoThemeProps>;
 `;
@@ -91,6 +94,12 @@ The runtime connects these roles to the shared layer controls: visibility, offse
 ## Soft card edges
 
 The host provides a 32px transparent effect gutter. Keep outer positioning wrappers transparent with overflow:visible and put backgrounds, borders and box-shadow:var(--mpo-frame-shadow) on the inner card. Keep the frame and general layout ancestors open for Arrange movement; clip only artwork, text ellipsis and separate decorative surfaces. Do not add a second gutter or mask/filter/paint the host. Never fade text or artwork to disguise a clipped shadow. Layer Custom CSS is scoped and applied last; normal specificity and importance rules apply.
+
+## Beta 14 sizing and direct Arrange
+
+The host provides dragging, proportional/dimension resize, arrow nudging, cancellation and gesture undo through semantic roles. Do not implement a second studio drag system. Builder uses these same nominal canvas sizes and exposes per-studio dimensions. Generated visual projects carry mpo-builder.json; preserve it for visual re-editing. Changing generated Theme.tsx or style.css makes the visual Builder treat the project as code, preserving external edits.
+
+Optional layer controls include layoutBoundary (legacy, constrain, overflow, grow), widthMode (fixed or content), contentMinWidth and contentMaxWidth. Grow extends the frame surface without reflowing percentage children. Bounded width reserves maximum-width capture space. Per-text typography entries can choose overflow (theme, ellipsis, shrink, marquee), minSize and marqueeSpeed. Marquee respects text direction and reduced motion. Keep flexible text columns and do not override host-owned data-mpo-* attributes or fitting variables. Custom CSS remains the final override.
 
 ## Playback time
 

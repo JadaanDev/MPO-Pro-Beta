@@ -14,7 +14,8 @@ import {
   Layers,
 } from "lucide-react";
 import { Toggle } from "../../components/common/Toggle";
-import { ThemeEffectBoundary } from "../../components/common/ThemeEffectBoundary";
+import { AutoFitPreview } from "../../components/dashboard/AutoFitPreview";
+import { migrateThemeCanvases, themeCanvasSize, setThemeCanvasSize } from "../canvasSizes";
 import type { MediaState } from "../../types/media";
 import {
   ELEMENT_TYPES,
@@ -25,6 +26,7 @@ import {
   type ThemeSurface,
 } from "../schema";
 import { ThemeRenderer } from "../ThemeRenderer";
+import { visualThemeFromBundle } from "../visualProject";
 import { listAllThemes, saveTheme } from "../themeStore";
 
 export interface ThemeBuilderPageProps {
@@ -36,12 +38,12 @@ export interface ThemeBuilderPageProps {
 
 const SURFACE_META: Record<
   ThemeSurface,
-  { label: string; shortLabel: string; aspect: string; width: number; height: number; icon: React.ComponentType<{ size?: string | number }> }
+  { label: string; shortLabel: string;  icon: React.ComponentType<{ size?: string | number }> }
 > = {
-  obs: { label: "Overlay Studio (OBS)", shortLabel: "OBS 16:9", aspect: "640 × 180", width: 640, height: 180, icon: Palette },
-  tiktok: { label: "TikTok Studio", shortLabel: "TikTok 9:16", aspect: "360 × 640", width: 320, height: 568, icon: Smartphone },
-  desktop: { label: "Desktop Overlay", shortLabel: "Desktop HUD", aspect: "580 × 170", width: 580, height: 170, icon: AppWindow },
-  big: { label: "Big Studio Stage", shortLabel: "Big Stage", aspect: "720 × 405", width: 680, height: 382, icon: Monitor },
+  obs: { label: "Overlay Studio (OBS)", shortLabel: "OBS 16:9", icon: Palette },
+  tiktok: { label: "TikTok Studio", shortLabel: "TikTok 9:16", icon: Smartphone },
+  desktop: { label: "Desktop Overlay", shortLabel: "Desktop HUD", icon: AppWindow },
+  big: { label: "Big Studio Stage", shortLabel: "Big Stage", icon: Monitor },
 };
 
 export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
@@ -58,10 +60,12 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
   const [routedNotice, setRoutedNotice] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLDivElement>(null);
+  const gestureCleanup=useRef<(()=>void)|null>(null);
+  useEffect(()=>()=>gestureCleanup.current?.(),[activeThemeId,previewSurface]);
 
   useEffect(() => {
     listAllThemes().then((list) => {
-      setThemes(list);
+      setThemes(list.map(theme => migrateThemeCanvases(theme.bundle ? visualThemeFromBundle(theme.bundle) || theme : theme)));
       if (list.length > 0 && !activeThemeId) {
         setActiveThemeId(list[0].id);
       }
@@ -72,9 +76,19 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
     return themes.find((t) => t.id === activeThemeId) || themes[0] || null;
   }, [themes, activeThemeId]);
 
+  const activeRef = useRef(activeTheme); activeRef.current = activeTheme;
+  const [undo, setUndo] = useState<ThemeDefinition[]>([]);
+  const [redo, setRedo] = useState<ThemeDefinition[]>([]);
+  useEffect(() => { setUndo([]); setRedo([]); }, [activeThemeId]);
+  const previewTheme = (next: ThemeDefinition) => { activeRef.current = next; setThemes(prev => prev.map(t => t.id === next.id ? next : t)); };
+  const restore = (direction: "undo" | "redo") => { const stack = direction === "undo" ? undo : redo; const last = stack[stack.length - 1]; if (!last || !activeRef.current) return; if (direction === "undo") { setUndo(stack.slice(0,-1)); setRedo(v => [...v, activeRef.current!]); } else { setRedo(stack.slice(0,-1)); setUndo(v => [...v, activeRef.current!]); } previewTheme(last); void saveTheme(last); };
+
   const updateActiveTheme = (updater: (curr: ThemeDefinition) => ThemeDefinition) => {
     if (!activeTheme) return;
-    const next = updater(activeTheme);
+    const current = activeRef.current || activeTheme;
+    const next = updater(migrateThemeCanvases(current));
+    activeRef.current = next;
+    setUndo(v => [...v.slice(-49), current]); setRedo([]);
     setThemes((prev) => prev.map((t) => (t.id === next.id ? next : t)));
     saveTheme(next).catch(() => {});
   };
@@ -183,7 +197,24 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
     );
   };
 
-  const currentMeta = SURFACE_META[previewSurface];
+  const currentMeta = { ...SURFACE_META[previewSurface], ...themeCanvasSize(activeTheme, previewSurface) };
+  const startGesture = (event: React.PointerEvent, id: string, resize = false) => {
+    if (event.button !== 0 || !canvasRef.current || !activeTheme || activeTheme.bundle) return;
+    event.preventDefault(); event.stopPropagation(); setSelectedElementId(id);
+    const before = activeTheme; const element = activeElements.find(el => el.id === id); if (!element) return;
+    const rect = canvasRef.current.getBoundingClientRect(); const x = event.clientX, y = event.clientY;
+    const pointer = event.pointerId; const capture = event.currentTarget as HTMLElement; capture.setPointerCapture(pointer);
+    const move = (e: PointerEvent) => { if (e.pointerId !== pointer) return; const dx=(e.clientX-x)/rect.width*100,dy=(e.clientY-y)/rect.height*100;
+      const patch = resize ? { width:Math.max(.1, Math.min(100-element.x, element.width+dx)), height:Math.max(.1, Math.min(100-element.y, element.height+dy)) } : { x:Math.max(0,Math.min(100-element.width,element.x+dx)), y:Math.max(0,Math.min(100-element.height,element.y+dy)) };
+      const elements=activeElements.map(el => el.id === id ? {...el,...patch} : el);
+      previewTheme(hasSurfaceOverride ? {...before,layouts:{...before.layouts,[previewSurface]:elements}} : {...before,elements});
+    };
+    const finish = (cancel = false) => { gestureCleanup.current=null;window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); window.removeEventListener('pointercancel',abort); window.removeEventListener('keydown',key); if(capture.hasPointerCapture(pointer))capture.releasePointerCapture(pointer);
+      if(cancel) previewTheme(before); else if(activeRef.current && activeRef.current !== before) {setUndo(v=>[...v.slice(-49),before]);setRedo([]);void saveTheme(activeRef.current);} };
+    const up=(e:PointerEvent)=>{if(e.pointerId===pointer){move(e);finish();}}; const abort=()=>finish(true); const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();abort();}};
+    gestureCleanup.current=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',abort);window.removeEventListener('keydown',key);};
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',abort);window.addEventListener('keydown',key);
+  };
 
   return (
     <div
@@ -248,6 +279,8 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
           </select>
         </div>
 
+        <button type="button" onClick={() => { const next:ThemeDefinition=migrateThemeCanvases({schemaVersion:1,id:'visual-'+Date.now(),name:'Visual Theme',elements:[{id:'title',type:'title',x:5,y:20,width:85,height:30,visible:true,fontSize:24}]});setThemes(v=>[...v,next]);setActiveThemeId(next.id);void saveTheme(next); }}>New visual theme</button>
+        {activeTheme?.bundle && <p style={{fontSize:12,color:'#94a3b8'}}>This is a code theme. Route it to a studio for full Arrange controls, or edit its source in My Themes.</p>}
         {/* Add Element Palette */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>
@@ -258,6 +291,7 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
               <button
                 key={type}
                 type="button"
+                disabled={Boolean(activeTheme?.bundle)}
                 onClick={() => handleAddElement(type)}
                 style={{
                   display: "inline-flex",
@@ -343,7 +377,7 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
           {/* Studio Surface Switcher */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {THEME_SURFACES.map((surface) => {
-              const meta = SURFACE_META[surface];
+              const meta = {...SURFACE_META[surface],...themeCanvasSize(activeTheme,surface)};
               const Icon = meta.icon;
               const active = previewSurface === surface;
               return (
@@ -372,6 +406,7 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
             })}
           </div>
 
+          <div><button type="button" disabled={!undo.length} onClick={() => restore("undo")}>Undo</button><button type="button" disabled={!redo.length} onClick={() => restore("redo")}>Redo</button></div>
           {/* Alignment Tools */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <button
@@ -421,7 +456,7 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
               label={`Custom layout override for ${currentMeta.label}`}
             />
             <span style={{ color: "#64748b" }}>
-              ({currentMeta.aspect} · {hasSurfaceOverride ? "Editing studio-specific layout" : "Inheriting base elements"})
+              ({currentMeta.width} × {currentMeta.height} · {hasSurfaceOverride ? "Editing studio-specific layout" : "Inheriting base elements"})
             </span>
           </div>
 
@@ -436,6 +471,8 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
         <div
           style={{
             flex: 1,
+            position: "relative",
+            minWidth: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -445,13 +482,17 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
           }}
         >
           {activeTheme ? (
-            <ThemeEffectBoundary>
+            <AutoFitPreview configScale={1} contentKey={JSON.stringify([activeTheme?.id, currentMeta.width, currentMeta.height])}>
               <div
                 ref={canvasRef}
+                data-theme-layout-root
+                tabIndex={0}
+                aria-label="Theme design canvas"
+                onKeyDown={event => { if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || !selectedElement || activeTheme.bundle) return; const delta = event.shiftKey ? 10 : 1; const direction:Record<string,[number,number]> = {ArrowLeft:[-delta,0],ArrowRight:[delta,0],ArrowUp:[0,-delta],ArrowDown:[0,delta]}; if (!direction[event.key]) return; event.preventDefault(); const [dx,dy]=direction[event.key]; updateActiveElements(list=>list.map(el=>el.id===selectedElement.id?{...el,x:Math.max(0,Math.min(100-el.width,el.x+dx/currentMeta.width*100)),y:Math.max(0,Math.min(100-el.height,el.y+dy/currentMeta.height*100))}:el)); }}
                 style={{
                   width: currentMeta.width,
                   height: currentMeta.height,
-                  maxWidth: "100%",
+                  flex: "none",
                   overflow: "visible",
                   position: "relative",
                 }}
@@ -463,9 +504,11 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
                   artUrl={artUrl}
                   selectedElementId={selectedElement?.id || null}
                   onSelectElement={(id) => setSelectedElementId(id)}
+                  onElementPointerDown={activeTheme.bundle ? undefined : (event,id) => startGesture(event,id)}
+                  onResizePointerDown={activeTheme.bundle ? undefined : (event,id) => startGesture(event,id,true)}
                 />
               </div>
-            </ThemeEffectBoundary>
+            </AutoFitPreview>
           ) : (
             <div style={{ color: "#64748b" }}>Select a theme to preview</div>
           )}
@@ -494,7 +537,7 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             {THEME_SURFACES.map((surface) => {
-              const meta = SURFACE_META[surface];
+              const meta = {...SURFACE_META[surface],...themeCanvasSize(activeTheme,surface)};
               const Icon = meta.icon;
               const isRouted = activeTheme && routedStudios[surface] === activeTheme.id;
               return (
@@ -627,6 +670,8 @@ export const ThemeBuilderPage: React.FC<ThemeBuilderPageProps> = ({
         {/* Canvas Inspector */}
         {inspectorTab === "canvas" && activeTheme && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 11.5 }}>
+            <p>Design canvas for {currentMeta.label}: {currentMeta.width} × {currentMeta.height}px. Preview fitting does not change these dimensions.</p>
+            {(['width','height'] as const).map(axis => <label key={axis}>Canvas {axis} (px)<input aria-label={`Canvas ${axis}`} type="number" min="1" value={currentMeta[axis]} onChange={event => {const value=Number(event.target.value);if(Number.isFinite(value)&&value>0)updateActiveTheme(theme=>setThemeCanvasSize(theme,previewSurface,{...themeCanvasSize(theme,previewSurface),[axis]:value}));}}/></label>)}
             <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span>Canvas Border Radius (px)</span>
               <input

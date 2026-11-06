@@ -1,0 +1,6 @@
+.arrange-selection-box { position:fixed; z-index:9000; box-sizing:border-box; border:2px solid #b9a0ff; pointer-events:none; }
+.arrange-gesture-toolbar { position:absolute; bottom:calc(100% + 7px); left:0; display:flex; align-items:center; gap:6px; padding:5px; color:#fff; background:#161d2d; border:1px solid #b9a0ff; border-radius:6px; font:12px system-ui; pointer-events:auto; white-space:nowrap; }
+.arrange-gesture-toolbar button,.arrange-gesture-toolbar select { color:inherit; background:#252f43; border:1px solid #ffffff40; padding:4px; border-radius:4px; }
+.arrange-gesture-toolbar button:disabled { opacity:.4; }
+.arrange-resize-grip { position:absolute; right:-8px; bottom:-8px; width:20px; height:20px; border:1px solid #fff; border-radius:3px; background:#8864e6; color:white; padding:0; pointer-events:auto; touch-action:none; cursor:nwse-resize; }
+.arrange-mode .single-preview-mount [data-theme-role],.arrange-mode .single-preview-mount .mpo-card,.arrange-mode .single-preview-mount .mpo-title,.arrange-mode .big-preview-frame .mpo-card { touch-action:none; }

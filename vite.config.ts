@@ -25,6 +25,9 @@ export default defineConfig({
           if (norm.includes("node_modules/lucide-react")) return "vendor-icons";
           if (norm.includes("node_modules/motion")) return "vendor-motion";
           if (norm.includes("node_modules/react") || norm.includes("node_modules/react-dom")) return "vendor-react";
+          // Builder and both studio workspaces share these interactions. Keeping
+          // them independent prevents creator ↔ OBS manual-chunk cycles.
+          if (["/src/components/dashboard/AutoFitPreview", "/src/components/dashboard/ArrangeCanvas", "/src/components/common/ThemeEffectBoundary", "/src/hooks/useThemeLayout", "/src/utils/themeEffects", "/src/utils/themeRoles", "/src/utils/arrangeGeometry", "/src/utils/browserSource"].some(path => norm.includes(path))) return "layout-runtime";
           if (norm.includes("/src/theme-sdk") || norm.includes("/src/big-studio")) return "studio-creators";
           if (norm.includes("/src/components/dashboard/DesktopHudStudio") || norm.includes("desktop/elements")) return "studio-desktop";
           if (norm.includes("/src/components/dashboard/OverlayStudio")) return "studio-obs";

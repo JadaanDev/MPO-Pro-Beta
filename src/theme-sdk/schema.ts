@@ -49,7 +49,11 @@ export interface ThemeDefinition {
   elements: ThemeElement[];
   layouts?: Partial<Record<ThemeSurface, ThemeElement[]>>;
   canvas?: ThemeCanvasConfig;
+  sizingVersion?: 1;
+  canvasSizes?: Partial<Record<ThemeSurface, { width: number; height: number }>>;
   bundle?: ThemeBundle;
+  /** Retained source extras for visual projects; does not switch the renderer. */
+  sourceBundle?: ThemeBundle;
 }
 
 /** Reject invalid data instead of silently losing a saved theme or layer. */
@@ -94,6 +98,13 @@ export function validateThemeDefinition(value: unknown): string[] {
       const b = theme.bundle as Record<string, unknown>;
       if (!b.manifest || typeof b.manifest !== "object") errors.push("bundle.manifest is required.");
       if (!b.files || typeof b.files !== "object") errors.push("bundle.files is required.");
+    }
+  }
+  for (const value of [theme.canvasSizes, (theme.bundle as ThemeBundle | undefined)?.manifest?.canvasSizes]) {
+    if (value === undefined) continue;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) { errors.push('canvasSizes must be an object.'); continue; }
+    for (const [surface, size] of Object.entries(value)) {
+      if (!THEME_SURFACES.includes(surface as ThemeSurface) || !size || ![size.width, size.height].every(n => typeof n === 'number' && Number.isFinite(n) && n > 0)) errors.push('Canvas dimensions must be positive finite numbers for a supported studio.');
     }
   }
   return errors;

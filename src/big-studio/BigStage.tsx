@@ -63,7 +63,7 @@ export function BigStage({
   );
   if (layer?.builtTheme) return <div className="mpo-feed-wrapper big-built-stage" style={{ width: "100%", height: "100%", position: "relative" }}>
     <style>{generateEffectiveThemeCss(stageStyleConfig, "horizontal", extractedColor, resolvedCustomCss, ".big-built-stage", { unboundedSizes: true })}</style>
-    <ThemeEffectBoundary fullSize configScale={scale * (c.scale ?? 1)}>
+    <ThemeEffectBoundary fullSize config={stageStyleConfig} configScale={scale * (c.scale ?? 1)}>
       <TrackTransitionWrapper transitionKey={`${media.title}-${media.artist}-${media.album_title}-${replay}`} style={c.transitionStyle} direction={c.transitionDirection} intensity={c.transitionIntensity} durationMs={c.transitionDurationMs ?? ((c.transitionDuration ?? .35) * 1000)} delayMs={c.transitionDelayMs ?? ((c.transitionDelay ?? 0) * 1000)}>
         <BuiltThemeMount theme={layer.builtTheme} surface="big" media={media} artUrl={artUrl} config={stageStyleConfig} extractedColor={extractedColor} customCss={resolvedCustomCss} scale={scale * (c.scale ?? 1)} fill/>
       </TrackTransitionWrapper>
@@ -85,7 +85,7 @@ export function BigStage({
       <style>{effectiveCss}</style>
       <div className="big-dim" style={{ opacity: Math.max(0, Math.min(1, 1 - (c.opacity ?? 1))) }} />
       <div className="big-grain" aria-hidden="true" />
-      <ThemeEffectBoundary fullSize configScale={scale * (c.scale ?? 1)}>
+      <ThemeEffectBoundary fullSize config={stageStyleConfig} configScale={scale * (c.scale ?? 1)}>
       <TrackTransitionWrapper
         transitionKey={`${media.title}-${media.artist}-${media.album_title}-${replay}`}
         style={c.transitionStyle || "focus"}

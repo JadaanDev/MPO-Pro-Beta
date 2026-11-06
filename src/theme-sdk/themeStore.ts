@@ -5,6 +5,7 @@ import type { ThemeBundle } from "./compiler/types";
 import { LIBRARY_KEY, LIBRARY_EVENT } from "./library";
 import { STARTER_BUNDLES, bundleToThemeDefinition } from "./templates/starterBundles";
 import { generateBundleFromDeclarative } from "./templates/bundleGenerator";
+import { migrateThemeCanvases } from './canvasSizes';
 
 export interface DiskThemeSummary {
   id: string;
@@ -136,7 +137,7 @@ export async function listAllThemes(): Promise<ThemeDefinition[]> {
   // Fallback to localStorage
   try {
     const raw = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]");
-    if (Array.isArray(raw) && raw.length > 0) return raw;
+    if (Array.isArray(raw) && raw.length > 0) return raw.map(migrateThemeCanvases);
   } catch {}
 
   // Fallback to starter bundles
