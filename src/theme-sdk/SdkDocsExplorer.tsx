@@ -7,8 +7,10 @@ import {
   Code2,
   Sparkles,
   ArrowLeft,
+  Download,
 } from "lucide-react";
 import { STARTER_BUNDLES } from "./templates/starterBundles";
+import sdkLlmPrompt from "../../THEME-SDK-LLM.md?raw";
 import type { ThemeBundle } from "./compiler/types";
 
 export interface SdkDocsExplorerProps {
@@ -20,75 +22,23 @@ export const SdkDocsExplorer: React.FC<SdkDocsExplorerProps> = ({ onUseTemplate,
   const [activeTab, setActiveTab] = useState<"llm" | "guide" | "templates">("llm");
   const [copied, setCopied] = useState(false);
 
-  const llmDocContent = `You are an expert React theme designer for MPO-pro (Media Player Overlay Studio v7.0.0-beta.11).
-Themes are written in modern React (TSX/JSX) and scoped CSS, transpiled via an in-app compiler (< 2ms).
-
-=== TypeScript Interface ===
-export interface MpoThemeProps {
-  media: {
-    title: string;
-    artist: string;
-    album_title: string;
-    status: "Playing" | "Paused" | "Stopped";
-    position_ms: number;
-    duration_ms: number;
-    app_name: string;
-    has_art: boolean;
-  };
-  artUrl: string;
-  colors: {
-    dominant: string;
-    contrastText: string;
-    accent: string;
-    vibrant?: string;
-  };
-  surface: "desktop" | "obs" | "tiktok" | "big";
-  format: "horizontal" | "vertical";
-  progress: number; // 0.0 to 1.0
-  formattedTime: {
-    current: string; // e.g. "01:23"
-    duration: string; // e.g. "03:45"
-  };
-  config?: Record<string, any>;
-}
-
-=== Semantic Roles & Arrange Mode (v7.0.0-beta.9) ===
-Add data-theme-role to JSX elements so users can style and rearrange them via the dashboard Arrange Mode:
-- <div data-theme-role="artwork">
-- <div data-theme-role="title">
-- <div data-theme-role="artist">
-- <div data-theme-role="album">
-- <div data-theme-role="progress"> (scrubber)
-- <div data-theme-role="timestamps">
-- <div data-theme-role="status"> (playback status)
-- <div data-theme-role="indicator"> (equalizer / visualizer)
-- <div data-theme-role="badge"> (audio destination / app route)
-
-=== Dashboard CSS Variables Injected at Root ===
-- var(--mpo-card-radius): Layer card border-radius slider
-- var(--mpo-card-blur): Layer card backdrop blur
-- var(--mpo-card-opacity): Layer card background opacity
-- var(--mpo-frame-shadow): Shared bounded card shadow
-- var(--mpo-font-family): Selected custom typography font
-- var(--mpo-title-size): Custom title font size
-- var(--mpo-artist-size): Custom artist font size
-
-=== Allowed Imports ===
-- React: { useState, useEffect, useRef, useMemo, useCallback } from "react"
-- Lucide Icons: { Play, Pause, Disc, Music, Sparkles, Volume2 } from "lucide-react"
-- Framer Motion: { motion, AnimatePresence } from "motion/react"
-- External ESM: import confetti from "https://esm.sh/canvas-confetti"
-
-=== Rules ===
-1. Export default function Theme(props: MpoThemeProps).
-2. Adapt to surface: surface === "tiktok" (9:16 vertical stack), surface === "desktop" (compact translucent HUD), surface === "obs" (16:9 widescreen broadcast).
-3. Provide style.css with modern scoped styles.
-4. Put .mpo-card on the visible inner card and use box-shadow: var(--mpo-frame-shadow). All four studios and SDK previews already reserve a 32px transparent effect gutter, letting the bounded shadow fall naturally to transparent. Keep positioning wrappers transparent with overflow: visible; keep background, border, radius, and content clipping on the card. Do not add another gutter, shadow the rectangular host, or fade/mask text and artwork. Do not mask/filter the outer host or give it an opacity layer: that can block glass backdrop sampling.`;
+  const llmDocContent = sdkLlmPrompt;
 
   const handleCopyLlm = () => {
     navigator.clipboard.writeText(llmDocContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleDownloadLlm = () => {
+    const url = URL.createObjectURL(new Blob([llmDocContent], { type: "text/markdown;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "MPO-Theme-SDK-7.0.0-beta.13.md";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   return (
@@ -187,10 +137,14 @@ Add data-theme-role to JSX elements so users can style and rearrange them via th
                   Machine-Readable Context for AI Coding Assistants
                 </h2>
                 <p style={{ margin: "4px 0 0 0", fontSize: 12.5, color: "#94a3b8" }}>
-                  Copy this context and paste it directly into ChatGPT, Claude, Antigravity, or Cursor to have it write custom MPO themes.
+                  Copy or download the complete SDK contract, Arrange controls, manifest, TSX/CSS example, and acceptance checklist for your coding assistant.
                 </p>
               </div>
 
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <button type="button" onClick={handleDownloadLlm} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: 8, background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155", cursor: "pointer", fontSize: 12 }}>
+                <Download size={14} /> Download SDK
+              </button>
               <button
                 type="button"
                 onClick={handleCopyLlm}
@@ -212,6 +166,7 @@ Add data-theme-role to JSX elements so users can style and rearrange them via th
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 <span>{copied ? "Copied Context!" : "Copy LLM Context"}</span>
               </button>
+              </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "minmax(300px, 360px) 1fr", gap: 18 }}>
@@ -245,9 +200,11 @@ Add data-theme-role to JSX elements so users can style and rearrange them via th
                 </div>
 
                 <div style={{ background: "#0c101d", padding: 16, borderRadius: 12, border: "1px solid rgba(255, 255, 255, 0.08)" }}>
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: 13, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Arrange &amp; Styling (v7.0.0-beta.9)</h3>
+                  <h3 style={{ margin: "0 0 8px 0", fontSize: 13, color: "#f59e0b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Arrange &amp; Shared Styling</h3>
                   <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11.5, color: "#cbd5e1", lineHeight: 1.7 }}>
                     <li><code>data-theme-role</code>: unlocks drag &amp; drop Arrange</li>
+                    <li>Semantic roles connect visibility, dimensions, fonts, colors, artwork, progress, and visualizer controls.</li>
+                    <li><code>manifest.canvasSizes</code>: design sizes for each studio; layer dimensions and scale remain editable.</li>
                     <li><code>var(--mpo-card-radius)</code>: layer border radius</li>
                     <li><code>var(--mpo-card-blur)</code>: glassmorphic blur</li>
                     <li><code>var(--mpo-title-size)</code>: custom typography</li>
@@ -306,21 +263,31 @@ Add data-theme-role to JSX elements so users can style and rearrange them via th
             </div>
 
             <div style={{ background: "#0c101d", padding: 20, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-              <h3 style={{ margin: "0 0 10px 0", fontSize: 15, color: "#f59e0b" }}>Arrange Mode &amp; Overlay Styling (v7.0.0-beta.9)</h3>
+              <h3 style={{ margin: "0 0 10px 0", fontSize: 15, color: "#f59e0b" }}>Arrange Mode &amp; Shared Layer Controls</h3>
               <p style={{ fontSize: 12.5, color: "#cbd5e1", lineHeight: 1.6 }}>
                 To enable live drag-and-drop repositioning and allow dashboard sliders to control your theme, add <code>data-theme-role</code> attributes to your markup:
               </p>
               <ul style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7, paddingLeft: 20 }}>
+                <li><code>data-theme-role="frame"</code>: Visible card with <code>.mpo-card</code></li>
                 <li><code>data-theme-role="artwork"</code>: Album cover artwork box</li>
                 <li><code>data-theme-role="title"</code>: Track title header</li>
                 <li><code>data-theme-role="artist"</code>: Artist name subtitle</li>
                 <li><code>data-theme-role="album"</code>: Album title element</li>
-                <li><code>data-theme-role="progress"</code>: Scrubber timeline or progress bar</li>
+                <li><code>data-theme-role="progress"</code> and <code>data-theme-part="progress-track"</code>: Scrubber track; keep timestamps outside</li>
+                <li><code>data-theme-role="progress-fill"</code>: Moving scrubber fill</li>
                 <li><code>data-theme-role="timestamps"</code>: Current / total time labels</li>
                 <li><code>data-theme-role="status"</code>: Playing / paused status badge</li>
                 <li><code>data-theme-role="indicator"</code>: Animated audio equalizer / visualizer</li>
+                <li><code>data-theme-role="indicator-bar"</code>: Each visualizer bar</li>
                 <li><code>data-theme-role="badge"</code>: Media source destination pill</li>
+                <li><code>data-theme-role="themeLabel"</code>: Custom theme label</li>
               </ul>
+              <p style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
+                Declare per-studio unscaled design sizes in <code>manifest.canvasSizes</code>. Defaults: OBS 640×180, TikTok 360×640, Desktop 490×180, Big Studio 1280×720. Layer width, height, and scale remain editable. Use a full-canvas card with <code>width:100%; height:100%</code>; avoid fixed minimum/maximum sizes or a second root scale. Place Arrange roles on wrappers and animate their children. Untouched hidden defaults are preserved; explicit Arrange visibility records <code>visibilityOverrides</code> and can reveal hidden semantic nodes. Use the target picker for hidden or absent fields.
+              </p>
+              <p style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
+                Both React and declarative themes receive the full shared editor. Controls include per-field placement, typography, visibility, palette, artwork, frame material, progress, and visualizer styling. Keep positioning ancestors open and clip artwork or text locally; layer Custom CSS applies last. The LLM Context tab contains the authoritative complete contract and a working four-studio example.
+              </p>
               <p style={{ fontSize: 12, color: "#38bdf8", marginTop: 10 }}>
                 <strong>Injected CSS Custom Properties</strong>: <code>var(--mpo-card-radius)</code>, <code>var(--mpo-card-blur)</code>, <code>var(--mpo-card-opacity)</code>, <code>var(--mpo-font-family)</code>, <code>var(--mpo-title-size)</code>, <code>var(--mpo-artist-size)</code>.
               </p>

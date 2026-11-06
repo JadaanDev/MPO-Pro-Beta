@@ -7,7 +7,7 @@ import "./collection-base.css";
 
 /** Shared accessible media elements; each design owns its composition and CSS. */
 export const CollectionTheme: React.FC<ThemeProps & { design: string; surface: "obs" | "tiktok" | "desktop"; kicker: string }> = ({ media, artUrl, config, design, surface, kicker }) => {
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
   const alpha = Math.max(0, Math.min(1, config.opacity ?? 0.88));
   const color = config.highContrast ? `rgba(6,8,13,${alpha})` : `rgba(19,22,31,${alpha})`;
   return <div className={`mpo-theme-container collection-root collection-${surface} design-${design}`} style={{ transform: `scale(${config.scale ?? 1})`, transformOrigin: "center" }}>
@@ -19,7 +19,7 @@ export const CollectionTheme: React.FC<ThemeProps & { design: string; surface: "
         {config.showTitle && <div className="mpo-title collection-title" title={media.title}>{media.title || "No track playing"}</div>}
         {config.showArtist && <div className="mpo-artist collection-artist">{media.artist || "Waiting for a player"}</div>}
         {config.showAlbum && media.album_title && <div className="mpo-album collection-album">{media.album_title}</div>}
-        {config.showProgress && media.duration_ms > 0 && <div className="mpo-progress collection-progress"><div className="collection-progress-track"><div className="mpo-progress-fill collection-progress-fill" style={{ transform: `scaleX(${progress})` }} /></div></div>}
+        {config.showProgress && positionKnown && durationKnown && <div className="mpo-progress collection-progress"><div className="collection-progress-track"><div className="mpo-progress-fill collection-progress-fill" style={{ transform: `scaleX(${progress})` }} /></div></div>}
       </div>
       <ThemeSupplement label={false} media={media} config={config} album={false} badge={false} currentTime={formattedCurrent} durationTime={formattedDuration} />
     </div>

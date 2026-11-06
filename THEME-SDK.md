@@ -1,6 +1,8 @@
-# MPO Theme SDK (`v7.0.0-beta.11`)
+# MPO Theme SDK (`v7.0.0-beta.13`)
 
-MPO-pro v7.0.0-beta.11 modularizes the creator experience into three dedicated pages under the **THEMES & SDK** sidebar:
+Playback uses the same shared clock as built-in themes in all four studios. Use projected `media.position_ms`, `progress` and `formattedTime` directly; `rawMedia` preserves the backend publication and raw provider tuple. Position and duration validity are independent: show elapsed-only time for a credible position with no total, `--:--` for unavailable position, and indeterminate progress without an exact percentage. Missing duration does not mean LIVE. See [the complete playback contract](THEME-SDK-LLM.md#playback-clock-and-unknown-data).
+
+MPO-pro v7.0.0-beta.13 modularizes the creator experience into three dedicated pages under the **THEMES & SDK** sidebar:
 1. **My Themes** (`MyThemesPage.tsx`): Dev Hub featuring a 50/50 split layout:
    - **Left 50% (Open in IDE)**: One-click launch cards with icons and tags for **VS Code**, **Cursor**, **Codex**, **Claude Code**, **Antigravity**, **Windsurf**, **WebStorm**, **IntelliJ IDEA**, **Sublime Text**, and **Zed**.
    - **Right 50% (Compiler & Watcher Hub)**: Real-time compiler status badge (`✓ Transpiled in < 3ms`), live Watcher Terminal event logs, and dynamic Files Changelog.
@@ -15,6 +17,35 @@ MPO-pro v7.0.0-beta.11 modularizes the creator experience into three dedicated p
 All four studios and SDK previews reserve a 32px transparent effect gutter around the theme. The host stays transparent and allows overflow; the visible inner `.mpo-card` owns the background, border, shadow, radius, and content clipping. The bounded shadow naturally falls to transparent inside the gutter, so text, artwork, and the card border stay sharp while the shadow merges with the surrounding background. The outer host has no mask, filter, or opacity layer that could block glass backdrop sampling.
 
 New React themes should put `className="mpo-card your-theme-card"` on the visible card and use `box-shadow: var(--mpo-frame-shadow)` for the shared shadow. Keep `overflow: hidden` on the card when its contents need clipping. Do not paint, shadow, or clip the SDK host, add a second effect gutter, or apply a fading mask to the card or its text. Generated themes and starter templates follow this structure automatically.
+
+### Full layer controls and canvas sizes
+
+Annotate the visible card with `data-theme-role="frame"` and its inner elements with `artwork`, `artwork-image`, `title`, `artist`, `album`, `themeLabel`, `badge`, `status`, `timestamps`, `progress`, `progress-fill`, `indicator`, and `indicator-bar`. These roles connect SDK themes to the same visibility, positioning, scale, typography, artwork, progress, and visualizer controls used by built-in themes. Put `progress` and `data-theme-part="progress-track"` on the track, and keep timestamps outside it so the two visibility toggles stay independent. Use `progress-track` for a separate nested rail when needed. Put Arrange roles on a positioning wrapper and animate its child.
+
+Optional manifest `canvasSizes` declares the unscaled design canvas for each studio:
+
+```json
+"canvasSizes": {
+  "obs": { "width": 640, "height": 180 },
+  "tiktok": { "width": 360, "height": 640 },
+  "desktop": { "width": 490, "height": 180 },
+  "big": { "width": 1280, "height": 720 }
+}
+```
+
+Those sizes are the fallback when a layer has no custom dimensions. The layer's width, height, and scale controls remain editable. Use `width: 100%; height: 100%; box-sizing: border-box` for a full-canvas card, and adapt its inner layout to `surface`. Avoid fixed minimum/maximum sizes and a second root scale that would defeat the inspector controls.
+
+Generated bundles retain every studio layout, element style, and authored hidden element. Untouched authored-hidden defaults are preserved. Explicit Arrange visibility records `visibilityOverrides` and can reveal hidden semantic nodes; missing base title, artist, artwork, and progress fields receive shared fallbacks only when explicitly enabled. Existing themes receive compatibility for common class names, including iOS-style cards, while explicit roles make custom names dependable. With a layer configuration, missing album, source, status, timestamps, and theme labels are supplemented when enabled. A configured shared visualizer replaces the native indicator so count, style, height, color, and position controls apply; SDK previews without a layer configuration retain the native design.
+
+Starter and generated themes include `types.d.ts` and `README.md`. Portable exports include current `mpo-sdk.d.ts` and `MPO-SDK.md` contract references alongside existing author files, preserving custom code, manifest canvas sizes, and studio layouts.
+
+### Complete Arrange authoring reference
+
+Both React and declarative SDK themes open the full shared editor in Arrange mode. Select a visible semantic element or use the target picker for hidden/absent targets. Image, progress fill, and indicator bar clicks resolve to Artwork, Progress, and Indicator controls; declarative themes can additionally expose authored percentage geometry. Layer offsets are pixels, and element scale is independent of overall layer scale.
+
+Keep one primary role wrapper per field, let nested text inherit typography, and put Motion/spin/entrance effects on children. Keep layout ancestors open with `overflow:visible`; clip only the artwork crop, local text ellipsis, or decorative surface. Scoping keeps styles within the theme, and layer Custom CSS is the final override layer with normal specificity and `!important` rules.
+
+The [complete LLM authoring contract](THEME-SDK-LLM.md) contains the full role table, configuration/control matrix, visibility override behavior, supplementation rules, working manifest/TSX/CSS example, and acceptance checklist. The in-app **Copy LLM Context** and **Download SDK** actions read that same document.
 
 Each built theme is defined using `<mpo-theme>` markup that specifies element placement (`x`, `y`, `width`, `height` as canvas percentages) and visual preferences (`visible`, `color`, `fontSize`):
 

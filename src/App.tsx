@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { BigPresentation } from "./big-studio/BigPresentation";
 import { BigStage } from "./big-studio/BigStage";
 import { sanitizeBigLayer } from "./big-studio/layers";
-import { ThemeRenderer } from "./theme-sdk/ThemeRenderer";
+import { BuiltThemeMount } from "./theme-sdk/BuiltThemeMount";
 import type { BigLayer } from "./big-studio/types";
 import { StudioDashboard } from "./components/dashboard/StudioDashboard";
 import { AppLaunchScreen } from "./components/common/AppLaunchScreen";
@@ -380,13 +380,6 @@ export const App: React.FC = () => {
 
     const mediaTransitionKey = `${media.title}-${media.artist}-${media.album_title}`;
 
-    const layerWidth = effectiveConfig.customWidth > 0 
-      ? effectiveConfig.customWidth 
-      : (targetLayer.format === "vertical" ? 360 : 640);
-    const layerHeight = effectiveConfig.customHeight > 0 
-      ? effectiveConfig.customHeight 
-      : (targetLayer.format === "vertical" ? 640 : 180);
-
     const themeContent = (
       <>
         {generatedThemeCss && <style>{generatedThemeCss}</style>}
@@ -399,30 +392,15 @@ export const App: React.FC = () => {
           delayMs={effectiveConfig.transitionDelayMs ?? (effectiveConfig.transitionDelay != null ? effectiveConfig.transitionDelay * 1000 : 0)}
         >
           {targetLayer.builtTheme ? (
-            <div
-              className="mpo-theme-container"
-              style={{
-                width: layerWidth,
-                height: layerHeight,
-                maxWidth: "100%",
-                maxHeight: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxSizing: "border-box",
-                transform: `scale(${effectiveConfig.scale ?? 1})`,
-                transformOrigin: "center",
-              }}
-            >
-              <ThemeRenderer
+              <BuiltThemeMount
                 theme={targetLayer.builtTheme}
                 surface={isDesktopHud || targetLayer.isDesktop ? "desktop" : targetLayer.format === "vertical" ? "tiktok" : "obs"}
                 media={media}
                 artUrl={artUrl}
                 config={effectiveConfig}
                 extractedColor={extractedColor}
+                customCss={effectiveCustomCss}
               />
-            </div>
           ) : (
             <ActiveThemeComponent
               media={media}

@@ -1,3 +1,6 @@
+import { MediaTimelineClock } from './mediaTimeline';
+import { MOCK_MEDIA_STATE } from '../types/media';
+
 export interface DiagnosticReport {
   mode: "live" | "synthetic";
   durationSec: number;
@@ -112,8 +115,8 @@ export async function runLiveAudit(
         if (negativeWarps === 0 && suddenJumps === 0 && slowFrames === 0 && avgFps >= 55) {
           healthGrade = "A+";
           details.push("Zero negative time glitches detected");
-          details.push("Butter-smooth 60 FPS hardware-accelerated playback");
-          details.push(`Throttled React re-render rate: ~${reRenderRate || 1}/s`);
+          details.push(`Rendering benchmark: ${avgFps} FPS; provider accuracy is not measured`);
+          details.push(`Shared clock publication rate: ~${reRenderRate}/s`);
         } else if (negativeWarps === 0 && suddenJumps === 0 && slowFrames < 5) {
           healthGrade = "A";
           details.push("Zero timeline glitches detected");
@@ -139,8 +142,8 @@ export async function runLiveAudit(
           healthGrade,
           verdict:
             healthGrade === "A+" || healthGrade === "A"
-              ? "OPTIMAL — Zero glitches, smooth phase-locked scrubbing."
-              : "DEGRADED — Packet jitter or frame drops detected.",
+              ? "Rendering stable during this sample; provider accuracy requires raw telemetry."
+              : "Timeline corrections or frame delays observed; inspect raw telemetry for source changes and seeks.",
           details,
           timestamp: new Date().toLocaleTimeString(),
         };
@@ -168,10 +171,12 @@ export async function runSyntheticStressTest(
     const frameDeltas: number[] = [];
 
     // Simulated media state
-    let simBaseMs = 45000;
+    const simBaseMs = 45000;
     let simCurrentMs = simBaseMs;
+    const clock = new MediaTimelineClock();
+    let sequence = 1;
+    clock.ingest({ ...MOCK_MEDIA_STATE, position_ms: simBaseMs, updated_at: Date.now(), stream_id: 'diagnostic', sequence }, startTime, Date.now());
     let lastPacketTime = 0;
-    let targetDrift = 0;
     let negativeWarps = 0;
     let maxDriftObserved = 0;
 
@@ -190,30 +195,16 @@ export async function runSyntheticStressTest(
         const packetJitter = (Math.random() - 0.48) * 350; // -175ms to +175ms
         const idealSongPos = simBaseMs + elapsed;
         const incomingPos = idealSongPos + packetJitter;
-        targetDrift = incomingPos - simCurrentMs;
-        if (Math.abs(targetDrift) > maxDriftObserved) {
-          maxDriftObserved = Math.round(Math.abs(targetDrift));
+        const drift = incomingPos - simCurrentMs;
+        if (Math.abs(drift) > maxDriftObserved) {
+          maxDriftObserved = Math.round(Math.abs(drift));
         }
+        clock.ingest({ ...MOCK_MEDIA_STATE, position_ms: incomingPos, updated_at: Date.now(), stream_id: 'diagnostic', sequence: ++sequence }, now, Date.now());
       }
-
-      // Apply Phase-Locked Loop filter
-      let speed = 1.0;
-      if (targetDrift > 60) {
-        speed = 1.0 + Math.min((targetDrift - 60) / 1200, 0.06);
-      } else if (targetDrift < -60) {
-        speed = 1.0 - Math.min((-targetDrift - 60) / 1200, 0.06);
-      }
-      targetDrift *= 0.97;
 
       const prevMs = simCurrentMs;
-      const nextMs = prevMs + dt * speed;
-
-      // Strict Monotonic Rule
-      const clampedMs = Math.max(nextMs, prevMs);
-      if (clampedMs < prevMs) {
-        negativeWarps++;
-      }
-      simCurrentMs = clampedMs;
+      simCurrentMs = clock.position(now);
+      if (simCurrentMs < prevMs) negativeWarps++;
 
       const pct = Math.min(Math.round((elapsed / durationMs) * 100), 100);
 
@@ -240,17 +231,17 @@ export async function runSyntheticStressTest(
           fps: avgFps,
           droppedFrames: slowFrames,
           maxFrameSpikeMs: maxSpike,
-          negativeWarps: 0, // PLL mathematically guarantees 0
+          negativeWarps,
           suddenJumps: 0,
           reRenderRate: 1.0,
           maxDriftMs: maxDriftObserved,
-          healthGrade: "A+",
-          verdict: "PASS — PLL Filter absorbed synthetic ±250ms packet jitter with 0 timeline regressions.",
+          healthGrade: negativeWarps ? "C" : "A",
+          verdict: negativeWarps ? "Synthetic shared-clock regressions observed." : "Shared clock handled simulated packet jitter; live provider accuracy is not measured.",
           details: [
-            "Injected 5 randomized GSMTC packets with up to ±250ms arrival variance",
-            "Monotonic constraint prevented any seconds backward jumps (0 negative warps)",
-            "Dynamic phase speed stayed safely bounded between 0.94x and 1.06x",
-            "Tested at 60 FPS hardware refresh with zero dropped interpolation frames",
+            `Injected ${sequence - 1} simulated observations with position jitter`,
+            `Observed ${negativeWarps} regressions in the actual shared clock model`,
+            `Measured ${avgFps} render FPS and ${slowFrames} delayed frames`,
+            "Simulation does not establish GSMTC or browser playhead accuracy",
           ],
           timestamp: new Date().toLocaleTimeString(),
         };

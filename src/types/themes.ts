@@ -125,6 +125,8 @@ export interface ThemeConfig {
   showBadge: boolean;
   showVisualizer: boolean;
   showPlaybackStatus?: boolean;
+  // Explicit switches can override an SDK element's authored hidden default.
+  visibilityOverrides?: Partial<Record<"showTitle" | "showArtist" | "showAlbum" | "showArt" | "showBadge" | "showProgress" | "showTimestamps" | "showPlaybackStatus" | "showVisualizer" | "showThemeLabel", boolean>>;
 
   // Optional per-layer theme text overrides; an empty value uses the theme default.
   showThemeLabel?: boolean;

@@ -25,7 +25,7 @@ export function generateEffectiveThemeCss(
   const rules: string[] = [];
 
   const scope = scopeSelector ? `${scopeSelector}` : "";
-  const cardSelector = `${scope} :is(.mpo-card, .big-stage-inner, .glass-card, .cyber-card, .pill-card, .vinyl-card, .streamer-card, .aero-card, .zen-card, .blade-bar, .orb-card, .tag-card, .island-card, .split-card, .story-card, .apple-music-card)`;
+  const cardSelector = `${scope} :is([data-theme-role="frame"], .mpo-card, .big-stage-inner, .glass-card, .cyber-card, .pill-card, .vinyl-card, .streamer-card, .aero-card, .zen-card, .blade-bar, .orb-card, .tag-card, .island-card, .split-card, .story-card, .apple-music-card)`;
 
   // 1. Root & Card Variables
   rules.push(`
@@ -35,13 +35,13 @@ export function generateEffectiveThemeCss(
       --card-blur: ${config.blur ?? 20}px;
       --card-opacity: ${config.opacity ?? 0.9};
       --card-radius: ${config.borderRadius ?? 18}px;
-      --hud-backdrop-filter: blur(${config.blur || 20}px);
+      --hud-backdrop-filter: blur(${config.blur ?? 20}px);
     }
   `);
 
   // Optional frame controls leave each theme's defaults intact until edited.
   if (typeof config.frameBorderWidth === "number") {
-    const width = Math.max(0, options.unboundedSizes ? config.frameBorderWidth : Math.min(12, config.frameBorderWidth));
+    const width = Math.max(0, config.frameBorderWidth);
     rules.push(`${cardSelector} { border-width: ${width}px !important; border-style: solid !important; }`);
   }
   if (config.frameBorderColor && /^#[0-9a-f]{6}$/i.test(config.frameBorderColor)) {
@@ -60,7 +60,7 @@ export function generateEffectiveThemeCss(
   // Positioning hosts never own a surface. In particular, do not erase a
   // legacy SDK element that is both a theme container and the actual card.
   rules.push(`
-    ${scope} :is(.mpo-theme-container, [class*="-root"], .desktop-overlay-container, .desktop-overlay-content, .mpo-feed-wrapper:not(.big-stage)):not(.mpo-card) {
+    ${scope} :is(.mpo-theme-container, [class*="-root"], .desktop-overlay-container, .desktop-overlay-content, .mpo-feed-wrapper:not(.big-stage)):not(.mpo-card):not([data-theme-role="frame"]) {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
@@ -77,7 +77,7 @@ export function generateEffectiveThemeCss(
         max-width: none !important;
         ${options.unboundedSizes ? "flex-shrink: 0 !important;" : ""}
       }
-      ${scope} :is(.mpo-theme-container, [class*="-root"]) {
+      ${scope} :is(.mpo-theme-container, [class*="-root"]):not([data-theme-layout-root]):not(.mpo-sdk-host):not([data-theme-role="host"]) {
         width: max-content !important;
         min-width: 0 !important;
         max-width: none !important;
@@ -97,7 +97,7 @@ export function generateEffectiveThemeCss(
         max-height: none !important;
         ${options.unboundedSizes ? "flex-shrink: 0 !important;" : ""}
       }
-      ${scope} :is(.mpo-theme-container, [class*="-root"]) {
+      ${scope} :is(.mpo-theme-container, [class*="-root"]):not([data-theme-layout-root]):not(.mpo-sdk-host):not([data-theme-role="host"]) {
         height: max-content !important;
         min-height: 0 !important;
         max-height: none !important;
@@ -136,7 +136,7 @@ export function generateEffectiveThemeCss(
   }
 
   // 3. Frame Padding
-  if (config.framePadding && config.framePadding > 0) {
+  if (typeof config.framePadding === "number" && config.framePadding >= 0) {
     rules.push(`
       ${cardSelector} {
         padding: ${config.framePadding}px !important;
@@ -146,12 +146,12 @@ export function generateEffectiveThemeCss(
 
   // Reserve room for optional, shared metadata and playback indicator.
   if (!options.unboundedSizes && (config.showAlbum || config.showVisualizer || config.showBadge || config.showPlaybackStatus || config.showTimestamps !== false)) {
-    const indicator = config.showVisualizer ? Math.max(8, Math.min(60, config.visualizerHeight ?? 24)) : 0;
+    const indicator = config.showVisualizer ? Math.max(0, config.visualizerHeight ?? 24) : 0;
     const extra = Math.max(indicator, 16) + 14;
-    rules.push(`${cardSelector} { padding-bottom: ${Math.max(config.framePadding || 0, extra)}px !important; }`);
+    rules.push(`${cardSelector}:not([data-theme-role="frame"]) { padding-bottom: ${Math.max(config.framePadding || 0, extra)}px !important; }`);
   }
   // Hide each theme's fixed bar indicator; the shared indicator supports count and height.
-  rules.push(`${scope} :is(.mpo-visualizer, .apple-eq-container, .orb-status, .streamer-live-tag) { display: none !important; }`);
+  rules.push(`${scope} :is(.mpo-visualizer, .apple-eq-container, .orb-status, .streamer-live-tag):not([data-theme-role="indicator"]):not([data-theme-role="status"]):not([data-theme-role="badge"]) { display: none !important; }`);
 
   // 4. Border Radius
   if (typeof config.borderRadius === "number") {
@@ -284,7 +284,7 @@ export function generateEffectiveThemeCss(
     if (!style) continue;
     const declarations: string[] = [];
     if (style.color && /^#[0-9a-f]{6}$/i.test(style.color)) declarations.push(`color: ${style.color} !important; -webkit-text-fill-color: ${style.color} !important`);
-    if (Number.isFinite(style.size)) declarations.push(`font-size: ${Math.max(0, options.unboundedSizes ? style.size! : Math.max(6, Math.min(160, style.size!)))}px !important`);
+    if (Number.isFinite(style.size)) declarations.push(`font-size: ${Math.max(0, style.size!)}px !important`);
     if (Number.isFinite(style.weight)) declarations.push(`font-weight: ${Math.max(100, Math.min(900, style.weight!))} !important`);
     if (style.italic !== undefined) declarations.push(`font-style: ${style.italic ? "italic" : "normal"} !important`);
     if (style.transform && ["none", "uppercase", "lowercase", "capitalize"].includes(style.transform)) declarations.push(`text-transform: ${style.transform} !important`);
@@ -337,12 +337,12 @@ export function generateEffectiveThemeCss(
     rules.push(`${scope} .mpo-art-img { animation: mpo-art-spin 12s linear infinite !important; }`);
   }
   {
-    rules.push(`${scope} :is(.apple-timestamps-row,.aero-times,.cyber-timestamps,.orb-times,.glass-timestamps,.pill-time,.tag-time,.blade-time,.split-times,.streamer-time,.story-times,.vinyl-times,.zen-time) { display:none !important; }`);
+    rules.push(`${scope} :is(.apple-timestamps-row,.aero-times,.cyber-timestamps,.orb-times,.glass-timestamps,.pill-time,.tag-time,.blade-time,.split-times,.streamer-time,.story-times,.vinyl-times,.zen-time):not([data-theme-role="timestamps"]) { display:none !important; }`);
   }
   const progressTrack = `${scope} :is(.big-progress,.collection-progress-track,.apple-progress-bar-track,.aero-track,.cyber-track,.orb-track,.glass-progress-track,.pill-track,.tag-track,.blade-progress-line,.island-track,.split-track,.streamer-progress-line,.story-track,.vinyl-track,.zen-track)`;
   const progressFill = `${scope} .mpo-progress-fill`;
   if (typeof config.progressHeight === "number") {
-    const height = Math.max(0, options.unboundedSizes ? config.progressHeight : Math.max(2, Math.min(16, config.progressHeight)));
+    const height = Math.max(0, config.progressHeight);
     rules.push(`${progressTrack} { height: ${height}px !important; }`);
   }
   // Only accept color-picker values here; imported configuration is untrusted data.
@@ -372,9 +372,8 @@ export function generateEffectiveThemeCss(
     `);
   } else {
     const visStyles: string[] = [];
-    if (config.visualizerHeight) {
-      visStyles.push(`max-height: ${config.visualizerHeight}px !important; height: ${config.visualizerHeight}px !important;`);
-    }
+    // The shared visualizer owns its container height. Forcing each bar to
+    // that height overrides dots/pulse shapes and authored percentage heights.
     if (config.visualizerColor) {
       visStyles.push(`background: ${config.visualizerColor} !important; background-color: ${config.visualizerColor} !important;`);
     }
@@ -402,6 +401,78 @@ export function generateEffectiveThemeCss(
     `);
   }
 
+  // SDK roles use the very same layer controls as native themes. Attribute
+  // selectors avoid injecting the legacy .mpo-card layout into authored themes.
+  const role = (name: string) => name === "artwork"
+    ? `${scope} :is([data-theme-role="artwork"], [data-theme-role="artwork-image"]:not([data-theme-role="artwork"] *))`
+    : `${scope} [data-theme-role="${name}"]`;
+  const sdkFrame = role("frame");
+  const colorValue = (value?: string) => typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
+  if (Number.isFinite(config.opacity) || config.highContrast !== undefined) {
+    const alpha = Math.max(0, Math.min(1, config.opacity ?? .88));
+    const rgb = config.highContrast ? "6,8,13" : "19,22,31";
+    rules.push(`${sdkFrame} { background-color: rgba(${rgb},${alpha}) !important; background-image: none !important; }`);
+  }
+  const visibility = {
+    title: config.showTitle, artist: config.showArtist, album: config.showAlbum,
+    artwork: config.showArt, badge: config.showBadge, progress: config.showProgress,
+    timestamps: config.showTimestamps, status: config.showPlaybackStatus,
+    indicator: config.showVisualizer, themeLabel: config.showThemeLabel,
+  };
+  for (const [name, visible] of Object.entries(visibility)) {
+    if (visible === false) rules.push(`${role(name)} { display: none !important; }`);
+  }
+  const legacyTypography = {
+    title: { size: config.titleSize, weight: config.titleWeight, color: config.titleColor, font: config.titleFont || config.fontFamily, transform: config.titleTransform },
+    artist: { size: config.artistSize, weight: config.artistWeight, color: config.artistColor, font: config.fontFamily, transform: config.artistTransform },
+    album: { size: config.albumSize, font: config.fontFamily },
+    themeLabel: { font: config.fontFamily }, badge: { font: config.fontFamily },
+    timestamps: { font: config.fontFamily }, status: { font: config.fontFamily },
+  };
+  for (const name of Object.keys(legacyTypography) as (keyof typeof legacyTypography)[]) {
+    const appearance = { ...legacyTypography[name], ...config.typography?.[name] };
+    const declarations: string[] = [];
+    if (Number.isFinite(appearance.size)) declarations.push(`font-size: ${Math.max(0, appearance.size!)}px !important`);
+    if (Number.isFinite(appearance.weight)) declarations.push(`font-weight: ${Math.max(100, Math.min(900, appearance.weight!))} !important`);
+    if (colorValue(appearance.color)) declarations.push(`color: ${appearance.color} !important; -webkit-text-fill-color: ${appearance.color} !important`);
+    if (appearance.font && /^[a-z0-9 ,'-]+$/i.test(appearance.font)) declarations.push(`font-family: "${appearance.font}", sans-serif !important`);
+    if (appearance.transform && ["none", "uppercase", "lowercase", "capitalize"].includes(appearance.transform)) declarations.push(`text-transform: ${appearance.transform} !important`);
+    if (appearance.italic !== undefined) declarations.push(`font-style: ${appearance.italic ? "italic" : "normal"} !important`);
+    if (declarations.length) rules.push(`${role(name)} { ${declarations.join("; ")} }`);
+  }
+  if (config.titleGlow !== undefined) rules.push(`${role("title")} { text-shadow: ${config.titleGlow && colorValue(activeAccent) ? `0 0 12px ${activeAccent}88` : "none"} !important; }`);
+  const sdkArt = role("artwork");
+  if (Number.isFinite(config.artSize) && config.artSize! > 0) {
+    rules.push(`${sdkArt} { width: ${config.artSize}px !important; height: ${config.artSize}px !important; min-width: ${config.artSize}px !important; min-height: ${config.artSize}px !important; max-width: none !important; max-height: none !important; flex-shrink: 0; }`);
+  }
+  if (Number.isFinite(config.artRadius)) rules.push(`${sdkArt}, ${role("artwork-image")} { border-radius: ${Math.max(0, config.artRadius!)}px !important; }`);
+  if (Number.isFinite(config.artBorder)) rules.push(`${sdkArt} { border: ${Math.max(0, config.artBorder!)}px solid rgba(255,255,255,.28) !important; }`);
+  if (config.artGlow !== undefined) rules.push(`${sdkArt} { box-shadow: ${config.artGlow && colorValue(activeAccent) ? `0 0 14px ${activeAccent}66` : "none"} !important; }`);
+  if (config.spinningVinyl) rules.push(`${role("artwork-image")} { animation: mpo-art-spin 12s linear infinite !important; }`);
+  const sdkTrack = `${scope} :is([data-theme-role="progress-track"], [data-theme-part="progress-track"])`;
+  const sdkFill = role("progress-fill");
+  if (Number.isFinite(config.progressHeight)) rules.push(`${sdkTrack} { height: ${Math.max(0, config.progressHeight!)}px !important; }`);
+  if (colorValue(config.progressTrackColor)) rules.push(`${sdkTrack} { background: ${config.progressTrackColor} !important; }`);
+  if (colorValue(config.progressFillColor)) rules.push(`${sdkFill} { background: ${config.progressFillColor} !important; }`);
+  if (config.progressShape && config.progressShape !== "theme") {
+    const radius = { square: "0", rounded: "4px", pill: "9999px" }[config.progressShape];
+    if (radius) rules.push(`${sdkTrack}, ${sdkFill} { border-radius: ${radius} !important; }`);
+  }
+  if (Number.isFinite(config.visualizerHeight)) rules.push(`${role("indicator")} { height: ${Math.max(0, config.visualizerHeight!)}px !important; }`);
+  if (colorValue(config.visualizerColor)) rules.push(`${role("indicator-bar")} { background: ${config.visualizerColor} !important; }`);
+  // Individual transform properties preserve authored rotation/centering and
+  // progress scaleX interpolation instead of replacing their transform string.
+  for (const [name, position] of Object.entries(config.elementPositions || {})) {
+    if (!Object.prototype.hasOwnProperty.call(visibility, name) && name !== "frame") continue;
+    const x = Number.isFinite(position.x) ? position.x : 0;
+    const y = Number.isFinite(position.y) ? position.y : 0;
+    const scale = Number.isFinite(position.scale) ? Math.max(0, position.scale!) : 1;
+    const nativeRoles: Record<string, string> = { title: ".mpo-title", artist: ".mpo-artist", album: ".mpo-album", artwork: ".mpo-art", badge: ".mpo-badge", progress: ".mpo-progress", timestamps: ".mpo-universal-timestamps", status: ".mpo-playback-status", indicator: ".mpo-universal-visualizer", themeLabel: ".mpo-theme-label" };
+    const standaloneArt = name === "artwork" ? ', [data-theme-role="artwork-image"]:not([data-theme-role="artwork"] *)' : "";
+    const selector = name === "frame" ? cardSelector : `${scope} :is([data-theme-role="${name}"]${standaloneArt}${nativeRoles[name] ? `, ${nativeRoles[name]}` : ""})`;
+    rules.push(`${selector} { translate: ${x}px ${y}px !important; scale: ${scale} !important; }`);
+  }
+
   // Artwork modes are presentation overrides; manual colors remain intact.
   if (surface) {
     const rgb = parseHex(surface)!;
@@ -410,12 +481,16 @@ export function generateEffectiveThemeCss(
   }
   const dynamicText = derive(modes?.text, 4.5);
   if (dynamicText) rules.push(`${scope} :is(.mpo-title,.mpo-artist,.mpo-album,.mpo-theme-label,.mpo-badge,.mpo-universal-timestamps,.mpo-playback-status,.apple-timestamps-row,.aero-times,.cyber-timestamps,.orb-times,.glass-timestamps,.pill-time,.tag-time,.blade-time,.split-times,.streamer-time,.story-times,.vinyl-times,.zen-time) { color: ${dynamicText} !important; -webkit-text-fill-color: ${dynamicText} !important; }`);
+  if (dynamicText) rules.push(`${scope} :is(${Object.keys(legacyTypography).map(name => `[data-theme-role="${name}"]`).join(",")}) { color: ${dynamicText} !important; -webkit-text-fill-color: ${dynamicText} !important; }`);
   const border = derive(modes?.border, 3);
   if (border) rules.push(`${cardSelector}, ${scope} .mpo-art { border-color: ${border} !important; }`);
+  if (border) rules.push(`${sdkArt} { border-color: ${border} !important; }`);
   const progressColor = derive(modes?.progress, 3);
   if (progressColor) rules.push(`${scope} :is(.mpo-progress-fill,.glass-progress-fill,.apple-progress-bar-fill,.cyber-bar-fill,.blade-progress-fill,.island-progress-fill,.story-progress-fill,.split-progress-fill) { background: ${progressColor} !important; background-color: ${progressColor} !important; }`);
+  if (progressColor) rules.push(`${sdkFill} { background: ${progressColor} !important; }`);
   const indicatorColor = derive(modes?.indicator, 3);
   if (indicatorColor) rules.push(`${scope} :is(.mpo-vis-bar,.apple-eq-bar,.zen-bars span,.island-waves span,.cyber-visualizer span,.split-visualizer span) { background: ${indicatorColor} !important; background-color: ${indicatorColor} !important; }`);
+  if (indicatorColor) rules.push(`${role("indicator-bar")} { background: ${indicatorColor} !important; }`);
 
   rules.push(scopeElementCss(mergeLegacyCss(customCss, config.elementCss), scope));
 

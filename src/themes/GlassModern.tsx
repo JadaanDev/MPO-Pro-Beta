@@ -12,7 +12,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
   customCss,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
 
   return (
     <div
@@ -136,7 +136,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
           </AnimatePresence>
 
           {/* Scrubber Progress Bar */}
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="glass-progress-wrap mpo-progress">
               <div className="glass-progress-track">
                 <div

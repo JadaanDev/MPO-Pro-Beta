@@ -1,4 +1,4 @@
-# MPO-PRO-BETA (`v7.0.0-beta.11`)
+# MPO-PRO-BETA (`v7.0.0-beta.13`)
 
 High-Performance Windows Media Overlay for OBS Studio, TikTok Live, Big Presentation Stages, and Desktop HUD.
 
@@ -7,6 +7,10 @@ This repository hosts the standalone **MPO-PRO-BETA** codebase featuring:
 - **Dynamic React Theme SDK**: On-the-fly Sucrase transpiler (< 2ms) with full scoped CSS and motion support.
 - **Creator Dev Hub**: Split 50/50 IDE workspace launcher (VS Code, Cursor, Codex, Claude Code, Antigravity, etc.) with real-time compiler watcher terminal and file changelogs.
 - **Native Windows GSMTC Hook**: Low-latency WinRT multimedia telemetry without cloud dependencies or telemetry tracking.
+
+Beta 13 gives React and declarative SDK themes the full shared Arrange editor across all four studios, including hidden-target selection and explicit visibility overrides. Theme manifests can declare per-studio `canvasSizes`, while layer width, height, and scale stay editable. Starter templates and Builder exports include semantic roles, complete studio layouts, and portable SDK authoring references. The in-app LLM copy/download actions provide the [complete SDK contract and working example](THEME-SDK-LLM.md).
+
+Playback now uses validated stateful GSMTC anchors and one shared frontend clock. This removes the backend's 30-second extrapolation plateau, supports playback rates, preserves stale-data pause/resume positions, and rejects duplicate or delayed state across transports. Unknown duration can show credible elapsed time without inventing a total or LIVE label. Diagnostics can copy a bounded in-memory raw media trace. See the [implementation follow-up and remaining browser validation](BROWSER-MEDIA-TELEMETRY-REVIEW.md#9-beta-13-implementation-follow-up).
 
 ## Getting Started
 
@@ -24,7 +28,13 @@ This repository hosts the standalone **MPO-PRO-BETA** codebase featuring:
    ```bash
    npm run test:themes
    npm run test:popover
+   npm run test:media
+   cd src-tauri
+   cargo test -- --skip autostart::tests::test_autostart_toggle_cycle
+   cd ..
    ```
+
+   The excluded autostart integration test writes the user's Windows startup registry settings; run it separately only in an appropriate Windows test environment.
 
 4. Compile production installer:
    ```bash

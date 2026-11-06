@@ -14,6 +14,7 @@ import {
   runLiveAudit,
   runSyntheticStressTest,
 } from "../../utils/diagnosticEngine";
+import { mediaObservationTrace } from "../../utils/mediaTelemetry";
 
 interface DiagnosticsModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
   const [liveMetrics, setLiveMetrics] = useState<Partial<DiagnosticReport>>({});
   const [report, setReport] = useState<DiagnosticReport | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [telemetryCopied, setTelemetryCopied] = useState(false);
 
   if (!isOpen) return null;
 
@@ -66,7 +68,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
   const handleCopyReport = () => {
     if (!report) return;
     const text = [
-      `=== MPO-pro v4.2.0 Performance & Jitter Diagnostic ===`,
+      `=== MPO-pro 7.0.0-beta.13 Performance & Jitter Diagnostic ===`,
       `Mode: ${report.mode.toUpperCase()}`,
       `Health Grade: ${report.healthGrade}`,
       `Verdict: ${report.verdict}`,
@@ -94,7 +96,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
           <div className="diag-header-title">
             <Activity size={18} color="#06b6d4" />
             <span>Scrubber & Performance Diagnostics</span>
-            <span className="diag-version-pill">v4.2.0</span>
+            <span className="diag-version-pill">beta 13</span>
           </div>
           <button onClick={onClose} className="modal-close-btn" title="Close Diagnostics">
             <X size={18} />
@@ -130,7 +132,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
             {mode === "synthetic" ? (
               <>
                 <strong>Synthetic Jitter Simulation:</strong> Injects 5 simulated Windows GSMTC packets
-                with randomized ±250ms arrival variance and packet delay into the Phase-Locked Loop (PLL)
+                with randomized position jitter in the shared timeline model
                 engine. Mathematically verifies that <strong>zero negative time warps</strong> occur and
                 seconds never flick backwards.
               </>
@@ -172,7 +174,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
                   <div className="diag-verdict-title">{report.verdict}</div>
                   <div className="diag-verdict-subtitle">
                     {mode === "synthetic"
-                      ? "Phase-Locked Loop monotonic filter verified 100% stable."
+                      ? "Shared timeline simulation completed; live provider accuracy needs raw telemetry."
                       : "Live telemetry verified zero timeline glitches during playback."}
                   </div>
                 </div>
@@ -235,13 +237,13 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
               <div className="diag-metric-card">
                 <span className="diag-metric-label">Filter Algorithm</span>
                 <span className="diag-metric-value good" style={{ fontSize: 14 }}>
-                  PLL Monotonic
+                  Shared timeline
                 </span>
               </div>
               <div className="diag-metric-card">
                 <span className="diag-metric-label">State Throttle</span>
                 <span className="diag-metric-value good" style={{ fontSize: 14 }}>
-                  1 Hz Text / 30 Hz Bar
+                  20 Hz / 5 Hz eco
                 </span>
               </div>
             </div>
@@ -262,6 +264,13 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
           )}
 
           <div style={{ display: "flex", gap: 10 }}>
+            <button className="diag-copy-btn" onClick={async () => {
+              await navigator.clipboard.writeText(JSON.stringify({ version: '7.0.0-beta.13', captured_at: new Date().toISOString(), observations: mediaObservationTrace() }, null, 2));
+              setTelemetryCopied(true);
+              setTimeout(() => setTelemetryCopied(false), 2000);
+            }} title="Copy recent raw provider observations, source identity, receipt times, publication order and transport decisions">
+              <Copy size={14}/><span>{telemetryCopied ? 'Telemetry copied' : 'Copy media telemetry'}</span>
+            </button>
             <button
               onClick={handleStartBenchmark}
               disabled={isRunning}

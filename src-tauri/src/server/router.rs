@@ -370,7 +370,8 @@ mod security_tests {
             h.insert(header::ORIGIN, origin.parse().unwrap());
             assert!(request_origin_allowed(&Method::POST, "/api/layers", &h));
         }
-        h.insert(header::ORIGIN, "http://localhost:4849".parse().unwrap());
+        // A different loopback port is not one of the explicitly trusted app origins.
+        h.insert(header::ORIGIN, "http://localhost:4848".parse().unwrap());
         assert!(!request_origin_allowed(&Method::POST, "/api/layers", &h));
         h.insert(header::ORIGIN, "http://localhost:15421".parse().unwrap());
         assert!(request_origin_allowed(&Method::POST, "/api/layers", &h));

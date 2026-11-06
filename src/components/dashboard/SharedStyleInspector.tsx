@@ -161,7 +161,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                 ["showTitle", "Track title"], ["showArtist", "Artist"], ["showAlbum", "Album"], ["showArt", "Artwork"], ["showBadge", "Source badge"], ["showProgress", "Progress bar"], ["showTimestamps", "Timestamps"], ["showPlaybackStatus", "Playback status"], ["showVisualizer", "Playback indicator"]
               ] as const).map(([key, label]) => <Toggle key={key} label={label} title={label} size="sm" checked={key === "showTimestamps" ? config.showTimestamps !== false : Boolean(config[key])} onChange={(checked) => { onConfigChange(c => setVisibility(c, key, checked)); onCommitHistory?.(`${label} ${checked ? "shown" : "hidden"}`); }} />)}
             </div></section>
-            {!arrangePlacement && <TypographyControls unboundedSizes={presentationMode} config={config} onConfigChange={onConfigChange} onCommitHistory={onCommitHistory} />}<section className="independent-visibility" aria-label="Theme text"><Toggle label="Show theme text" checked={config.showThemeLabel !== false} onChange={checked => onConfigChange(c => ({...c, showThemeLabel:checked}))}/><div className="independent-visibility-title">Theme text</div><p>Leave a field empty to use the theme default. Text is saved with this layer.</p>{([ ["themeLabel", "Theme label"], ["themePlayingLabel", "Playing status"], ["themePausedLabel", "Paused or stopped status"] ] as const).map(([key, label]) => <label key={key} style={{display:"flex", flexDirection:"column", gap:5, marginTop:10, fontSize:11}}>{label}<input type="text" value={config[key] ?? ""} placeholder="Theme default" onChange={event => { const value = event.target.value; onConfigChange(current => ({...current, [key]: value})); }} onBlur={() => onCommitHistory?.("Updated theme text")} style={{width:"100%", boxSizing:"border-box", padding:"7px 9px", border:"1px solid #ffffff30", borderRadius:6, color:"inherit", background:"#111725"}} /></label>)}</section>
+            {!arrangePlacement && <TypographyControls unboundedSizes config={config} onConfigChange={onConfigChange} onCommitHistory={onCommitHistory} />}<section className="independent-visibility" aria-label="Theme text"><Toggle label="Show theme text" checked={config.showThemeLabel !== false} onChange={checked => onConfigChange(c => setVisibility(c,"showThemeLabel",checked))}/><div className="independent-visibility-title">Theme text</div><p>Leave a field empty to use the theme default. Text is saved with this layer.</p>{([ ["themeLabel", "Theme label"], ["themePlayingLabel", "Playing status"], ["themePausedLabel", "Paused or stopped status"] ] as const).map(([key, label]) => <label key={key} style={{display:"flex", flexDirection:"column", gap:5, marginTop:10, fontSize:11}}>{label}<input type="text" value={config[key] ?? ""} placeholder="Theme default" onChange={event => { const value = event.target.value; onConfigChange(current => ({...current, [key]: value})); }} onBlur={() => onCommitHistory?.("Updated theme text")} style={{width:"100%", boxSizing:"border-box", padding:"7px 9px", border:"1px solid #ffffff30", borderRadius:6, color:"inherit", background:"#111725"}} /></label>)}</section>
             {/* -------------------------------------------------------------
                 ACCORDION 1: FRAME & CANVAS
                ------------------------------------------------------------- */}
@@ -183,7 +183,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                 <div className="style-accordion-body">
                   <div className="beta-frame-controls"><div><strong>Fine styling</strong><small>Refine the frame for this layer</small></div>
                     <label>Border width <output>{config.frameBorderWidth === undefined ? "Theme default" : `${config.frameBorderWidth}px`}</output><input type="range" min="0" max="12" step="1" value={config.frameBorderWidth ?? 0} onChange={(e) => onConfigChange(c => ({...c, frameBorderWidth: Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed frame border")} /></label>
-                    {presentationMode && <BigNumberInput label="Exact border width" unit="px" value={config.frameBorderWidth} onCommit={value => onConfigChange(c => ({ ...c, frameBorderWidth: value }))} />}
+                    <BigNumberInput label="Exact border width" unit="px" value={config.frameBorderWidth} onCommit={value => onConfigChange(c => ({ ...c, frameBorderWidth: value }))} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}><span style={{ fontSize: 11, color: "inherit" }}>Border color</span><HexColorPicker value={config.frameBorderColor || "#FFFFFF"} onChange={(color) => onConfigChange(c => ({...c, frameBorderColor: color}))} onBlur={() => onCommitHistory?.("Changed frame border color")} /></div>
                     <label>Shadow strength <output>{config.frameShadow ?? 55}%</output><input type="range" min="0" max="100" step="5" value={config.frameShadow ?? 55} onChange={(e) => onConfigChange(c => ({...c, frameShadow: Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed frame shadow")} /></label>
                     <div className="independent-reset-row">
@@ -204,7 +204,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.scale}
                         min={presentationMode ? 0 : 0.5}
-                        max={presentationMode ? undefined : 2.0}
                         step={0.05}
                         unit="%"
                         displayMultiplier={100}
@@ -233,7 +232,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.customWidth}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 1200}
                         step={10}
                         unit={config.customWidth > 0 ? "px" : " (Auto)"}
                         onChange={(newVal) => {
@@ -259,7 +257,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.customHeight}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 1000}
                         step={10}
                         unit={config.customHeight > 0 ? "px" : " (Auto)"}
                         onChange={(newVal) => {
@@ -287,7 +284,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.framePadding || 0}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 50}
                         step={2}
                         unit="px"
                         onChange={(newVal) => {
@@ -341,7 +337,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.blur}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 50}
                         step={2}
                         unit="px"
                         onChange={(newVal) => {
@@ -368,7 +363,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.borderRadius}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 40}
                         step={1}
                         unit="px"
                         onChange={(newVal) => {
@@ -433,7 +427,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                           <EditableValueBadge
                             value={config.desktopScale || config.scale}
                             min={presentationMode ? 0 : 0.4}
-                            max={presentationMode ? undefined : 2.0}
                             step={0.05}
                             unit="%"
                             displayMultiplier={100}
@@ -461,7 +454,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                           <EditableValueBadge
                             value={config.desktopCustomWidth ?? config.customWidth}
                             min={presentationMode ? 0 : 0}
-                            max={presentationMode ? undefined : 1200}
                             step={10}
                             unit={(config.desktopCustomWidth ?? config.customWidth) > 0 ? "px" : " (Auto)"}
                             onChange={(newVal) => {
@@ -488,7 +480,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                           <EditableValueBadge
                             value={config.desktopCustomHeight ?? config.customHeight}
                             min={presentationMode ? 0 : 0}
-                            max={presentationMode ? undefined : 1000}
                             step={10}
                             unit={(config.desktopCustomHeight ?? config.customHeight) > 0 ? "px" : " (Auto)"}
                             onChange={(newVal) => {
@@ -617,7 +608,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.titleSize || 16}
                         min={presentationMode ? 0 : 10}
-                        max={presentationMode ? undefined : 36}
                         step={1}
                         unit="px"
                         onChange={(newVal) => {
@@ -720,7 +710,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.artistSize || 13}
                         min={presentationMode ? 0 : 9}
-                        max={presentationMode ? undefined : 24}
                         step={1}
                         unit="px"
                         onChange={(newVal) => {
@@ -794,7 +783,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.albumSize || 11}
                         min={presentationMode ? 0 : 8}
-                        max={presentationMode ? undefined : 20}
                         step={1}
                         unit="px"
                         onChange={(newVal) => {
@@ -845,7 +833,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.artSize || 0}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 200}
                         step={4}
                         unit={(config.artSize ?? 0) > 0 ? "px" : " (Auto)"}
                         onChange={(newVal) => {
@@ -872,7 +859,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.artRadius !== undefined ? config.artRadius : 10}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 50}
                         step={2}
                         unit="px"
                         onChange={(newVal) => {
@@ -899,7 +885,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.artBorder || 0}
                         min={presentationMode ? 0 : 0}
-                        max={presentationMode ? undefined : 6}
                         step={1}
                         unit="px"
                         onChange={(newVal) => {
@@ -1004,7 +989,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.visualizerCount ?? config.visualizerBars ?? 8}
                         min={presentationMode ? 0 : 3}
-                        max={presentationMode ? undefined : 24}
                         step={1}
                         onChange={(newVal) => {
                           onConfigChange((c) => ({ ...c, visualizerCount: Math.round(newVal) }));
@@ -1030,7 +1014,6 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <EditableValueBadge
                         value={config.visualizerHeight || 24}
                         min={presentationMode ? 0 : 8}
-                        max={presentationMode ? undefined : 60}
                         step={2}
                         unit="px"
                         onChange={(newVal) => {

@@ -1,11 +1,15 @@
-import type { CSSProperties, PointerEvent } from "react";
+import { useId, type CSSProperties, type PointerEvent } from "react";
 import type { MediaState } from "../types/media";
 import type { ThemeDefinition, ThemeSurface } from "./schema";
 import { validateThemeDefinition } from "./schema";
 import { CompiledThemeRunner } from "./compiler/CompiledThemeRunner";
+import { generateSdkThemeCss, sdkRoleVisible, type SdkRole } from "./compiler/sdkBridge";
+import { SdkThemeSupplement, sdkSupplementState } from "./compiler/SdkThemeSupplement";
+import { useSharedTimeline } from "../hooks/useSharedTimeline";
+import { timelinePresentation } from "../utils/timelinePresentation";
 
 const ELEMENT_CLASS_MAP: Record<string, string> = {
-  artwork: "mpo-art mpo-art-img",
+  artwork: "mpo-art",
   title: "mpo-title",
   artist: "mpo-artist",
   album: "mpo-album",
@@ -19,7 +23,7 @@ const ELEMENT_CLASS_MAP: Record<string, string> = {
 export function ThemeRenderer({
   theme,
   surface,
-  media,
+  media: rawMedia,
   artUrl,
   selectedElementId,
   onSelectElement,
@@ -27,6 +31,7 @@ export function ThemeRenderer({
   onResizePointerDown,
   config,
   extractedColor,
+  customCss,
 }: {
   theme: ThemeDefinition;
   surface: ThemeSurface;
@@ -38,23 +43,32 @@ export function ThemeRenderer({
   onResizePointerDown?: (e: PointerEvent, elementId: string) => void;
   config?: Record<string, any>;
   extractedColor?: string | null;
+  customCss?: string;
 }) {
+  const scopeClass = `mpo-sdk-declarative-${useId().replace(/:/g, "")}`;
+  const media = useSharedTimeline(rawMedia);
+  const timeline = timelinePresentation(media);
   if (validateThemeDefinition(theme).length) return <div role="alert">This theme is invalid.</div>;
   if (theme.bundle) {
     return (
       <CompiledThemeRunner
         bundle={theme.bundle}
         media={media}
+        rawMedia={rawMedia}
         artUrl={artUrl}
         surface={surface}
         format={surface === "tiktok" ? "vertical" : "horizontal"}
         config={config}
         extractedColor={extractedColor}
+        customCss={customCss}
       />
     );
   }
   const elements = theme.layouts?.[surface] ?? theme.elements;
-  const progress = media.duration_ms > 0 ? Math.max(0, Math.min(1, media.position_ms / media.duration_ms)) : 0;
+  const progress = timeline.determinate ? Math.max(0, Math.min(1, media.position_ms / media.duration_ms)) : 0;
+  const roleFor = (type: string): SdkRole => type === "source" ? "badge" : type === "text" ? "themeLabel" : type as SdkRole;
+  const roles = new Set(elements.map(element => roleFor(element.type)));
+  const supplement = sdkSupplementState(roles, media, config || {});
 
   const canvasBg = theme.canvas?.background || "linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(9, 13, 24, 0.96))";
   const canvasRadius = theme.canvas?.borderRadius ?? (surface === "big" ? 24 : 16);
@@ -66,12 +80,17 @@ export function ThemeRenderer({
 
   return (
     <div
-      className={`mpo-sdk-host mpo-theme-container mpo-sdk-surface-${surface}`}
+      className={`mpo-sdk-host mpo-theme-container mpo-sdk-surface-${surface} ${scopeClass}`}
       style={{ position: "relative", width: "100%", height: "100%", overflow: "visible", background: "transparent" }}
     >
+    {config && <style>{generateSdkThemeCss(config, surface === "tiktok" ? "vertical" : "horizontal", extractedColor, customCss, `.${scopeClass}`, surface === "big")}</style>}
     <div
       className="mpo-sdk-surface mpo-card"
+      data-theme-role="frame"
+      data-theme-sdk-frame="true"
+      data-mpo-has-supplement={supplement.hasSupplement ? "true" : undefined}
       style={{
+        "--mpo-sdk-supplement-room": `${supplement.room}px`,
         position: "relative",
         width: "100%",
         height: "100%",
@@ -83,7 +102,7 @@ export function ThemeRenderer({
         boxShadow: canvasShadow,
         backdropFilter: canvasBlur,
         WebkitBackdropFilter: canvasBlur,
-      }}
+      } as CSSProperties}
     >
       <style>{`
         @keyframes mpo-builder-spin {
@@ -92,7 +111,7 @@ export function ThemeRenderer({
         }
       `}</style>
       {elements
-        .filter((element) => element.visible)
+        .filter((element) => sdkRoleVisible(roleFor(element.type), element.visible, config))
         .map((element) => {
           const isSelected = selectedElementId === element.id;
           const elClass = ELEMENT_CLASS_MAP[element.type] || "";
@@ -117,7 +136,7 @@ export function ThemeRenderer({
             color: element.color || "white",
             fontSize: element.fontSize,
             fontFamily: element.fontFamily || undefined,
-            fontWeight: element.fontWeight || (element.type === "title" ? 700 : element.type === "artist" ? 500 : 400),
+            fontWeight: element.fontWeight || (element.type === "title" ? 700 : element.type === "artist" ? 500 : element.type === "source" || element.type === "status" ? 600 : 400),
             textAlign: element.textAlign || "left",
             textTransform: element.textTransform || (element.type === "source" || element.type === "status" ? "uppercase" : undefined),
             letterSpacing: element.letterSpacing || (element.type === "source" || element.type === "status" ? "0.04em" : undefined),
@@ -155,6 +174,8 @@ export function ThemeRenderer({
                   }}
                 >
                   <img
+                    className="mpo-art-img"
+                    data-theme-role="artwork-image"
                     src={artUrl}
                     alt="Album artwork"
                     style={{
@@ -186,32 +207,32 @@ export function ThemeRenderer({
               break;
             }
             case "title":
-              content = <span style={{ fontWeight: style.fontWeight, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{media.title}</span>;
+              content = <span style={{ fontWeight: "inherit", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{media.title}</span>;
               break;
             case "artist":
-              content = <span style={{ fontWeight: style.fontWeight, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{media.artist}</span>;
+              content = <span style={{ fontWeight: "inherit", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{media.artist}</span>;
               break;
             case "album":
               content = <span style={{ opacity: 0.85, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{media.album_title}</span>;
               break;
             case "source":
-              content = <span style={{ fontWeight: 600, letterSpacing: style.letterSpacing }}>{media.app_name}</span>;
+              content = <span style={{ fontWeight: "inherit", letterSpacing: style.letterSpacing }}>{media.app_name}</span>;
               break;
             case "status": {
               const isPlaying = media.status === "Playing";
               const statusText = isPlaying
-                ? (element.playingText || element.customText || "PLAYING")
-                : (element.pausedText || (media.status === "Paused" ? "PAUSED" : "STOPPED"));
-              content = <span style={{ fontWeight: 600, letterSpacing: style.letterSpacing }}>{statusText}</span>;
+                ? (config?.themePlayingLabel || element.playingText || element.customText || "PLAYING")
+                : (config?.themePausedLabel || element.pausedText || (media.status === "Paused" ? "PAUSED" : "STOPPED"));
+              content = <span style={{ fontWeight: "inherit", letterSpacing: style.letterSpacing }}>{statusText}</span>;
               break;
             }
             case "text":
-              content = <span style={{ fontWeight: style.fontWeight, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{element.customText || "CUSTOM LABEL"}</span>;
+              content = <span style={{ fontWeight: "inherit", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{config?.themeLabel || element.customText || "CUSTOM LABEL"}</span>;
               break;
             case "progress":
               content = (
-                <div style={{ width: "100%", height: "100%", background: element.backgroundColor || "#ffffff33", borderRadius, overflow: "hidden" }}>
-                  <div style={{ width: `${progress * 100}%`, height: "100%", background: element.color || "currentColor", borderRadius }} />
+                <div data-theme-part="progress-track" data-timeline-state={timeline.state} role="progressbar" aria-label="Playback progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={timeline.determinate ? progress * 100 : undefined} aria-valuetext={timeline.label} style={{ width: "100%", height: "100%", background: element.backgroundColor || "#ffffff33", borderRadius, overflow: "hidden" }}>
+                  <div data-theme-role="progress-fill" className="mpo-progress-fill" style={{ width: timeline.determinate ? `${progress * 100}%` : "25%", opacity: timeline.determinate ? 1 : .35, height: "100%", background: element.color || "currentColor", borderRadius }} />
                 </div>
               );
               break;
@@ -222,6 +243,7 @@ export function ThemeRenderer({
               key={element.id}
               data-theme-element={element.id}
               data-theme-type={element.type}
+              data-theme-role={roleFor(element.type)}
               className={`mpo-sdk-element ${elClass}`}
               style={style}
               dir="auto"
@@ -286,6 +308,7 @@ export function ThemeRenderer({
             </div>
           );
         })}
+      {config && <SdkThemeSupplement roles={roles} media={media} artUrl={artUrl} config={config} currentTime={timeline.current} durationTime={timeline.duration} />}
     </div>
     </div>
   );

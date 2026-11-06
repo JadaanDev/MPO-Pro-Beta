@@ -4,12 +4,13 @@ import type { ThemeConfig } from "../types/themes";
 import { Toggle } from "../components/common/Toggle";
 import { HexColorPicker } from "../components/common/HexColorPicker";
 import { BigNumberInput } from "./BigNumberInput";
+import { setVisibility, type VisibilityKey } from "../utils/visibility";
 type Props = { config: ThemeConfig; onChange: (update: (config: ThemeConfig) => ThemeConfig) => void };
 export function BigStyleInspector({ config, onChange }: Props) {
   const set = (patch: Partial<ThemeConfig>) => onChange(old => ({ ...old, ...patch }));
   const fileInput = useRef<HTMLInputElement>(null);
   const [error,setError] = useState("");
-  const visibility: Array<[keyof ThemeConfig, string]> = [
+  const visibility: Array<[VisibilityKey, string]> = [
     ["showArt", "Artwork"], ["showTitle", "Track title"], ["showArtist", "Artist"], ["showAlbum", "Album"], ["showThemeLabel", "Theme text"],
     ["showProgress", "Progress"], ["showTimestamps", "Timestamps"], ["showBadge", "Source badge"], ["showPlaybackStatus", "Playback status"], ["showVisualizer", "Playback indicator"]
   ];
@@ -27,7 +28,7 @@ export function BigStyleInspector({ config, onChange }: Props) {
       <div className="big-logo-row"><button type="button" className="big-secondary-action" onClick={()=>fileInput.current?.click()}><ImagePlus size={14}/> {config.bigBrandLogo ? "Change logo" : "Add logo"}</button>{config.bigBrandLogo && <><img src={config.bigBrandLogo} alt="Brand logo preview"/><button type="button" className="big-secondary-action" onClick={()=>set({bigBrandLogo:undefined})}>Remove</button></>}<input ref={fileInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={chooseLogo}/></div>
       <small>PNG, JPEG or WebP, up to 256 KB. Included when exporting this layer.</small>{error && <p role="alert" className="big-brand-error">{error}</p>}
     </section>
-    <section className="big-settings-card"><div className="big-settings-heading"><div><h4>Visible elements</h4><p>Choose what appears on the stage.</p></div></div><div className="big-visibility-grid">{visibility.map(([key,label])=><Toggle key={key} label={label} title={label} size="sm" checked={key === "showVisualizer" ? Boolean(config[key]) : config[key] !== false} onChange={value=>set({[key]:value})}/>)}</div></section>
+    <section className="big-settings-card"><div className="big-settings-heading"><div><h4>Visible elements</h4><p>Choose what appears on the stage.</p></div></div><div className="big-visibility-grid">{visibility.map(([key,label])=><Toggle key={key} label={label} title={label} size="sm" checked={key === "showVisualizer" ? Boolean(config[key]) : config[key] !== false} onChange={value=>onChange(old=>setVisibility(old,key,value))}/>)}</div></section>
     <details className="big-settings-details"><summary>Presentation size</summary><div><BigNumberInput label="Content scale" unit="%" value={(config.scale ?? 1)*100} onCommit={value=>set({scale:(value ?? 100)/100})}/><BigNumberInput label="Content width" unit="px" value={config.bigCustomWidth || undefined} onCommit={value=>set({bigCustomWidth:value || 0})}/><BigNumberInput label="Content height" unit="px" value={config.bigCustomHeight || undefined} onCommit={value=>set({bigCustomHeight:value || 0})}/><small>Leave dimensions empty to use the responsive layout.</small></div></details>
   </section>;
 }

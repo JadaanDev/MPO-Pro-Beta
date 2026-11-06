@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { themeEffectGutter, themeEffectScale } from "../../utils/themeEffects";
+import { themeEffectGutter, themeEffectScale, themeLayoutSize } from "../../utils/themeEffects";
 import "./theme-effect-boundary.css";
 
 const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -18,22 +18,40 @@ export function ThemeEffectBoundary({ children, configScale = 1, fullSize = fals
   useClientLayoutEffect(() => {
     if (fullSize || !layout.current) return;
     const inner = layout.current;
+    let frame = 0;
+    let observedRoot: HTMLElement | null = null;
     const measure = () => {
-      const root = inner.querySelector<HTMLElement>(".mpo-theme-container");
+      const root = inner.querySelector<HTMLElement>("[data-theme-layout-root]") || inner.querySelector<HTMLElement>(".mpo-theme-container");
+      if (root !== observedRoot) {
+        if (observedRoot) observer.unobserve(observedRoot);
+        observedRoot = root;
+        if (root) observer.observe(root);
+      }
       if (!root) return;
       // Layout dimensions exclude animated blur/rotation, so track transitions
       // cannot make the native window resize on every animation frame.
-      const width = Math.ceil(Math.max(root.offsetWidth, root.scrollWidth) * scale);
-      const height = Math.ceil(Math.max(root.offsetHeight, root.scrollHeight) * scale);
+      const intrinsic = themeLayoutSize(root);
+      const width = Math.ceil(intrinsic.width * scale);
+      const height = Math.ceil(intrinsic.height * scale);
       if (width && height) setSize(previous => previous?.width === width && previous.height === height ? previous : { width, height });
     };
-    const observer = new ResizeObserver(measure);
+    const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(measure); };
+    const observer = new ResizeObserver(schedule);
     observer.observe(inner);
-    const root = inner.querySelector<HTMLElement>(".mpo-theme-container");
-    if (root) observer.observe(root);
+    // A layer can replace its theme root without replacing the boundary itself.
+    const mutations = new MutationObserver(schedule);
+    mutations.observe(inner, { childList: true, subtree: true });
+    window.addEventListener("resize", schedule);
+    document.addEventListener("visibilitychange", schedule);
     measure();
-    return () => observer.disconnect();
-  }, [scale, fullSize, children]);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      mutations.disconnect();
+      window.removeEventListener("resize", schedule);
+      document.removeEventListener("visibilitychange", schedule);
+    };
+  }, [scale, fullSize]);
 
   return <div className={`mpo-theme-effect-boundary ${fullSize ? "mpo-theme-effect-full" : ""} ${className}`} style={{ padding: themeEffectGutter(scale), ...style }}>
     <div className="mpo-theme-effect-content" style={!fullSize && size ? size : undefined}>

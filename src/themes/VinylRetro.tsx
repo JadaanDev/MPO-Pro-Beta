@@ -12,7 +12,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
   customCss,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
 
   return (
     <div
@@ -102,7 +102,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
           </AnimatePresence>
 
           {/* Golden Grooves Progress */}
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="vinyl-progress mpo-progress">
               <div className="vinyl-track">
                 <div

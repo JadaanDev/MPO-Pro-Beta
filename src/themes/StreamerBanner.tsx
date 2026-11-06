@@ -12,7 +12,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
   customCss,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
 
   return (
     <div
@@ -81,7 +81,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
               <span className="mpo-theme-label">{config.themeLabel || "NOW PLAYING"}</span> • {media.app_name || "WINDOWS MEDIA"}
             </span>
             <span className="streamer-time">
-              {formattedCurrent} / {formattedDuration}
+              {durationKnown ? `${formattedCurrent} / ${formattedDuration}` : formattedCurrent}
             </span>
           </div>
 
@@ -111,7 +111,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
         </div>
 
         {/* Laser Bottom Scrubber */}
-        {config.showProgress && (
+        {config.showProgress && positionKnown && durationKnown && (
           <div className="streamer-progress-line mpo-progress">
             <div
               className="streamer-progress-bar mpo-progress-fill"

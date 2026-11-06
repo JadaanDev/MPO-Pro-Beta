@@ -12,7 +12,7 @@ export const CompactTag: React.FC<ThemeProps> = ({
   extractedColor,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
   const accent = (config.autoAlbumColor && extractedColor) ? extractedColor : config.accentColor;
 
   return (
@@ -74,7 +74,7 @@ export const CompactTag: React.FC<ThemeProps> = ({
             </div>
           )}
 
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="tag-progress mpo-progress">
               <div className="tag-track">
                 <div

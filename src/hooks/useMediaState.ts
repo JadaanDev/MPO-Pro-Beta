@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MediaState, DEFAULT_MEDIA_STATE, MOCK_MEDIA_STATE } from "../types/media";
 import { applyAppSourceFilter } from "../utils/appSources";
+import { isMediaState, MediaPublicationOrder } from "../utils/mediaOrdering";
+import { feedTimelineObservation } from "./useSharedTimeline";
+import { recordMediaObservation } from "../utils/mediaTelemetry";
 
 // Check if running inside native Tauri container
 export function isTauriEnvironment(): boolean {
@@ -18,6 +21,7 @@ export function useMediaState() {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeRef = useRef(false);
   const reconnectAttemptRef = useRef(0);
+  const publicationOrder = useRef(new MediaPublicationOrder());
 
   // Determine base API server URL
   const getApiBaseUrl = useCallback((): string => {
@@ -43,9 +47,14 @@ export function useMediaState() {
   }, [getApiBaseUrl]);
 
   // Handle incoming media update from either Tauri IPC or WebSocket
-  const handleMediaUpdate = useCallback((newMedia: MediaState) => {
+  const handleMediaUpdate = useCallback((newMedia: MediaState, transport = "native", requestedAtRevision?: number) => {
+    if (!activeRef.current || !isMediaState(newMedia)) return;
+    const accepted = publicationOrder.current.accept(newMedia, requestedAtRevision);
+    recordMediaObservation(newMedia, transport, accepted);
+    if (!accepted) return;
     rawMediaRef.current = newMedia;
     const { media: filteredMedia, isSuppressed } = applyAppSourceFilter(newMedia);
+    feedTimelineObservation(filteredMedia);
     setMedia(filteredMedia);
     updateArtUrl(!isSuppressed && filteredMedia.has_art, filteredMedia.art_timestamp);
   }, [updateArtUrl]);
@@ -55,6 +64,7 @@ export function useMediaState() {
     const handleSourcesChange = () => {
       if (rawMediaRef.current) {
         const { media: filteredMedia, isSuppressed } = applyAppSourceFilter(rawMediaRef.current);
+        feedTimelineObservation(filteredMedia, true);
         setMedia(filteredMedia);
         updateArtUrl(!isSuppressed && filteredMedia.has_art, filteredMedia.art_timestamp);
       }
@@ -96,7 +106,7 @@ export function useMediaState() {
             window.dispatchEvent(new CustomEvent("mpo_server_layers_updated", { detail: raw.payload }));
             return;
           }
-          handleMediaUpdate(raw as MediaState);
+          handleMediaUpdate(raw as MediaState, "websocket");
         } catch {
           // Non-JSON message ignored
         }
@@ -105,7 +115,7 @@ export function useMediaState() {
       ws.onclose = () => {
         if (!activeRef.current || wsRef.current !== ws) return;
         setIsConnected(false);
-        if (!isTauriEnvironment()) { setMedia(DEFAULT_MEDIA_STATE); setArtUrl(""); }
+        if (!isTauriEnvironment()) { feedTimelineObservation(DEFAULT_MEDIA_STATE, true); setMedia(DEFAULT_MEDIA_STATE); setArtUrl(""); }
         scheduleReconnect();
       };
 
@@ -121,13 +131,14 @@ export function useMediaState() {
   // Fetch initial state immediately via HTTP to guarantee instant load
   const fetchCurrentState = useCallback(() => {
     const base = getApiBaseUrl();
+    const revision = publicationOrder.current.revision;
     fetch(`${base}/api/state`)
       .then((res) => {
         if (res.ok) return res.json();
         throw new Error("HTTP state error");
       })
       .then((data: MediaState) => {
-        handleMediaUpdate(data);
+        handleMediaUpdate(data, "http", revision);
       })
       .catch(() => {});
   }, [getApiBaseUrl, handleMediaUpdate]);
@@ -151,26 +162,27 @@ export function useMediaState() {
     if (tauriDetected) {
       import("@tauri-apps/api/event").then(({ listen }) => {
         listen<MediaState>("media-update", (event) => {
-          handleMediaUpdate(event.payload);
+          if (!cancelled) handleMediaUpdate(event.payload, "native");
         }).then((unlisten) => {
           if (cancelled) unlisten(); else unlistenMediaFn = unlisten;
         }).catch(() => {});
 
         listen<boolean>("edit-mode-changed", (event) => {
-          setIsEditMode(event.payload);
+          if (!cancelled) setIsEditMode(event.payload);
         }).then((unlisten) => {
           if (cancelled) unlisten(); else unlistenEditFn = unlisten;
         }).catch(() => {});
       }).catch(() => {});
 
       import("@tauri-apps/api/core").then(({ invoke }) => {
+        const revision = publicationOrder.current.revision;
         invoke<MediaState>("get_media_state")
-          .then(handleMediaUpdate)
+          .then(state => { if (!cancelled) handleMediaUpdate(state, "invoke", revision); })
           .catch(() => {});
       }).catch(() => {});
     }
 
-    // 4. Polling heartbeat every 2.5 seconds to guarantee zero-desync
+    // 4. Snapshot recovery while the streaming transport is disconnected.
     const interval = setInterval(() => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
         fetchCurrentState();
@@ -209,9 +221,12 @@ export function useMediaState() {
   const toggleMockData = useCallback(() => {
     if (media.title === MOCK_MEDIA_STATE.title) {
       setMedia(DEFAULT_MEDIA_STATE);
+      feedTimelineObservation(DEFAULT_MEDIA_STATE, true);
       setArtUrl("");
     } else {
-      setMedia(MOCK_MEDIA_STATE);
+      const mock = { ...MOCK_MEDIA_STATE, updated_at: Date.now() };
+      setMedia(mock);
+      feedTimelineObservation(mock, true);
       setArtUrl("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop");
     }
   }, [media.title]);

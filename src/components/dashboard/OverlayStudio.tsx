@@ -6,6 +6,7 @@ import { Layer, LayerFormat } from "../../types/layers";
 import { LayerBrowser } from "./LayerBrowser";
 import { SharedStyleInspector } from "./SharedStyleInspector";
 import { ContextualThemeEditor, findThemeElement, ThemeElement } from "./ContextualThemeEditor";
+import { ArrangeElementPicker } from "./ArrangeElementPicker";
 import {
   Search,
   Palette,
@@ -23,7 +24,7 @@ import { TrackTransitionWrapper } from "../common/TrackTransitionWrapper";
 import { AutoFitPreview } from "./AutoFitPreview";
 import { generateEffectiveThemeCss } from "../../utils/ThemeStyleEngine";
 import { browserSourceUrl } from "../../utils/browserSource";
-import { ThemeRenderer } from "../../theme-sdk/ThemeRenderer";
+import { BuiltThemeMount } from "../../theme-sdk/BuiltThemeMount";
 import { LIBRARY_EVENT, readThemeLibrary } from "../../theme-sdk/library";
 import type { ThemeDefinition } from "../../theme-sdk/schema";
 
@@ -508,12 +509,12 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
                   <div className={`single-preview-mount preview-canvas-scope ${format === "vertical" ? "vertical-viewport" : ""}`}>
                     {singlePreviewGeneratedCss && <style>{singlePreviewGeneratedCss}</style>}
                     <TrackTransitionWrapper transitionKey={activeTransitionKey} style={config.transitionStyle || "focus"} direction={config.transitionDirection || "left"} intensity={config.transitionIntensity || "standard"} durationMs={config.transitionDurationMs ?? (config.transitionDuration != null ? config.transitionDuration * 1000 : 350)} delayMs={config.transitionDelayMs ?? (config.transitionDelay != null ? config.transitionDelay * 1000 : 0)}>
-                      {layers.find(layer=>layer.id===activeLayerId)?.builtTheme ? <div className="mpo-theme-container" style={{width: config.customWidth > 0 ? config.customWidth : (format === "vertical" ? 360 : 640), height: config.customHeight > 0 ? config.customHeight : (format === "vertical" ? 640 : 180), transform: `scale(${config.scale ?? 1})`, transformOrigin: "center"}}><ThemeRenderer theme={layers.find(layer=>layer.id===activeLayerId)!.builtTheme!} surface={activeSurface} media={media} artUrl={artUrl} config={previewConfig} extractedColor={extractedColor}/></div> : <ActiveComponent media={media} artUrl={artUrl} config={previewConfig} format={format} extractedColor={extractedColor} />}
+                      {layers.find(layer=>layer.id===activeLayerId)?.builtTheme ? <BuiltThemeMount theme={layers.find(layer=>layer.id===activeLayerId)!.builtTheme!} surface={activeSurface} media={media} artUrl={artUrl} config={previewConfig} extractedColor={extractedColor} customCss={effectivePreviewCss}/> : <ActiveComponent media={media} artUrl={artUrl} config={previewConfig} format={format} extractedColor={extractedColor} />}
                     </TrackTransitionWrapper>
                   </div>
                 </AutoFitPreview>
               </div>
-              {arrangeMode && <div className="arrange-accessible-tools"><button type="button" onClick={() => setSelectedElement("timestamps")}>Edit timestamps</button><small>Available even when no track is playing.</small></div>}
+              {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
               {arrangeMode && (selectedElement ? (
                 <ContextualThemeEditor
                   key={`${activeLayerId}-${selectedElement}`}

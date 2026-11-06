@@ -12,7 +12,7 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
   extractedColor,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { progress, formattedCurrent, formattedDuration } = useScrubber(media);
+  const { progress, formattedCurrent, formattedDuration, positionKnown, durationKnown } = useScrubber(media);
   const accent = (config.autoAlbumColor && extractedColor) ? extractedColor : config.accentColor;
 
   return (
@@ -67,7 +67,7 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
             )}
           </div>
 
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="island-scrub mpo-progress">
               <div className="island-track">
                 <div

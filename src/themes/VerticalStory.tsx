@@ -13,7 +13,7 @@ export const VerticalStory: React.FC<ThemeProps> = ({
   extractedColor,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
   const accent = (config.autoAlbumColor && extractedColor) ? extractedColor : config.accentColor;
 
   return (
@@ -124,7 +124,7 @@ export const VerticalStory: React.FC<ThemeProps> = ({
         </div>
 
         {/* Scrubber Timeline */}
-        {config.showProgress && media.duration_ms > 0 && (
+        {config.showProgress && positionKnown && durationKnown && (
           <div className="story-progress-section mpo-progress">
             <div className="story-track">
               <div

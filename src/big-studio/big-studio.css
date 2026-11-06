@@ -33,4 +33,5 @@
 .big-stage.layout-signal .big-art {filter:none;border:1px solid color-mix(in srgb,var(--big-accent),transparent 35%);}
 .big-stage.layout-center .big-art {outline:1px solid color-mix(in srgb,var(--big-accent),transparent 35%);}
 .big-stage .big-meta {align-items:center;flex-wrap:wrap;}
+.big-built-stage .track-transition-wrapper,.big-built-stage .track-transition-inner {height:100%;min-height:0;}
 .big-stage .big-copy h1 {max-width:100%;}

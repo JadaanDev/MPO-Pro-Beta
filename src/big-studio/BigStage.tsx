@@ -9,7 +9,7 @@ import type { BigLayer, BigTheme } from "./types";
 import { BIG_THEMES } from "./themes";
 import { makeBigLayer } from "./layers";
 import "./big-studio.css";
-import { ThemeRenderer } from "../theme-sdk/ThemeRenderer";
+import { BuiltThemeMount } from "../theme-sdk/BuiltThemeMount";
 import { ThemeEffectBoundary } from "../components/common/ThemeEffectBoundary";
 
 export function BigStage({
@@ -33,7 +33,7 @@ export function BigStage({
   extractedColor?: string | null;
   replay?: number;
 }) {
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { timeline, progress } = useScrubber(media);
   const resolvedTheme =
     themeProp ||
     (layer ? BIG_THEMES.find((t) => t.id === layer.themeId) : undefined) ||
@@ -61,11 +61,14 @@ export function BigStage({
     ".big-stage",
     { unboundedSizes: true }
   );
-  if (layer?.builtTheme) return <div className="mpo-feed-wrapper big-built-stage" style={{ width: "100%", height: "100%" }}>
+  if (layer?.builtTheme) return <div className="mpo-feed-wrapper big-built-stage" style={{ width: "100%", height: "100%", position: "relative" }}>
     <style>{generateEffectiveThemeCss(stageStyleConfig, "horizontal", extractedColor, resolvedCustomCss, ".big-built-stage", { unboundedSizes: true })}</style>
     <ThemeEffectBoundary fullSize configScale={scale * (c.scale ?? 1)}>
-      <div className="mpo-theme-container" style={{ width: "100%", height: "100%", transform: `scale(${scale * (c.scale ?? 1)})`, transformOrigin: "center" }}><ThemeRenderer theme={layer.builtTheme} surface="big" media={media} artUrl={artUrl} config={c} extractedColor={extractedColor}/></div>
+      <TrackTransitionWrapper transitionKey={`${media.title}-${media.artist}-${media.album_title}-${replay}`} style={c.transitionStyle} direction={c.transitionDirection} intensity={c.transitionIntensity} durationMs={c.transitionDurationMs ?? ((c.transitionDuration ?? .35) * 1000)} delayMs={c.transitionDelayMs ?? ((c.transitionDelay ?? 0) * 1000)}>
+        <BuiltThemeMount theme={layer.builtTheme} surface="big" media={media} artUrl={artUrl} config={stageStyleConfig} extractedColor={extractedColor} customCss={resolvedCustomCss} scale={scale * (c.scale ?? 1)} fill/>
+      </TrackTransitionWrapper>
     </ThemeEffectBoundary>
+    {(c.bigBrandName || c.bigBrandLogo) && <div className="big-signature">{c.bigBrandLogo && <img src={c.bigBrandLogo} alt=""/>}{c.bigBrandName}</div>}
   </div>;
   const isPlaying = media.status === "Playing";
   const times = c.showTimestamps !== false;
@@ -115,14 +118,14 @@ export function BigStage({
               <p className="mpo-album big-album">{media.album_title}</p>
             )}
             {c.showProgress !== false && (
-              <div className="mpo-progress big-progress">
-                <span className="mpo-progress-fill" style={{ transform: `scaleX(${progress})` }} />
+              <div className="mpo-progress big-progress" data-timeline-state={timeline.state} role="progressbar" aria-label="Playback progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={timeline.determinate ? progress * 100 : undefined} aria-valuetext={timeline.label}>
+                <span className="mpo-progress-fill" style={timeline.determinate ? { transform: `scaleX(${progress})` } : { width: "25%", opacity: .35 }} />
               </div>
             )}
             <div className="big-meta">
               {times && (
-                <span className="mpo-universal-timestamps">
-                  {formattedCurrent} / {formattedDuration}
+                <span className="mpo-universal-timestamps" data-timeline-state={timeline.state}>
+                  {timeline.label}
                 </span>
               )}
               <span>

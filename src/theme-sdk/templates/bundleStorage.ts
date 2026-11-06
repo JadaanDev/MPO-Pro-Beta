@@ -2,6 +2,7 @@ import type { ThemeDefinition } from "../schema";
 import type { ThemeBundle } from "../compiler/types";
 import { generateBundleFromDeclarative } from "./bundleGenerator";
 import { compileThemeBundle } from "../compiler/themeCompiler";
+import { withBundleAuthoringFiles } from "./bundleAuthoring";
 
 export interface MpoThemePackage {
   format: "mpo-theme-package";
@@ -14,7 +15,7 @@ export interface MpoThemePackage {
  * Serializes a theme into a standalone, portable .mpotheme.json file
  */
 export function exportThemePackageJson(theme: ThemeDefinition): string {
-  const bundle: ThemeBundle = theme.bundle || generateBundleFromDeclarative(theme);
+  const bundle: ThemeBundle = withBundleAuthoringFiles(theme.bundle || generateBundleFromDeclarative(theme));
   const fullTheme: ThemeDefinition = {
     ...theme,
     bundle,

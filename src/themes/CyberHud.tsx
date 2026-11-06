@@ -12,7 +12,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
   customCss,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
 
   return (
     <div
@@ -106,7 +106,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
           </AnimatePresence>
 
           {/* Segmented HUD Progress */}
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="cyber-progress-section mpo-progress">
               <div className="cyber-track">
                 <div

@@ -12,7 +12,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
   format = "horizontal",
   extractedColor,
 }) => {
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
   const accent = (config.autoAlbumColor && extractedColor) ? extractedColor : (config.accentColor || "#fa2d48"); // Signature Apple Music Red
 
   const isPlaying = media.status === "Playing";
@@ -168,7 +168,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
             )}
 
             {/* In Horizontal mode, place scrubber right below text */}
-            {!isVertical && config.showProgress !== false && (
+            {!isVertical && config.showProgress !== false && positionKnown && durationKnown && (
               <div className="apple-scrubber-section horizontal-scrubber">
                 <div className="apple-progress-bar-track">
                   <div
@@ -185,7 +185,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
                 <div className="apple-timestamps-row">
                   <span className="mpo-time-current apple-time">{formattedCurrent}</span>
                   <span className="mpo-time-duration apple-time">
-                    {media.duration_ms > 0 ? `-${formattedDuration}` : "LIVE"}
+                    {formattedDuration}
                   </span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
         </div>
 
         {/* In Vertical mode, scrubber sits below artwork and text with balanced margin */}
-        {isVertical && config.showProgress !== false && (
+        {isVertical && config.showProgress !== false && positionKnown && durationKnown && (
           <div className="apple-scrubber-section vertical-scrubber">
             <div className="apple-progress-bar-track">
               <div
@@ -211,7 +211,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
             <div className="apple-timestamps-row">
               <span className="mpo-time-current apple-time">{formattedCurrent}</span>
               <span className="mpo-time-duration apple-time">
-                {media.duration_ms > 0 ? `-${formattedDuration}` : "LIVE"}
+                {formattedDuration}
               </span>
             </div>
           </div>

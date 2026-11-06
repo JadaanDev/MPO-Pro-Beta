@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { recommendedSourceSize } from "../../utils/browserSource";
-import { themeEffectSize } from "../../utils/themeEffects";
+import { themeEffectSize, themeLayoutSize } from "../../utils/themeEffects";
 import { ThemeEffectBoundary } from "../common/ThemeEffectBoundary";
 
 const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -17,19 +17,20 @@ export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: 
     const inner = content.current;
     if (!container || !inner) return;
     const measure = () => {
-      const root = inner.querySelector<HTMLElement>(".mpo-theme-container");
+      const root = inner.querySelector<HTMLElement>("[data-theme-layout-root]") || inner.querySelector<HTMLElement>(".mpo-theme-container");
       const themeScale = Number.isFinite(configScale) ? Math.max(.1, configScale) : 1;
-      const rootWidth = root?.offsetWidth || 0;
-      const rootHeight = root?.offsetHeight || 0;
+      const layout = root ? themeLayoutSize(root) : { width: 0, height: 0 };
+      const rootWidth = layout.width;
+      const rootHeight = layout.height;
       if (rootWidth && rootHeight) {
-        const size = recommendedSourceSize(Math.max(rootWidth, root?.scrollWidth || 0), Math.max(rootHeight, root?.scrollHeight || 0), themeScale);
+        const size = recommendedSourceSize(rootWidth, rootHeight, themeScale);
         if (size.width !== lastSize.current?.width || size.height !== lastSize.current?.height) {
           lastSize.current = size;
           onContentSize?.(size);
         }
       }
       const { width, height } = rootWidth && rootHeight
-        ? themeEffectSize(Math.max(rootWidth, root?.scrollWidth || 0), Math.max(rootHeight, root?.scrollHeight || 0), themeScale)
+        ? themeEffectSize(rootWidth, rootHeight, themeScale)
         : { width: inner.offsetWidth, height: inner.offsetHeight };
       if (!width || !height || !container.clientWidth || !container.clientHeight) return;
       const next = Math.min(1, container.clientWidth / width, container.clientHeight / height);
@@ -41,7 +42,7 @@ export const AutoFitPreview: React.FC<{ children: React.ReactNode; configScale: 
     const observer = new ResizeObserver(measure);
     observer.observe(container);
     observer.observe(inner);
-    const root = inner.querySelector<HTMLElement>(".mpo-theme-container");
+    const root = inner.querySelector<HTMLElement>("[data-theme-layout-root]") || inner.querySelector<HTMLElement>(".mpo-theme-container");
     if (root) observer.observe(root);
     // WebView2 can suspend resize notifications while the window is minimized.
     const remeasure = () => requestAnimationFrame(measure);

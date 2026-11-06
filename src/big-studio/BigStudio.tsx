@@ -19,10 +19,12 @@ import { MediaState } from "../types/media";
 import { isTauriEnvironment } from "../hooks/useMediaState";
 import { SharedStyleInspector } from "../components/dashboard/SharedStyleInspector";
 import { ContextualThemeEditor, findThemeElement, type ThemeElement } from "../components/dashboard/ContextualThemeEditor";
+import { ArrangeElementPicker } from "../components/dashboard/ArrangeElementPicker";
 import { LayerContextMenu } from "../components/dashboard/LayerContextMenu";
 import { LayerCard } from "../components/dashboard/LayerCard";
 import { extractDominantColor } from "../utils/colorExtractor";
 import { loadGoogleFont } from "../utils/fontLoader";
+import { presentationEditorConfig, applyPresentationEdit } from "../utils/presentationEditorConfig";
 import { BIG_THEMES } from "./themes";
 import { readBigSettings } from "./settings";
 import { useBigLayers, exportBigLayer } from "./useBigLayers";
@@ -464,8 +466,8 @@ export function BigStudio({
                 </div>
                 <span className="big-preview-hint">Live presentation preview · press F11 in the presentation window for full screen</span>
               </div>
-              {arrangeMode && <div className="arrange-accessible-tools"><button type="button" onClick={()=>setSelectedElement("timestamps")}>Edit timestamps</button><small>Select an element in the preview to edit it.</small></div>}
-              {arrangeMode && selectedElement && <ContextualThemeEditor key={`${active.id}-${selectedElement}`} presentationMode selected={selectedElement} config={active.config} extractedColor={effectiveExtractedColor} customCss={active.customCss} onCustomCssChange={css=>update(layer=>({...layer,customCss:css}))} onConfigChange={fn=>update(layer=>({...layer,config:fn(layer.config)}))} onClose={()=>setSelectedElement(null)} />}
+              {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
+              {arrangeMode && selectedElement && <ContextualThemeEditor key={`${active.id}-${selectedElement}`} presentationMode selected={selectedElement} config={presentationEditorConfig(active.config)} extractedColor={effectiveExtractedColor} customCss={active.customCss} builtTheme={active.builtTheme} surface="big" onUpdateBuiltTheme={fn=>update(layer=>({...layer,builtTheme:layer.builtTheme ? fn(layer.builtTheme) : undefined}))} onCustomCssChange={css=>update(layer=>({...layer,customCss:css}))} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} onClose={()=>setSelectedElement(null)} />}
             </div>
           </main>
         )}
@@ -485,10 +487,10 @@ export function BigStudio({
           <BigStyleInspector config={active.config} onChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))} />
           <details><summary>Advanced styling</summary><SharedStyleInspector
             presentationMode
-            config={active.config}
+            config={presentationEditorConfig(active.config)}
             extractedColor={effectiveExtractedColor}
             customCss={active.customCss}
-            onConfigChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))}
+            onConfigChange={(fn) => update((layer) => ({ ...layer, config: applyPresentationEdit(layer.config,fn) }))}
             onCustomCssChange={(css) => update((layer) => ({ ...layer, customCss: css }))}
             onReplay={() => setReplay((n) => n + 1)}
             onOpenCssReference={onOpenCssReference}

@@ -80,15 +80,17 @@ export const EditableValueBadge: React.FC<EditableValueBadgeProps> = ({
   }
 
   return (
-    <span
+    <button
+      type="button"
+      aria-label={`${tooltip}: ${displayVal}${unit}`}
       onClick={() => setIsEditing(true)}
       className="val-badge editable"
       title={tooltip}
-      style={{ color: color || undefined }}
+      style={{ color: color || undefined, font: "inherit" }}
     >
       {displayVal}
       {unit}
       <span className="edit-hint-icon">✎</span>
-    </span>
+    </button>
   );
 };

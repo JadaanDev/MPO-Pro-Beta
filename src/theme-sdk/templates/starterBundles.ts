@@ -1,5 +1,6 @@
 import type { ThemeBundle } from "../compiler/types";
 import type { ThemeDefinition } from "../schema";
+import { withBundleAuthoringFiles } from "./bundleAuthoring";
 
 export function bundleToThemeDefinition(bundle: ThemeBundle): ThemeDefinition {
   return {
@@ -19,7 +20,7 @@ export function bundleToThemeDefinition(bundle: ThemeBundle): ThemeDefinition {
   };
 }
 
-export const STARTER_BUNDLES: ThemeBundle[] = [
+const starterBundles: ThemeBundle[] = [
   {
     schemaVersion: 2,
     manifest: {
@@ -58,6 +59,7 @@ export default function NeonPulseTheme({
   surface,
   progress,
   formattedTime,
+  timeline,
 }: MpoThemeProps) {
   const isPlaying = media.status === "Playing";
   const isVertical = surface === "tiktok";
@@ -65,13 +67,14 @@ export default function NeonPulseTheme({
   return (
     <div
       className={\`mpo-card neon-card \${isVertical ? "is-vertical" : "is-horizontal"}\`}
+      data-theme-role="frame"
       style={{
         "--theme-accent": colors.dominant || "#00f0ff",
       } as React.CSSProperties}
     >
-      <div className="art-wrapper">
+      <div className="art-wrapper" data-theme-role="artwork">
         {artUrl ? (
-          <img src={artUrl} alt="Album Art" className="art-image" />
+          <img src={artUrl} alt="Album Art" className="art-image" data-theme-role="artwork-image" />
         ) : (
           <div className="art-placeholder">
             <Music size={28} color="var(--theme-accent)" />
@@ -83,31 +86,32 @@ export default function NeonPulseTheme({
       <div className="content-body">
         <div className="meta-row">
           <div className="badge-group">
-            <span className="app-badge">{media.app_name || "Media"}</span>
-            <span className="status-pill">
+            <span className="app-badge" data-theme-role="badge">{media.app_name || "Media"}</span>
+            <span className="status-pill" data-theme-role="status">
               {isPlaying ? <Play size={10} /> : <Pause size={10} />}
               <span>{media.status}</span>
             </span>
           </div>
-          <span className="time-badge">
-            {formattedTime.current} / {formattedTime.duration}
+          <span className="time-badge" data-theme-role="timestamps">
+            {formattedTime.current}{timeline?.durationKnown ? " / " + formattedTime.duration : ""}
           </span>
         </div>
 
-        <h1 className="track-title" title={media.title}>
+        <h1 className="track-title" data-theme-role="title" title={media.title}>
           {media.title || "No Track Active"}
         </h1>
-        <h2 className="track-artist">{media.artist || "Unknown Artist"}</h2>
-        {media.album_title && <p className="track-album">{media.album_title}</p>}
+        <h2 className="track-artist" data-theme-role="artist">{media.artist || "Unknown Artist"}</h2>
+        {media.album_title && <p className="track-album" data-theme-role="album">{media.album_title}</p>}
 
-        <div className="visualizer-row">
+        <div className="visualizer-row" data-theme-role="indicator">
           <Visualizer isPlaying={isPlaying} accent={colors.dominant} />
         </div>
 
-        <div className="progress-track">
+        <div className="progress-track" data-theme-role="progress" data-theme-part="progress-track">
           <div
             className="progress-fill"
-            style={{ width: \`\${Math.round(progress * 100)}%\` }}
+            data-theme-role="progress-fill"
+            style={{ width: timeline?.state === "determinate" ? \`\${Math.round(progress * 100)}%\` : "25%", opacity: timeline?.state === "determinate" ? 1 : .35 }}
           />
         </div>
       </div>
@@ -131,6 +135,7 @@ export function Visualizer({ isPlaying, accent = "#00f0ff" }: VisualizerProps) {
         <span
           key={i}
           className={\`vis-bar \${isPlaying ? "animate" : ""}\`}
+          data-theme-role="indicator-bar"
           style={{
             height: isPlaying ? \`\${height}%\` : "20%",
             animationDelay: \`\${(i * 0.08).toFixed(2)}s\`,
@@ -149,22 +154,24 @@ export function Visualizer({ isPlaying, accent = "#00f0ff" }: VisualizerProps) {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: var(--mpo-frame-padding, 16px);
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(9, 13, 24, 0.96));
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  border-radius: var(--mpo-card-radius, 16px);
+  backdrop-filter: blur(var(--mpo-card-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--mpo-card-blur, 0px));
   box-shadow: var(--mpo-frame-shadow, 0 7px 18px -7px rgba(0, 0, 0, 0.36));
   box-sizing: border-box;
-  overflow: hidden;
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #ffffff;
+  overflow: visible;
+  font-family: var(--mpo-font-family, system-ui, -apple-system, sans-serif);
+  color: var(--mpo-text-color, #ffffff);
 }
 
 .neon-card.is-vertical {
   flex-direction: column;
-  justifyContent: center;
+  justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: var(--mpo-frame-padding, 24px);
 }
 
 .art-wrapper {
@@ -265,7 +272,7 @@ export function Visualizer({ isPlaying, accent = "#00f0ff" }: VisualizerProps) {
 
 .track-title {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--mpo-title-size, 17px);
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -275,7 +282,7 @@ export function Visualizer({ isPlaying, accent = "#00f0ff" }: VisualizerProps) {
 
 .track-artist {
   margin: 2px 0 0 0;
-  font-size: 13px;
+  font-size: var(--mpo-artist-size, 13px);
   font-weight: 500;
   opacity: 0.8;
   white-space: nowrap;
@@ -374,34 +381,39 @@ export default function GlassmorphismTheme({
   surface,
   progress,
   formattedTime,
+  timeline,
 }: MpoThemeProps) {
   const isPlaying = media.status === "Playing";
 
   return (
-    <div className="mpo-card glass-card">
+    <div className={\`mpo-card glass-card \${surface === "tiktok" ? "is-vertical" : ""}\`} data-theme-role="frame">
+      <div className="glass-artwork" data-theme-role="artwork">
       <div className={\`glass-vinyl-wrapper \${isPlaying ? "spinning" : ""}\`}>
         {artUrl ? (
-          <img src={artUrl} alt="Vinyl Artwork" className="glass-art" />
+          <img src={artUrl} alt="Vinyl Artwork" className="glass-art" data-theme-role="artwork-image" />
         ) : (
           <div className="glass-placeholder">
             <Disc3 size={32} color="#ffffff" />
           </div>
         )}
       </div>
+      </div>
 
       <div className="glass-info">
         <div className="glass-top">
-          <span className="glass-badge">{media.app_name || "Spotify"}</span>
-          <span className="glass-time">{formattedTime.current}</span>
+          <span className="glass-badge" data-theme-role="badge">{media.app_name || "Spotify"}</span>
+          <span className="glass-time" data-theme-role="timestamps">{formattedTime.current}</span>
         </div>
-        <h1 className="glass-title">{media.title || "Nothing Playing"}</h1>
-        <h2 className="glass-artist">{media.artist || "Idle"}</h2>
+        <h1 className="glass-title" data-theme-role="title">{media.title || "Nothing Playing"}</h1>
+        <h2 className="glass-artist" data-theme-role="artist">{media.artist || "Idle"}</h2>
 
-        <div className="glass-progress-wrap">
+        <div className="glass-progress-wrap" data-theme-role="progress" data-theme-part="progress-track">
           <div
             className="glass-progress-bar"
+            data-theme-role="progress-fill"
             style={{
-              width: \`\${Math.round(progress * 100)}%\`,
+              width: timeline?.state === "determinate" ? \`\${Math.round(progress * 100)}%\` : "25%",
+              opacity: timeline?.state === "determinate" ? 1 : .35,
               background: colors.dominant || "#ffffff",
             }}
           />
@@ -418,22 +430,30 @@ export default function GlassmorphismTheme({
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  padding: var(--mpo-frame-padding, 16px) 20px;
+  background: rgba(255, 255, 255, var(--mpo-card-opacity, 0.07));
+  backdrop-filter: blur(var(--mpo-card-blur, 28px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--mpo-card-blur, 28px)) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 20px;
+  border-radius: var(--mpo-card-radius, 20px);
   box-shadow: var(--mpo-frame-shadow, 0 7px 18px -7px rgba(0, 0, 0, 0.36));
   box-sizing: border-box;
-  overflow: hidden;
-  color: #ffffff;
+  overflow: visible;
+  color: var(--mpo-text-color, #ffffff);
+  font-family: var(--mpo-font-family, system-ui, -apple-system, sans-serif);
 }
 
-.glass-vinyl-wrapper {
+.glass-artwork {
   width: 78px;
   height: 78px;
   flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.glass-vinyl-wrapper {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
@@ -486,7 +506,7 @@ export default function GlassmorphismTheme({
 
 .glass-title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--mpo-title-size, 18px);
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -495,7 +515,7 @@ export default function GlassmorphismTheme({
 
 .glass-artist {
   margin: 2px 0 0 0;
-  font-size: 13px;
+  font-size: var(--mpo-artist-size, 13px);
   font-weight: 500;
   opacity: 0.75;
   white-space: nowrap;
@@ -516,7 +536,13 @@ export default function GlassmorphismTheme({
   border-radius: 999px;
   transition: width 0.3s ease;
 }
+
+.glass-card.is-vertical { flex-direction: column; justify-content: center; text-align: center; }
+.glass-card.is-vertical .glass-artwork { width: 160px; height: 160px; }
+.glass-card.is-vertical .glass-info { flex: none; width: 100%; }
 `,
     },
   },
 ];
+
+export const STARTER_BUNDLES = starterBundles.map(withBundleAuthoringFiles);

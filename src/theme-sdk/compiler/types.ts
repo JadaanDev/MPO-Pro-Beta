@@ -16,7 +16,11 @@ export interface MpoThemeTime {
 }
 
 export interface MpoThemeProps {
+  /** Shared projected position. Do not run another playback timer. */
   media: MediaState;
+  /** Backend publication, including timeline.raw_observation when available. */
+  rawMedia?: MediaState;
+  timeline?: { positionKnown: boolean; durationKnown: boolean; kind: 'finite' | 'live' | 'unknown'; state: 'determinate' | 'elapsed' | 'unavailable' };
   artUrl: string;
   colors: MpoThemeColors;
   surface: ThemeSurface;
@@ -34,6 +38,7 @@ export interface ThemeManifest {
   author?: string;
   description?: string;
   targetStudios?: ThemeSurface[];
+  canvasSizes?: Partial<Record<ThemeSurface, { width: number; height: number }>>;
   entryPoint?: string; // default "Theme.tsx"
   dependencies?: Record<string, string>; // e.g. "canvas-confetti": "https://esm.sh/canvas-confetti"
   stylesheets?: string[];

@@ -12,7 +12,7 @@ export const MinimalPill: React.FC<ThemeProps> = ({
   customCss,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
 
   return (
     <div
@@ -73,7 +73,7 @@ export const MinimalPill: React.FC<ThemeProps> = ({
           </div>
 
           {/* Micro Progress Bar */}
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="pill-progress-row mpo-progress">
               <div className="pill-track">
                 <div

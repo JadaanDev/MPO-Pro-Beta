@@ -1,14 +1,16 @@
+use parking_lot::RwLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
-use parking_lot::RwLock;
-use tokio::sync::broadcast;
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter};
+use tokio::sync::broadcast;
 
+use super::timeline::{PublicationOrder, TimelineClock, TimelineObservation};
 use super::types::{AppFilterRule, MediaState};
 
 #[cfg(windows)]
 use windows::{
+    core::Interface,
     Media::Control::{
         GlobalSystemMediaTransportControlsSessionManager,
         GlobalSystemMediaTransportControlsSessionPlaybackStatus,
@@ -17,6 +19,15 @@ use windows::{
 };
 
 pub struct GsmtcManager {
+    #[cfg(windows)]
+    selected_session: Arc<
+        RwLock<
+            Option<(
+                String,
+                windows::Media::Control::GlobalSystemMediaTransportControlsSession,
+            )>,
+        >,
+    >,
     pub current_state: Arc<RwLock<MediaState>>,
     pub current_art: Arc<RwLock<Option<(Vec<u8>, String)>>>,
     pub filter_rules: Arc<RwLock<Vec<AppFilterRule>>>,
@@ -27,6 +38,8 @@ pub struct GsmtcManager {
 impl GsmtcManager {
     pub fn new(tx: broadcast::Sender<MediaState>) -> Self {
         Self {
+            #[cfg(windows)]
+            selected_session: Arc::new(RwLock::new(None)),
             current_state: Arc::new(RwLock::new(MediaState::default())),
             current_art: Arc::new(RwLock::new(None)),
             filter_rules: Arc::new(RwLock::new(Vec::new())),
@@ -65,12 +78,22 @@ impl GsmtcManager {
         let rules_lock = self.filter_rules.clone();
         let tx = self.tx.clone();
         let eco_lock = self.eco_mode.clone();
+        #[cfg(windows)]
+        let selected_lock = self.selected_session.clone();
 
         std::thread::Builder::new()
             .name("gsmtc-watcher".to_string())
             .spawn(move || {
                 #[cfg(windows)]
-                watcher_loop(state_lock, art_lock, rules_lock, tx, app_handle, eco_lock);
+                watcher_loop(
+                    state_lock,
+                    art_lock,
+                    rules_lock,
+                    tx,
+                    app_handle,
+                    eco_lock,
+                    selected_lock,
+                );
             })
             .expect("Failed to spawn GSMTC watcher thread");
     }
@@ -78,26 +101,33 @@ impl GsmtcManager {
     pub fn handle_control(&self, action: &str) -> Result<(), String> {
         #[cfg(windows)]
         {
-            let manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync()
-                .map_err(|e| e.to_string())?
-                .get()
-                .map_err(|e| e.to_string())?;
-
             let rules = self.filter_rules.read().clone();
-            if let Some(session) = get_best_session(&manager, &rules) {
-                match action {
-                    "PlayPause" => {
-                        let _ = session.TryTogglePlayPauseAsync();
-                    }
-                    "Next" => {
-                        let _ = session.TrySkipNextAsync();
-                    }
-                    "Previous" => {
-                        let _ = session.TrySkipPreviousAsync();
-                    }
+            let selected = self.current_state.read().source_id.clone();
+            let session = self
+                .selected_session
+                .read()
+                .as_ref()
+                .filter(|(id, session)| {
+                    let raw = session
+                        .SourceAppUserModelId()
+                        .map(|id| id.to_string())
+                        .unwrap_or_default();
+                    *id == selected && is_session_allowed(&raw, &rules)
+                })
+                .map(|(_, session)| session.clone());
+            if let Some(session) = session {
+                let operation = match action {
+                    "PlayPause" => session.TryTogglePlayPauseAsync(),
+                    "Next" => session.TrySkipNextAsync(),
+                    "Previous" => session.TrySkipPreviousAsync(),
                     _ => return Err(format!("Unknown control action: {}", action)),
                 }
-                return Ok(());
+                .map_err(|error| error.to_string())?;
+                return if operation.get().map_err(|error| error.to_string())? {
+                    Ok(())
+                } else {
+                    Err("Selected source declined the media control".into())
+                };
             }
             Err("No active media session to control".to_string())
         }
@@ -124,6 +154,21 @@ pub fn is_session_allowed(app_id: &str, rules: &[AppFilterRule]) -> bool {
 }
 
 #[cfg(windows)]
+fn session_identity(
+    session: &windows::Media::Control::GlobalSystemMediaTransportControlsSession,
+) -> String {
+    let app = session
+        .SourceAppUserModelId()
+        .map(|id| id.to_string())
+        .unwrap_or_default();
+    let identity = session
+        .cast::<windows::core::IUnknown>()
+        .map(|id| id.as_raw() as usize)
+        .unwrap_or(0);
+    format!("{}:{:x}", app, identity)
+}
+
+#[cfg(windows)]
 fn get_best_session(
     manager: &GlobalSystemMediaTransportControlsSessionManager,
     rules: &[AppFilterRule],
@@ -132,12 +177,19 @@ fn get_best_session(
         // Prefer Windows' current session when it is allowed and playing, rather
         // than relying on the order in which the OS enumerates sessions.
         let current = manager.GetCurrentSession().ok().filter(|session| {
-            let id = session.SourceAppUserModelId().map(|v| v.to_string()).unwrap_or_default();
+            let id = session
+                .SourceAppUserModelId()
+                .map(|v| v.to_string())
+                .unwrap_or_default();
             is_session_allowed(&id, rules)
         });
         if let Some(ref session) = current {
-            if session.GetPlaybackInfo().ok().and_then(|info| info.PlaybackStatus().ok())
-                == Some(GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing) {
+            if session
+                .GetPlaybackInfo()
+                .ok()
+                .and_then(|info| info.PlaybackStatus().ok())
+                == Some(GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing)
+            {
                 return Some(session.clone());
             }
         }
@@ -145,7 +197,10 @@ fn get_best_session(
         let mut fallback_any_session = None;
 
         for s in sessions {
-            let app_id = s.SourceAppUserModelId().map(|h| h.to_string()).unwrap_or_default();
+            let app_id = s
+                .SourceAppUserModelId()
+                .map(|h| h.to_string())
+                .unwrap_or_default();
             let allowed = is_session_allowed(&app_id, rules);
 
             if fallback_any_session.is_none() {
@@ -155,7 +210,9 @@ fn get_best_session(
             if allowed {
                 if let Ok(info) = s.GetPlaybackInfo() {
                     if let Ok(status) = info.PlaybackStatus() {
-                        if status == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing {
+                        if status
+                            == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing
+                        {
                             // Found the top allowed playing session!
                             return Some(s);
                         }
@@ -168,7 +225,9 @@ fn get_best_session(
         }
 
         // 2. If no playing session in allowed apps, return first allowed session (e.g. paused)
-        if current.is_some() { return current; }
+        if current.is_some() {
+            return current;
+        }
         if first_allowed_session.is_some() {
             return first_allowed_session;
         }
@@ -183,7 +242,10 @@ fn get_best_session(
             }
         }
     } else if let Ok(current) = manager.GetCurrentSession() {
-        let app_id = current.SourceAppUserModelId().map(|h| h.to_string()).unwrap_or_default();
+        let app_id = current
+            .SourceAppUserModelId()
+            .map(|h| h.to_string())
+            .unwrap_or_default();
         if is_session_allowed(&app_id, rules) {
             return Some(current);
         }
@@ -199,6 +261,14 @@ fn watcher_loop(
     tx: broadcast::Sender<MediaState>,
     app_handle: Option<AppHandle>,
     eco_lock: Arc<AtomicBool>,
+    selected_lock: Arc<
+        RwLock<
+            Option<(
+                String,
+                windows::Media::Control::GlobalSystemMediaTransportControlsSession,
+            )>,
+        >,
+    >,
 ) {
     let mut last_title = String::new();
     let mut last_artist = String::new();
@@ -206,8 +276,37 @@ fn watcher_loop(
     let mut last_position = -1i64;
     let mut manager_opt: Option<GlobalSystemMediaTransportControlsSessionManager> = None;
     let mut empty_session_count = 0;
-    let mut last_broadcast_time = 0i64;
+    let mut last_broadcast_mono = 0u64;
     let mut is_currently_playing = false;
+    let started = Instant::now();
+    let stream_id = format!(
+        "{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos()
+    );
+    let mut order = PublicationOrder::default();
+    let mut clock = TimelineClock::default();
+    // Even an empty startup snapshot belongs to this process stream. Browser
+    // reconnects can then retire a previous process without waiting for playback.
+    {
+        let initial = MediaState {
+            stream_id: stream_id.clone(),
+            sequence: order.publish(),
+            updated_at: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_millis() as i64,
+            ..MediaState::default()
+        };
+        *state_lock.write() = initial.clone();
+        let _ = tx.send(initial.clone());
+        if let Some(ref handle) = app_handle {
+            let _ = handle.emit("media-update", &initial);
+        }
+    }
 
     loop {
         // Relaxed adaptive sleep:
@@ -216,9 +315,17 @@ fn watcher_loop(
         // Completely eliminates continuous COM WinRT lock contention without causing long freezes.
         let is_eco = eco_lock.load(Ordering::SeqCst);
         let sleep_ms = if is_eco {
-            if is_currently_playing { 1200 } else { 2000 }
+            if is_currently_playing {
+                1200
+            } else {
+                2000
+            }
         } else {
-            if is_currently_playing { 1000 } else { 1500 }
+            if is_currently_playing {
+                1000
+            } else {
+                1500
+            }
         };
         std::thread::sleep(std::time::Duration::from_millis(sleep_ms));
 
@@ -249,12 +356,23 @@ fn watcher_loop(
                 }
 
                 // No active session: if we previously had one, reset to default
-                if !last_title.is_empty() {
+                if order.select("", "") {
                     last_title.clear();
                     last_artist.clear();
                     last_status.clear();
                     last_position = -1;
-                    let default_state = MediaState::default();
+                    clock = TimelineClock::default();
+                    *selected_lock.write() = None;
+                    let default_state = MediaState {
+                        source_generation: order.generation,
+                        sequence: order.publish(),
+                        stream_id: stream_id.clone(),
+                        updated_at: SystemTime::now()
+                            .duration_since(UNIX_EPOCH)
+                            .unwrap_or_default()
+                            .as_millis() as i64,
+                        ..MediaState::default()
+                    };
                     *state_lock.write() = default_state.clone();
                     *art_lock.write() = None;
                     let _ = tx.send(default_state.clone());
@@ -269,22 +387,25 @@ fn watcher_loop(
         // 1. App name
         let app_name = session
             .SourceAppUserModelId()
-            .map(|h| {
-                let name = h.to_string();
-                clean_app_name(&name)
-            })
-            .unwrap_or_else(|_| "Media Player".to_string());
+            .map(|h| clean_app_name(&h.to_string()))
+            .unwrap_or_else(|_| "Media Player".into());
+        let source_id = session_identity(&session);
 
         // 2. Playback status
-        let status = session
-            .GetPlaybackInfo()
-            .ok()
+        let playback = session.GetPlaybackInfo().ok();
+        let supplied_rate = playback
+            .as_ref()
+            .and_then(|info| info.PlaybackRate().ok())
+            .and_then(|rate| rate.Value().ok());
+        let status = playback
+            .as_ref()
             .and_then(|info| info.PlaybackStatus().ok())
             .map(|s| match s {
                 GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing => "Playing",
                 GlobalSystemMediaTransportControlsSessionPlaybackStatus::Paused => "Paused",
                 GlobalSystemMediaTransportControlsSessionPlaybackStatus::Stopped => "Stopped",
                 GlobalSystemMediaTransportControlsSessionPlaybackStatus::Closed => "Closed",
+                GlobalSystemMediaTransportControlsSessionPlaybackStatus::Changing => "Buffering",
                 _ => "Paused",
             })
             .unwrap_or("Paused")
@@ -293,16 +414,17 @@ fn watcher_loop(
         is_currently_playing = status == "Playing";
 
         // 3. Timeline properties
-        let (raw_position_ms, duration_ms, last_updated_time) = session
+        let observation = session
             .GetTimelineProperties()
             .ok()
-            .map(|t| {
-                let pos = t.Position().map(|p| p.Duration / 10_000).unwrap_or(0);
-                let end = t.EndTime().map(|e| e.Duration / 10_000).unwrap_or(0);
-                let lut = t.LastUpdatedTime().ok();
-                (pos, end, lut)
-            })
-            .unwrap_or((0, 0, None));
+            .map(|t| TimelineObservation {
+                position_ms: t.Position().ok().map(|v| v.Duration / 10_000),
+                start_ms: t.StartTime().ok().map(|v| v.Duration / 10_000),
+                end_ms: t.EndTime().ok().map(|v| v.Duration / 10_000),
+                min_seek_ms: t.MinSeekTime().ok().map(|v| v.Duration / 10_000),
+                max_seek_ms: t.MaxSeekTime().ok().map(|v| v.Duration / 10_000),
+                updated_ticks: t.LastUpdatedTime().ok().map(|v| v.UniversalTime),
+            });
 
         // 4. Media properties (title, artist, album, thumbnail)
         let (title, artist, album, thumbnail_ref) = session
@@ -312,42 +434,57 @@ fn watcher_loop(
             .map(|props| {
                 let t = props.Title().map(|s| s.to_string()).unwrap_or_default();
                 let a = props.Artist().map(|s| s.to_string()).unwrap_or_default();
-                let alb = props.AlbumTitle().map(|s| s.to_string()).unwrap_or_default();
+                let alb = props
+                    .AlbumTitle()
+                    .map(|s| s.to_string())
+                    .unwrap_or_default();
                 let thumb = props.Thumbnail().ok();
                 (t, a, alb, thumb)
             })
             .unwrap_or_default();
 
-        let track_changed = title != last_title || artist != last_artist;
+        let track_key = serde_json::to_string(&(&title, &artist, &album)).unwrap_or_default();
+        let track_changed = order.select(&source_id, &track_key);
+        if track_changed {
+            clock = TimelineClock::default();
+        }
         let status_changed = status != last_status;
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_millis() as i64)
             .unwrap_or(0);
 
-        // Compute true live playback position by adding elapsed time since LastUpdatedTime
-        let position_ms = calculate_live_position(
-            raw_position_ms,
-            duration_ms,
-            last_updated_time.map(|lut| lut.UniversalTime),
-            now,
-            status == "Playing",
-        );
+        let now_mono = started.elapsed().as_millis() as u64;
+        let snapshot = clock.update(observation, now_mono, now, &status, supplied_rate);
+        let position_ms = snapshot.position_ms;
+        let duration_ms = snapshot.duration_ms;
 
         let timeline_jumped = (position_ms - last_position).abs() > 1500;
-        let periodic_sync = status == "Playing" && (now - last_broadcast_time > 1000);
-        let delayed_art_ready = !title.is_empty() && art_lock.read().is_none() && thumbnail_ref.is_some();
+        let periodic_sync = now_mono.saturating_sub(last_broadcast_mono) >= 1000;
+        let delayed_art_ready =
+            !title.is_empty() && art_lock.read().is_none() && thumbnail_ref.is_some();
         let metadata_updated = {
             let st = state_lock.read();
-            st.album_title != album || (st.duration_ms != duration_ms && duration_ms > 0)
+            st.album_title != album
+                || st.duration_ms != duration_ms
+                || st.playback_rate != snapshot.playback_rate
+                || st.playback_rate_known != snapshot.playback_rate_known
+                || st.timeline.raw_observation != snapshot.timeline.raw_observation
+                || st.timeline.advancing != snapshot.timeline.advancing
         };
 
-        if track_changed || status_changed || timeline_jumped || periodic_sync || delayed_art_ready || metadata_updated {
+        if track_changed
+            || status_changed
+            || timeline_jumped
+            || periodic_sync
+            || delayed_art_ready
+            || metadata_updated
+        {
             last_title = title.clone();
             last_artist = artist.clone();
             last_status = status.clone();
             last_position = position_ms;
-            last_broadcast_time = now;
+            last_broadcast_mono = now_mono;
 
             // If track changed or delayed art arrived, fetch album art thumbnail with deduplication
             let mut has_art = false;
@@ -393,8 +530,17 @@ fn watcher_loop(
                 art_timestamp: art_ts,
                 has_art,
                 updated_at: now,
+                source_id,
+                source_generation: order.generation,
+                sequence: order.publish(),
+                stream_id: stream_id.clone(),
+                playback_rate: snapshot.playback_rate,
+                playback_rate_known: snapshot.playback_rate_known,
+                timeline: snapshot.timeline,
             };
 
+            // Retain the exact selected COM object for identity and controls.
+            *selected_lock.write() = Some((new_state.source_id.clone(), session.clone()));
             *state_lock.write() = new_state.clone();
 
             // Broadcast to WebSocket clients (OBS/TikTok)
@@ -434,6 +580,19 @@ fn clean_app_name(raw: &str) -> String {
     let lower = raw.to_lowercase();
     if lower.contains("spotify") {
         "Spotify".to_string()
+    } else if lower.contains("brave") {
+        "Brave".to_string()
+    } else if lower.contains("opera") {
+        "Opera".to_string()
+    } else if lower.contains("vivaldi") {
+        "Vivaldi".to_string()
+    } else if lower
+        .rsplit(['\\', '/'])
+        .next()
+        .is_some_and(|name| name == "zen" || name == "zen.exe")
+        || lower.starts_with("org.zen_browser.")
+    {
+        "Zen".to_string()
     } else if lower.contains("chrome") {
         "Google Chrome".to_string()
     } else if lower.contains("msedge") || lower.contains("edge") {
@@ -453,85 +612,22 @@ fn clean_app_name(raw: &str) -> String {
     }
 }
 
-/// Calculates the true live playback position in milliseconds from GSMTC timeline properties.
-///
-/// Windows GSMTC reports `Position` as of `LastUpdatedTime`, NOT the continuous real-time position.
-/// For media players like Spotify, `Position` and `LastUpdatedTime` only update once every ~5 seconds.
-/// Without adding the elapsed time since `LastUpdatedTime`, the position appears frozen for 5 seconds,
-/// causing the client scrubber to suffer from backward time glitches and forward jumps.
-pub fn calculate_live_position(
-    raw_pos_ms: i64,
-    duration_ms: i64,
-    last_updated_ticks: Option<i64>,
-    now_unix_ms: i64,
-    is_playing: bool,
-) -> i64 {
-    if !is_playing {
-        return raw_pos_ms;
-    }
-
-    if let Some(ticks_since_1601) = last_updated_ticks {
-        // 116_444_736_000_000_000 is 100-ns ticks between 1601-01-01 and 1970-01-01 (Windows FILETIME epoch offset)
-        let lut_unix_ms = (ticks_since_1601 - 116_444_736_000_000_000) / 10_000;
-        let elapsed = if now_unix_ms >= lut_unix_ms {
-            (now_unix_ms - lut_unix_ms).min(30_000)
-        } else {
-            0
-        };
-        let live_pos = raw_pos_ms + elapsed;
-        if duration_ms > 0 {
-            live_pos.min(duration_ms)
-        } else {
-            live_pos
-        }
-    } else {
-        raw_pos_ms
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
-    fn test_calculate_live_position_playing() {
-        // Unix ms: 1788815206892
-        // Windows ticks for that instant: (1788815206892 * 10_000) + 116_444_736_000_000_000
-        let now = 1_788_815_206_892i64;
-        let lut_unix = now - 3_500; // Updated 3.5 seconds ago
-        let lut_ticks = (lut_unix * 10_000) + 116_444_736_000_000_000;
-
-        let raw_pos = 20_000; // 20s
-        let duration = 180_000; // 3m
-
-        let live_pos = calculate_live_position(raw_pos, duration, Some(lut_ticks), now, true);
-        assert_eq!(live_pos, 23_500); // 20s + 3.5s elapsed = 23.5s
-    }
-
-    #[test]
-    fn test_calculate_live_position_paused() {
-        let now = 1_788_815_206_892i64;
-        let lut_unix = now - 5_000;
-        let lut_ticks = (lut_unix * 10_000) + 116_444_736_000_000_000;
-
-        let raw_pos = 20_000;
-        let duration = 180_000;
-
-        let live_pos = calculate_live_position(raw_pos, duration, Some(lut_ticks), now, false);
-        assert_eq!(live_pos, 20_000); // Does NOT advance when paused
-    }
-
-    #[test]
-    fn test_calculate_live_position_clamped_to_duration() {
-        let now = 1_788_815_206_892i64;
-        let lut_unix = now - 10_000;
-        let lut_ticks = (lut_unix * 10_000) + 116_444_736_000_000_000;
-
-        let raw_pos = 175_000;
-        let duration = 180_000;
-
-        let live_pos = calculate_live_position(raw_pos, duration, Some(lut_ticks), now, true);
-        assert_eq!(live_pos, 180_000); // Clamped to duration (175s + 10s > 180s)
+    fn browser_labels_are_conservative() {
+        for (raw, label) in [
+            ("Brave.exe", "Brave"),
+            ("OperaGX.exe", "Opera"),
+            ("Vivaldi.exe", "Vivaldi"),
+            ("zen.exe", "Zen"),
+            ("org.zen_browser.zen", "Zen"),
+        ] {
+            assert_eq!(clean_app_name(raw), label);
+        }
+        assert_eq!(clean_app_name("zenith.exe"), "zenith");
+        assert_eq!(clean_app_name("citizen-player.exe"), "citizen-player");
     }
 
     #[test]
@@ -579,4 +675,3 @@ mod tests {
         assert!(is_session_allowed("foobar2000.exe", &rules));
     }
 }
-

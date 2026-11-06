@@ -12,7 +12,7 @@ export const NeonBlade: React.FC<ThemeProps> = ({
   extractedColor,
 }) => {
   const isPlaying = media.status === "Playing";
-  const { formattedCurrent, formattedDuration, progress } = useScrubber(media);
+  const { formattedCurrent, formattedDuration, progress, positionKnown, durationKnown } = useScrubber(media);
   const accent = (config.autoAlbumColor && extractedColor) ? extractedColor : config.accentColor;
 
   return (
@@ -69,7 +69,7 @@ export const NeonBlade: React.FC<ThemeProps> = ({
             )}
           </div>
 
-          {config.showProgress && media.duration_ms > 0 && (
+          {config.showProgress && positionKnown && durationKnown && (
             <div className="blade-progress-line mpo-progress">
               <div
                 className="blade-fill mpo-progress-fill"
@@ -84,7 +84,7 @@ export const NeonBlade: React.FC<ThemeProps> = ({
 
         {/* Timestamps */}
         <div className="blade-time mpo-times">
-          {media.duration_ms > 0 ? `${formattedCurrent} / ${formattedDuration}` : formattedCurrent}
+          {durationKnown ? `${formattedCurrent} / ${formattedDuration}` : formattedCurrent}
         </div>
       </div>
     </div>

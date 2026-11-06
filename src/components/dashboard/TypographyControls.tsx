@@ -3,7 +3,8 @@ import { ThemeConfig, TextElement, TextAppearance } from "../../types/themes";
 import { loadGoogleFont, ARABIC_GOOGLE_FONTS, ENGLISH_GOOGLE_FONTS, POPULAR_GOOGLE_FONTS } from "../../utils/fontLoader";
 import { Toggle } from "../common/Toggle";
 import { HexColorPicker } from "../common/HexColorPicker";
-const fields: {id:TextElement; label:string; visibility:keyof ThemeConfig}[] = [
+import { setVisibility, type VisibilityKey } from "../../utils/visibility";
+const fields: {id:TextElement; label:string; visibility:VisibilityKey}[] = [
  {id:"title",label:"Track title",visibility:"showTitle"},{id:"artist",label:"Artist",visibility:"showArtist"},{id:"album",label:"Album",visibility:"showAlbum"},{id:"themeLabel",label:"Theme text",visibility:"showThemeLabel"},{id:"badge",label:"Source badge",visibility:"showBadge"},{id:"timestamps",label:"Timestamps",visibility:"showTimestamps"},{id:"status",label:"Playback status",visibility:"showPlaybackStatus"}
 ];
 export function TypographyControls({config,onConfigChange,onCommitHistory,unboundedSizes=false,selected}:{selected?:TextElement;config:ThemeConfig;onConfigChange:(updater:(old:ThemeConfig)=>ThemeConfig)=>void;onCommitHistory?:(description?:string)=>void;unboundedSizes?:boolean}) {
@@ -14,7 +15,7 @@ export function TypographyControls({config,onConfigChange,onCommitHistory,unboun
  const legacy = id === "title" ? {color:config.titleColor || undefined,size:config.titleSize,weight:config.titleWeight,font:config.titleFont,transform:config.titleTransform} : id === "artist" ? {color:config.artistColor || undefined,size:config.artistSize,weight:config.artistWeight,transform:config.artistTransform} : id === "album" ? {size:config.albumSize} : {};
  const visible=visibility === "showThemeLabel" || visibility === "showTimestamps" ? config[visibility] !== false : Boolean(config[visibility]);
  return <details key={id} className="typography-element" open={selected ? true : undefined}><summary>{label}<span>{visible?"On":"Off"}</span></summary><div className="typography-grid">
-  <Toggle label={"Show " + label} checked={visible} onChange={value=>{onConfigChange(old=>({...old,[visibility]:value}));onCommitHistory?.(`Changed ${label} visibility`);}}/>
+  <Toggle label={"Show " + label} checked={visible} onChange={value=>{onConfigChange(old=>setVisibility(old,visibility,value));onCommitHistory?.(`Changed ${label} visibility`);}}/>
   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
     <span style={{ fontSize: 11, color: "inherit" }}>Color</span>
     <HexColorPicker value={t.color || legacy.color || "#FFFFFF"} onChange={color=>update(id,{color})} onBlur={()=>onCommitHistory?.(`Changed ${label} color`)}/>

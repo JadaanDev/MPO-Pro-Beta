@@ -1,4 +1,22 @@
-export type PlaybackStatus = 'Playing' | 'Paused' | 'Stopped' | 'Closed';
+export type PlaybackStatus = 'Playing' | 'Paused' | 'Stopped' | 'Closed' | 'Buffering';
+
+export interface MediaTimeline {
+  raw_observation?: { position_ms: number | null; start_ms: number | null; end_ms: number | null; min_seek_ms: number | null; max_seek_ms: number | null; updated_ticks: number | null } | null;
+  observed_position_ms: number | null;
+  observed_at_ms: number | null;
+  received_at_ms: number;
+  position_valid: boolean;
+  duration_known: boolean;
+  origin: 'observed' | 'estimated' | 'unavailable';
+  kind: 'finite' | 'live' | 'unknown';
+  source_start_ms?: number | null;
+  start_ms: number | null;
+  end_ms: number | null;
+  min_seek_ms: number | null;
+  max_seek_ms: number | null;
+  uncertainty_ms: number;
+  advancing: boolean;
+}
 
 export type ThemeType = 'glass-obsidian' | 'cyber-neon' | 'streamer-capsule' | 'vinyl-grooves';
 
@@ -13,6 +31,13 @@ export interface MediaState {
   art_timestamp: number;
   has_art: boolean;
   updated_at: number;
+  source_id?: string;
+  source_generation?: number;
+  sequence?: number;
+  stream_id?: string;
+  playback_rate?: number;
+  playback_rate_known?: boolean;
+  timeline?: MediaTimeline;
 }
 
 export interface OverlayConfig {

@@ -173,3 +173,10 @@
 .arrange-mode :is(.single-preview-mount,.big-preview-frame) .mpo-theme-supplement > * { pointer-events:auto; }
 .arrange-accessible-tools {display:flex;align-items:center;gap:10px;padding:8px 16px;border-top:1px solid #ffffff0e;background:#1b1c27;color:#aaa4b5;font-size:10px}
 .arrange-accessible-tools button {border:1px solid #bca6ed44;border-radius:7px;padding:6px 9px;background:#393149;color:#eadfff;cursor:pointer;font-size:11px}
+.arrange-accessible-tools {flex-wrap:wrap;}
+.arrange-element-picker {display:flex;align-items:center;gap:8px;color:#eee8f7;font-size:11px;}
+.arrange-element-picker select {min-width:150px;padding:6px 9px;border:1px solid #bca6ed44;border-radius:7px;background:#292435;color:#eee8f7;}
+.sdk-authored-layout,.arrange-element-css {margin:12px 16px;padding:10px;border:1px solid #ffffff18;border-radius:8px;background:#171923;}
+.sdk-authored-layout summary,.arrange-element-css summary {cursor:pointer;font-weight:600;}
+.arrange-element-css p {margin:10px 0;font-size:11px;color:#aaa4b5;}
+.arrange-element-css textarea {box-sizing:border-box;width:100%;resize:vertical;min-height:100px;border:1px solid #ffffff24;border-radius:6px;padding:9px;color:#eee8f7;background:#10131c;font:12px monospace;}
