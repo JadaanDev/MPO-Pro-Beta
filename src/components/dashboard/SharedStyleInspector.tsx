@@ -1,3 +1,4 @@
+import { StudioSelect } from "../common/StudioSelect";
 import { LayoutSizingControls, studioSizePresets } from "./LayoutSizingControls";
 import { TypographyControls } from "./TypographyControls";
 import { ArtworkColorControls } from "./ArtworkColorControls";
@@ -556,7 +557,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                     </div>
 
                     <div className="font-selector-row">
-                      <select
+                      <StudioSelect
                         value={config.titleFont || "Inter"}
                         onChange={(e) => {
                           const font = e.target.value;
@@ -571,7 +572,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                             {font}
                           </option>
                         ))}
-                      </select>
+                      </StudioSelect>
                     </div>
 
                     {/* Custom Google Font input */}
@@ -700,8 +701,8 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
               {openAccordions.artist && (
                 <div className="style-accordion-body">
-                  <div className="style-control-group"><label>Artist weight <select value={config.artistWeight ?? 500} onChange={(e) => { onConfigChange(c => ({...c, artistWeight:Number(e.target.value)})); onCommitHistory?.("Changed artist weight"); }}><option value={400}>Regular</option><option value={500}>Medium</option><option value={700}>Bold</option></select></label></div>
-                  <div className="style-control-group"><label>Artist case <select value={config.artistTransform ?? "none"} onChange={(e) => { const value=e.target.value as "none"|"uppercase"|"lowercase"|"capitalize"; onConfigChange(c => ({...c, artistTransform:value})); onCommitHistory?.("Changed artist case"); }}><option value="none">Original</option><option value="uppercase">Uppercase</option><option value="lowercase">Lowercase</option><option value="capitalize">Capitalize</option></select></label></div>
+                  <div className="style-control-group"><label>Artist weight <StudioSelect value={config.artistWeight ?? 500} onChange={(e) => { onConfigChange(c => ({...c, artistWeight:Number(e.target.value)})); onCommitHistory?.("Changed artist weight"); }}><option value={400}>Regular</option><option value={500}>Medium</option><option value={700}>Bold</option></StudioSelect></label></div>
+                  <div className="style-control-group"><label>Artist case <StudioSelect value={config.artistTransform ?? "none"} onChange={(e) => { const value=e.target.value as "none"|"uppercase"|"lowercase"|"capitalize"; onConfigChange(c => ({...c, artistTransform:value})); onCommitHistory?.("Changed artist case"); }}><option value="none">Original</option><option value="uppercase">Uppercase</option><option value="lowercase">Lowercase</option><option value="capitalize">Capitalize</option></StudioSelect></label></div>
                   <div className="style-control-group">
                     <div className="group-label-row">
                       <span>Artist Font Size</span>
@@ -927,7 +928,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   <div className="style-control-group"><label>Progress thickness · {config.progressHeight ?? 4}px<input type="range" min="2" max="16" step="1" value={config.progressHeight ?? 4} onChange={(e) => onConfigChange(c => ({...c, progressHeight:Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed progress thickness")} /></label>{presentationMode && <BigNumberInput label="Exact progress thickness" unit="px" value={config.progressHeight} onCommit={value => onConfigChange(c => ({ ...c, progressHeight: value }))} />}</div>
 
                   <div className="style-control-group">
-                    <label>Progress shape <select value={config.progressShape ?? "theme"} onChange={event => { const shape = event.target.value as NonNullable<ThemeConfig["progressShape"]>; onConfigChange(c => ({ ...c, progressShape: shape })); onCommitHistory?.("Changed progress shape"); }}><option value="theme">Theme default</option><option value="square">Square</option><option value="rounded">Rounded</option><option value="pill">Pill</option></select></label>
+                    <label>Progress shape <StudioSelect value={config.progressShape ?? "theme"} onChange={event => { const shape = event.target.value as NonNullable<ThemeConfig["progressShape"]>; onConfigChange(c => ({ ...c, progressShape: shape })); onCommitHistory?.("Changed progress shape"); }}><option value="theme">Theme default</option><option value="square">Square</option><option value="rounded">Rounded</option><option value="pill">Pill</option></StudioSelect></label>
                   </div>
                   <div className="style-control-group">
                     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -979,7 +980,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
               {openAccordions.visualizer && (
                 <div className="style-accordion-body">
-                  <div className="style-control-group"><label>Indicator style <select value={config.visualizerType ?? "bars"} onChange={(e) => { const value=e.target.value as "bars"|"wave"|"pulse"|"dots"; onConfigChange(c => ({...c, visualizerType:value})); onCommitHistory?.("Changed playback indicator"); }}><option value="bars">Bars</option><option value="wave">Wave</option><option value="pulse">Pulse</option><option value="dots">Dots</option></select></label><small>Animated playback indicator; not an audio spectrum.</small></div>
+                  <div className="style-control-group"><label>Indicator style <StudioSelect value={config.visualizerType ?? "bars"} onChange={(e) => { const value=e.target.value as "bars"|"wave"|"pulse"|"dots"; onConfigChange(c => ({...c, visualizerType:value})); onCommitHistory?.("Changed playback indicator"); }}><option value="bars">Bars</option><option value="wave">Wave</option><option value="pulse">Pulse</option><option value="dots">Dots</option></StudioSelect></label><small>Animated playback indicator; not an audio spectrum.</small></div>
                   {/* Bar Count */}
                   <div className="style-control-group">
                     <div className="group-label-row">

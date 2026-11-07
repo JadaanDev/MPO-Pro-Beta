@@ -8,58 +8,16 @@ import { EditableValueBadge } from "./EditableValueBadge";
 import { setVisibility, type VisibilityKey } from "../../utils/visibility";
 import type { ThemeDefinition, ThemeSurface, ThemeElement as SdkElement } from "../../theme-sdk/schema";
 import "./contextual-theme-editor.css";
-
-const selectors = {
-  title: '.mpo-title, [data-theme-element="title"], [data-theme-type="title"], [class*="track-title"], [class*="-title"], [class*="trackTitle"]',
-  artist: '.mpo-artist, [data-theme-element="artist"], [data-theme-type="artist"], [class*="track-subtitle"], [class*="track-artist"], [class*="-artist"], [class*="trackArtist"]',
-  album: '.mpo-album, [data-theme-element="album"], [data-theme-type="album"], [class*="track-album"], [class*="-album"]',
-  themeLabel: '.mpo-theme-label, [data-theme-element="text"], [data-theme-type="text"]',
-  badge: '.mpo-badge, [data-theme-element="badge"], [data-theme-element="source"], [data-theme-type="source"], [class*="audio-route"], [class*="route-pill"], [class*="badge"]',
-  timestamps: '.mpo-universal-timestamps, .apple-timestamps-row, .cyber-timestamps, .glass-timestamps, .zen-time, [data-theme-element="timestamps"], [class*="timestamps"], [class*="time-current"], [class*="time-end"]',
-  status: '.mpo-playback-status, [data-theme-element="status"], [data-theme-type="status"], [class*="status-badge"], [class*="playback-status"]',
-  artwork: '.mpo-art, .mpo-art-img, [data-theme-element="artwork"], [data-theme-type="artwork"], [class*="artwork-container"], [class*="artwork-img"], [class*="album-art"]',
-  progress: '.mpo-progress, .mpo-progress-fill, .apple-progress-bar-track, [data-theme-element="progress"], [data-theme-type="progress"], [class*="scrubber-track"], [class*="scrubber-section"], [class*="progress-bar"]',
-  indicator: '.mpo-universal-visualizer, .mpo-visualizer, [class*="equalizer"], [class*="visualizer"]',
-  frame: '.mpo-card, .mpo-sdk-surface, .mpo-theme-container, [class*="-card"], [class*="player"]'
-} as const;
+import { ARRANGE_ROLE_LABELS, ROLE_SELECTORS as selectors, roleFromTarget } from "../../utils/themeRoles";
 
 export type ThemeElement = keyof typeof selectors;
-export const THEME_ELEMENT_LABELS: Record<ThemeElement, string> = {
-  title: "Track title",
-  artist: "Artist",
-  album: "Album",
-  themeLabel: "Theme text",
-  badge: "Source badge",
-  timestamps: "Timestamps",
-  status: "Playback status",
-  artwork: "Artwork",
-  progress: "Progress bar",
-  indicator: "Playback indicator",
-  frame: "Frame"
-};
+export const THEME_ELEMENT_LABELS = ARRANGE_ROLE_LABELS;
 const labels = THEME_ELEMENT_LABELS;
 
 export function findThemeElement(target: Element): ThemeElement | null {
   const mount = target.closest(".single-preview-mount, .big-preview-frame");
   if (!mount) return null;
-  for (let node: Element | null = target; node && node !== mount; node = node.parentElement) {
-    const semantic = node.getAttribute?.("data-theme-role");
-    const alias: Record<string, ThemeElement> = { "artwork-image": "artwork", "progress-track": "progress", "progress-fill": "progress", "indicator-bar": "indicator", source: "badge", card: "frame", text: "themeLabel", "theme-label": "themeLabel", visualizer: "indicator", "playback-status": "status" };
-    if (semantic && (semantic in selectors || semantic in alias)) return alias[semantic] || semantic as ThemeElement;
-    if (semantic === "host") continue;
-    const match = (Object.keys(selectors) as ThemeElement[]).find(key => {
-      const parts = selectors[key].split(",").map(s => s.trim());
-      return parts.some(sel => {
-        try {
-          return node!.matches(sel);
-        } catch {
-          return false;
-        }
-      });
-    });
-    if (match) return match;
-  }
-  return null;
+  return roleFromTarget(target, mount);
 }
 
 const textElements: ThemeElement[] = ["title", "artist", "album", "themeLabel", "badge", "timestamps", "status"];
@@ -283,7 +241,7 @@ export function ContextualThemeEditor({
   })() : null;
 
   return (
-    <section className="context-editor" aria-label={`${labels[selected]} styling`}>
+    <section className="context-editor" data-arrange-ui aria-label={`${labels[selected]} styling`}>
       <div className="context-editor-header">
         <div className="context-editor-heading">
           <span className="context-editor-icon"><SlidersHorizontal size={15} aria-hidden="true" /></span>

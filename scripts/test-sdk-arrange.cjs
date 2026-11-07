@@ -26,7 +26,7 @@ const sectionFields = {
   frame: ["Exact border width", "Border color", "Shadow strength", "Card Scale", "Inner Frame Padding", "Background Opacity", "Blur"],
   artwork: ["Artwork glow", "Rotate artwork", "Artwork Size", "Corner Radius", "Border Width"],
   progress: ["Progress thickness", "Progress shape", "Fill color", "Track color", "Use theme fill"],
-  indicator: ["Indicator style", "Indicator count", "Indicator height", "Wave", "Dots"],
+  indicator: ["Indicator style", "Indicator count", "Indicator height", "Bars"],
 };
 for (const [kind, theme] of [["compiled", compiled], ["declarative", declarative]]) {
   for (const selected of roles) {
@@ -65,10 +65,10 @@ assert.ok(correctGeometry.includes("Artist &lt;artist&gt;"), "Authored geometry 
 
 const picker = renderToStaticMarkup(React.createElement(ArrangeElementPicker, { selected: "frame", onSelect: noop }));
 const pickerCss = picker.replaceAll("&quot;", '"').replaceAll("&#x27;", "'");
-assert.equal((picker.match(/<option /g) || []).length, 12, "Hidden and absent roles must remain selectable");
+assert.ok(picker.includes('role="combobox"') && picker.includes('>Frame</span>'), "Element picker must expose its current selection accessibly");
 assert.ok(picker.includes('aria-label="Arrange element"'));
 for (const role of roles) {
-  assert.ok(picker.includes('value="' + role + '"'), "Missing Arrange option: " + role);
+  assert.ok(THEME_ELEMENT_LABELS[role], "Every Arrange role needs a picker label");
   assert.ok(pickerCss.includes('data-arrange-selected="' + role + '"'), "Missing selected highlight: " + role);
   assert.ok(pickerCss.includes('data-arrange-hovered="' + role + '"'), "Missing hover highlight: " + role);
 }

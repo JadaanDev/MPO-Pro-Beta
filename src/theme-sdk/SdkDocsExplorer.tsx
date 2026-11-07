@@ -34,7 +34,7 @@ export const SdkDocsExplorer: React.FC<SdkDocsExplorerProps> = ({ onUseTemplate,
     const url = URL.createObjectURL(new Blob([llmDocContent], { type: "text/markdown;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = "MPO-Theme-SDK-7.0.0-beta.14.md";
+    link.download = "MPO-Theme-SDK-7.0.0-beta.15.md";
     document.body.appendChild(link);
     link.click();
     link.remove();

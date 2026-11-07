@@ -1,6 +1,6 @@
 # MPO-pro Theme SDK: complete authoring and Arrange contract
 
-Release target: **`7.0.0-beta.14`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
+Release target: **`7.0.0-beta.15`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
 
 You are creating a portable React theme for MPO-pro. Deliver `manifest.json`, `Theme.tsx`, and `style.css`, with optional local component files. Support the four studio surfaces, semantic element selection, independent shared controls, Arrange offsets and scale, and soft transparent outer edges. Follow the contract below and the acceptance checklist. Preserve the author's native design as the fallback when no layer configuration is supplied.
 
@@ -434,6 +434,10 @@ Browser sources normally render at `quality=2`. Arrange zoom, layer scale and De
 Keep the viewport independent of its text: use a flexible column with `min-width:0`, a stable viewport width, a `width:max-content` non-shrinking track, and `flex-shrink:0` on text copies. Mark the second copy `aria-hidden="true"`; it must not participate in measurement. Observe the viewport and font readiness rather than animated track bounds. Coalesce measurements with one requestAnimationFrame, disconnect observers, cancel the frame and guard late font promises after unmount. Key track/title transitions to stable metadata, never `media`, position, timestamps, or layer refresh counters. When `config.typography?.title?.overflow` is set to a host mode, let that mode own scrolling.
 
 Layer and library snapshots retain portable source fallbacks. Editing an installed source file must publish the validated new bundle to the shared library and linked OBS, TikTok, Desktop and Big layers; previewing disk code alone does not update an old routed snapshot.
+
+### Beta 15 selection and controls
+
+Arrange selects a semantic element on a normal primary pointer press. A click, long press without movement, or small hand jitter does not change layout or add history. Movement begins only after 5 screen pixels (8 for touch), independent of preview and theme scaling. Do not add a competing click-to-select handler, long-press timer or private drag system to a theme. Animate children inside semantic positioning wrappers so selecting and moving the wrapper remains stable. App inspector inputs and portal dropdowns preserve selection; theme playback buttons are treated as selectable content while Arrange is enabled.
 
 ## 11. Acceptance checklist
 

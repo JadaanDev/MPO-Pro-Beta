@@ -101,6 +101,10 @@ The host provides dragging, proportional/dimension resize, arrow nudging, cancel
 
 Optional layer controls include layoutBoundary (legacy, constrain, overflow, grow), widthMode (fixed or content), contentMinWidth and contentMaxWidth. Grow extends the frame surface without reflowing percentage children. Bounded width reserves maximum-width capture space. Per-text typography entries can choose overflow (theme, ellipsis, shrink, marquee), minSize and marqueeSpeed. Marquee respects text direction and reduced motion. Keep flexible text columns and do not override host-owned data-mpo-* attributes or fitting variables. Custom CSS remains the final override.
 
+## Beta 15 Arrange selection
+
+A normal click selects an element without editing its placement. The shared host starts movement only after 5 screen pixels (8 for touch), independent of preview and theme scale. Keep semantic roles on stable positioning wrappers. Do not add long-press selection, a second drag system or click handlers that fight the host. The host protects inspector fields and portal dropdowns from canvas gestures.
+
 ## Scale-safe title scrolling
 
 Browser URLs normally use quality=2; studio previews, Arrange scale and Desktop scale can add more transforms. Compare the original text span's scrollWidth to its viewport's clientWidth (both unscaled CSS pixels). Never compare getBoundingClientRect().width with clientWidth. Give the title viewport a stable width (for example flex:1;min-width:0) independent of the scrolling track. Use a non-shrinking, max-content track and non-shrinking text spans; mark duplicate copies aria-hidden="true". Observe the viewport and fonts, not the animating track; cancel pending animation frames and ignore late fonts.ready callbacks after unmount. Key title transitions only to track metadata, never the media object, playhead or layer refresh. When shared typography overflow is not theme, let the host own text scrolling. Test a short title, a long title, late fonts and Arabic text at quality=1 and quality=2, preview zoom and 50%/150% layer scale. A short title must remain single and stationary through repeated layer refreshes.

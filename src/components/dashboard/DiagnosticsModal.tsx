@@ -68,7 +68,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
   const handleCopyReport = () => {
     if (!report) return;
     const text = [
-      `=== MPO-pro 7.0.0-beta.14 Performance & Jitter Diagnostic ===`,
+      `=== MPO-pro 7.0.0-beta.15 Performance & Jitter Diagnostic ===`,
       `Mode: ${report.mode.toUpperCase()}`,
       `Health Grade: ${report.healthGrade}`,
       `Verdict: ${report.verdict}`,
@@ -96,7 +96,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
           <div className="diag-header-title">
             <Activity size={18} color="#06b6d4" />
             <span>Scrubber & Performance Diagnostics</span>
-            <span className="diag-version-pill">beta 14</span>
+            <span className="diag-version-pill">beta 15</span>
           </div>
           <button onClick={onClose} className="modal-close-btn" title="Close Diagnostics">
             <X size={18} />
@@ -265,7 +265,7 @@ export const DiagnosticsModal: React.FC<DiagnosticsModalProps> = ({
 
           <div style={{ display: "flex", gap: 10 }}>
             <button className="diag-copy-btn" onClick={async () => {
-              await navigator.clipboard.writeText(JSON.stringify({ version: '7.0.0-beta.14', captured_at: new Date().toISOString(), observations: mediaObservationTrace() }, null, 2));
+              await navigator.clipboard.writeText(JSON.stringify({ version: '7.0.0-beta.15', captured_at: new Date().toISOString(), observations: mediaObservationTrace() }, null, 2));
               setTelemetryCopied(true);
               setTimeout(() => setTelemetryCopied(false), 2000);
             }} title="Copy recent raw provider observations, source identity, receipt times, publication order and transport decisions">

@@ -1,3 +1,5 @@
+import { StudioSelect } from "../common/StudioSelect";
+import './studio-fields.css';
 import type { ThemeConfig } from '../../types/themes';
 import { BigNumberInput } from '../../big-studio/BigNumberInput';
 export function LayoutSizingControls({ config, onChange, onCommit }: {
@@ -7,9 +9,9 @@ export function LayoutSizingControls({ config, onChange, onCommit }: {
 }) {
     const set = (patch: Partial<ThemeConfig>) => { onChange(c => ({ ...c, ...patch })); onCommit?.('Updated layout sizing policy'); };
     return <section className="layout-sizing-controls" style={{ display: 'grid', gap: 10 }}>
-    <label>Element boundaries <select aria-label="Element boundaries" value={config.layoutBoundary || 'legacy'} onChange={e => set({ layoutBoundary: e.target.value as ThemeConfig['layoutBoundary'] })}><option value="legacy">Theme default (preserve existing layout)</option><option value="constrain">Constrain inside frame</option><option value="overflow">Allow overflow with capture space</option><option value="grow">Grow frame surface around elements</option></select></label>
+    <label>Element boundaries <StudioSelect aria-label="Element boundaries" value={config.layoutBoundary || 'legacy'} onChange={e => set({ layoutBoundary: e.target.value as ThemeConfig['layoutBoundary'] })}><option value="legacy">Theme default (preserve existing layout)</option><option value="constrain">Constrain inside frame</option><option value="overflow">Allow overflow with capture space</option><option value="grow">Grow frame surface around elements</option></StudioSelect></label>
     <small>Grow extends the background around moved elements while preserving their layout. Overflow and grow include extra capture space.</small>
-    <label>Card width behavior <select aria-label="Card width behavior" value={config.widthMode || 'fixed'} onChange={e => set({ widthMode: e.target.value as ThemeConfig['widthMode'] })}><option value="fixed">Fixed / theme default</option><option value="content">Hug content within bounds</option></select></label>
+    <label>Card width behavior <StudioSelect aria-label="Card width behavior" value={config.widthMode || 'fixed'} onChange={e => set({ widthMode: e.target.value as ThemeConfig['widthMode'] })}><option value="fixed">Fixed / theme default</option><option value="content">Hug content within bounds</option></StudioSelect></label>
     {config.widthMode === 'content' && <><BigNumberInput label="Minimum content width" unit="px" value={config.contentMinWidth ?? 320} onCommit={value => { if (value !== undefined && value > 0)
         set({ contentMinWidth: value, contentMaxWidth: Math.max(value, config.contentMaxWidth ?? 600) }); }}/><BigNumberInput label="Maximum content width" unit="px" value={config.contentMaxWidth ?? 600} onCommit={value => { if (value !== undefined && value > 0)
         set({ contentMaxWidth: Math.max(config.contentMinWidth ?? 320, value) }); }}/><small>The outer capture footprint reserves the maximum width. Changing songs resizes the card inside it.</small></>}

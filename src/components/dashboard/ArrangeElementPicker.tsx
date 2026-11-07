@@ -1,3 +1,4 @@
+import { StudioSelect } from "../common/StudioSelect";
 import { THEME_ELEMENT_LABELS, type ThemeElement } from "./ContextualThemeEditor";
 
 const semanticTargets: Record<ThemeElement, string> = {
@@ -18,8 +19,8 @@ const semanticCss = Object.entries(semanticTargets).map(([role, targets]) => `
 
 /** Hidden and absent roles remain reachable by keyboard and can be enabled. */
 export function ArrangeElementPicker({ selected, onSelect }: { selected: ThemeElement | null; onSelect: (role: ThemeElement) => void }) {
-  return <><style>{semanticCss}</style><label className="arrange-element-picker">Edit element <select aria-label="Arrange element" value={selected || ""} onChange={event => onSelect(event.target.value as ThemeElement)}>
+  return <><style>{semanticCss}</style><label className="arrange-element-picker">Edit element <StudioSelect aria-label="Arrange element" value={selected || ""} onChange={event => onSelect(event.target.value as ThemeElement)}>
     <option value="" disabled>Select an element</option>
     {(Object.entries(THEME_ELEMENT_LABELS) as [ThemeElement, string][]).map(([role, label]) => <option key={role} value={role}>{label}</option>)}
-  </select></label></>;
+  </StudioSelect></label></>;
 }

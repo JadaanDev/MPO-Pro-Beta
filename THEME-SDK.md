@@ -1,8 +1,8 @@
-# MPO Theme SDK (`v7.0.0-beta.14`)
+# MPO Theme SDK (`v7.0.0-beta.15`)
 
 Playback uses the same shared clock as built-in themes in all four studios. Use projected `media.position_ms`, `progress` and `formattedTime` directly; `rawMedia` preserves the backend publication and raw provider tuple. Position and duration validity are independent: show elapsed-only time for a credible position with no total, `--:--` for unavailable position, and indeterminate progress without an exact percentage. Missing duration does not mean LIVE. See [the complete playback contract](THEME-SDK-LLM.md#playback-clock-and-unknown-data).
 
-MPO-pro v7.0.0-beta.14 modularizes the creator experience into three dedicated pages under the **THEMES & SDK** sidebar:
+MPO-pro v7.0.0-beta.15 modularizes the creator experience into three dedicated pages under the **THEMES & SDK** sidebar:
 1. **My Themes** (`MyThemesPage.tsx`): Dev Hub featuring a 50/50 split layout:
    - **Left 50% (Open in IDE)**: One-click launch cards with icons and tags for **VS Code**, **Cursor**, **Codex**, **Claude Code**, **Antigravity**, **Windsurf**, **WebStorm**, **IntelliJ IDEA**, **Sublime Text**, and **Zed**.
    - **Right 50% (Compiler & Watcher Hub)**: Real-time compiler status badge (`✓ Transpiled in < 3ms`), live Watcher Terminal event logs, and dynamic Files Changelog.

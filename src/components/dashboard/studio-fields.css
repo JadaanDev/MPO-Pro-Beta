@@ -1,0 +1,21 @@
+/* Shared inspector fields, including Arrange's detached popups. */
+:is(.context-editor,.typography-controls,.layout-sizing-controls,.arrange-accessible-tools) { font-family:var(--font-body,Inter,system-ui,sans-serif); color-scheme:dark; }
+:is(.context-editor,.typography-controls,.layout-sizing-controls) label { min-width:0; font-size:11px; color:#c4becd; }
+.layout-sizing-controls { display:grid; gap:12px; padding:12px 0; }
+.layout-sizing-controls>label { display:grid; gap:6px; }
+.layout-sizing-controls small { color:#aaa4b5; font-size:11px; line-height:1.5; }
+.typography-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:2px 0 12px; }
+.typography-grid>label { display:grid; gap:6px; }
+.typography-custom-font { grid-column:1/-1; }
+.typography-custom-font-row { display:flex; align-items:center; gap:8px; min-width:0; }
+.typography-custom-font-row>input { flex:1; width:0; }
+:is(.context-editor,.typography-controls,.layout-sizing-controls) :is(input[type=text],input[type=number],textarea) { box-sizing:border-box; min-width:0; min-height:34px; border:1px solid #ffffff1c; border-radius:8px; background:#171923; color:#eee8f7; padding:7px 10px; font:12px var(--font-body,Inter,system-ui,sans-serif); }
+:is(.context-editor,.typography-controls,.layout-sizing-controls) :is(input,textarea,button):focus-visible { outline:2px solid #cdbcf5; outline-offset:2px; }
+:is(.context-editor,.typography-controls,.layout-sizing-controls) input::placeholder { color:#91899f; }
+.context-editor .typography-grid button.studio-select,.typography-controls .typography-grid button.studio-select { display:inline-flex; min-height:34px; padding:7px 10px; background:#171923; border:1px solid #ffffff1c; color:#eee8f7; border-radius:8px; }
+.context-editor .typography-grid button.studio-select[aria-expanded=true],.typography-controls .typography-grid button.studio-select[aria-expanded=true] { border-color:#bca6ed77; background:#22202e; }
+:is(.context-editor-section>button,.typography-grid>button,.typography-custom-font-row>button,.context-builder-btn) { min-height:34px; padding:7px 10px; border:1px solid #bca6ed44; border-radius:8px; color:#eadfff; background:#393149; font:12px var(--font-body,Inter,system-ui,sans-serif); cursor:pointer; }
+:is(.context-editor-section>button,.typography-grid>button,.typography-custom-font-row>button,.context-builder-btn):hover { background:#493d5e; }
+.arrange-element-picker { flex-wrap:wrap; min-width:0; }
+.arrange-element-picker>.studio-select { width:180px; max-width:100%; }
+.arrange-element-css textarea { font-family:var(--font-mono,monospace); }
