@@ -254,9 +254,9 @@ export function ContextualThemeEditor({
 
       {visibilityKey && !textElements.includes(selected) && <div className="context-editor-section" style={{ padding: "12px 14px" }}><Toggle label={`Show ${labels[selected]}`} checked={Boolean(inspectorConfig[visibilityKey])} onChange={checked => { onConfigChange(previous => setVisibility(previous,visibilityKey,checked)); onCommitHistory?.(`Changed ${labels[selected]} visibility`); }}/></div>}
       {builtTheme?.bundle && onOpenBuilder && <button type="button" className="context-builder-btn" onClick={onOpenBuilder}><Sparkles size={13}/> Open Code Studio</button>}
-      <div className="context-editor-section" style={{ padding: "12px 14px", display: "grid", gap: 8 }}>
+      <div className="context-editor-section arrange-placement">
         <strong>Arrange placement</strong>
-        {([ ["x", "Horizontal offset", "px"], ["y", "Vertical offset", "px"], ["scale", "Element scale", "×"] ] as const).map(([key, name, unit]) => <div key={key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}><span>{name}</span><EditableValueBadge tooltip={`Edit ${name.toLowerCase()}`} value={placement[key] ?? (key === "scale" ? 1 : 0)} min={key === "scale" ? 0 : undefined} step={key === "scale" ? .05 : 1} unit={unit} onChange={value => updatePlacement({ [key]: value })}/></div>)}
+        {([ ["x", "Horizontal offset", "px"], ["y", "Vertical offset", "px"], ["scale", "Element scale", "×"] ] as const).map(([key, name, unit]) => <div key={key} className="arrange-placement-row"><span>{name}</span><EditableValueBadge tooltip={`Edit ${name.toLowerCase()}`} value={placement[key] ?? (key === "scale" ? 1 : 0)} min={key === "scale" ? 0 : undefined} step={key === "scale" ? .05 : 1} unit={unit} onChange={value => updatePlacement({ [key]: value })}/></div>)}
         <button type="button" onClick={() => { onConfigChange(previous => { const positions = { ...previous.elementPositions }; delete positions[selected]; return { ...previous, elementPositions: positions }; }); onCommitHistory?.("Reset element placement"); }}>Reset placement</button>
       </div>
 

@@ -74,6 +74,7 @@ export const EditableValueBadge: React.FC<EditableValueBadgeProps> = ({
         onBlur={commitValue}
         onKeyDown={handleKeyDown}
         className="val-badge-input"
+        aria-label={tooltip}
         autoFocus
       />
     );
