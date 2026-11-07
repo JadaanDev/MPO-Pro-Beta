@@ -3,6 +3,7 @@ import { BigPresentation } from "./big-studio/BigPresentation";
 import { BigStage } from "./big-studio/BigStage";
 import { sanitizeBigLayer } from "./big-studio/layers";
 import { BuiltThemeMount } from "./theme-sdk/BuiltThemeMount";
+import { resolveLayerThemes } from "./theme-sdk/library";
 import type { BigLayer } from "./big-studio/types";
 import { StudioDashboard } from "./components/dashboard/StudioDashboard";
 import { AppLaunchScreen } from "./components/common/AppLaunchScreen";
@@ -147,7 +148,7 @@ export const App: React.FC = () => {
     let hasValidPayload = false;
     if (Array.isArray(data.desktopLayers) && data.desktopLayers.length > 0) {
       hasValidPayload = true;
-      const clean = sanitizeDesktopLayers(data.desktopLayers);
+      const clean = resolveLayerThemes(sanitizeDesktopLayers(data.desktopLayers), data.themeLibrary);
       setDesktopLayers(clean);
       if (clean.some(layer => layer.id === data.activeDesktopLayerId)) {
         setActiveDesktopLayerId(data.activeDesktopLayerId);
@@ -155,7 +156,7 @@ export const App: React.FC = () => {
     }
     if (Array.isArray(data.layers) && data.layers.length > 0) {
       hasValidPayload = true;
-      const cleanLayers = sanitizeLayers(data.layers);
+      const cleanLayers = resolveLayerThemes(sanitizeLayers(data.layers), data.themeLibrary);
       setLayers(cleanLayers);
       if (data.activeLayerId && cleanLayers.some((l) => l.id === data.activeLayerId)) {
         setActiveLayerId(data.activeLayerId);
@@ -171,7 +172,7 @@ export const App: React.FC = () => {
     }
     if (data.bigProject && Array.isArray(data.bigProject.layers)) {
       hasValidPayload = true;
-      const cleanBig = data.bigProject.layers.map(sanitizeBigLayer).filter((v: BigLayer | null): v is BigLayer => v !== null);
+      const cleanBig = resolveLayerThemes(data.bigProject.layers.map(sanitizeBigLayer).filter((v: BigLayer | null): v is BigLayer => v !== null) as BigLayer[], data.themeLibrary);
       if (cleanBig.length > 0) setBigLayers(cleanBig);
     }
     if (hasValidPayload) {

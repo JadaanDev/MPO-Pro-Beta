@@ -19,5 +19,12 @@ export function receiveThemeLibrary(value: unknown) {
 export function libraryForSync(): ThemeDefinition[] | undefined { try { return readThemeLibrary(); } catch { return undefined; } }
 export function refreshBuiltTheme<T extends {builtTheme?: ThemeDefinition}>(layer: T, themes: ThemeDefinition[]): T {
   const saved = themes.find(theme=>theme.id === layer.builtTheme?.id);
-  return saved ? {...layer,builtTheme:saved} : layer;
+  return saved && JSON.stringify(saved) !== JSON.stringify(layer.builtTheme) ? {...layer,builtTheme:saved} : layer;
+}
+
+/** Resolve linked source copies from the same publication as their layers.
+ * Missing/deleted themes keep the embedded, portable fallback. */
+export function resolveLayerThemes<T extends {builtTheme?: ThemeDefinition}>(layers: T[], value: unknown): T[] {
+  if (!Array.isArray(value) || value.some(theme => validateThemeDefinition(theme).length) || new Set(value.map(theme => theme.id)).size !== value.length) return layers;
+  return layers.map(layer => refreshBuiltTheme(layer, value));
 }

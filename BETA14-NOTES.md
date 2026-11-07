@@ -21,3 +21,11 @@ Validation:
 - A local browser fixture verified native/SDK 320–600px content sizing within a stable 664px logical capture width, minimum font fitting, RTL marquee direction and accessible text, overflow padding, growing surfaces without nominal reflow, constraints, keyboard Arrange undo, editable Builder dimensions, a uniformly fitted 1280×720 canvas, and HUD keyboard scale saving. No browser console errors were observed. `scripts/preview-sizing.cjs` recreates this isolated fixture for further checks.
 
 The full Tauri build/installer is intentionally left to the user. No beta 14 installer was produced. Native Windows pointer/DPI behavior and OBS/TikTok capture should be checked after that build; browser/component tests do not establish native compositor behavior.
+
+## One UI title flicker follow-up
+
+An older routed One UI bundle mixed transformed `getBoundingClientRect` text width with unscaled `clientWidth`, falsely enabling its marquee at browser `quality=2`. The corrected installed bundle uses layout-space measurements and a stable title viewport. The affected local layer/library snapshots were backed up and refreshed; custom theme source remains user data and is not included in this repository.
+
+The dashboard now connects the native theme file watcher after server hydration, validates/compiles disk source before refreshing the shared library, and retains the last working entry during incomplete saves. Browser and HUD publications resolve linked themes from their accompanying library across OBS, TikTok, Desktop and Big outputs. The browser SDK reads the beta server on port 4849. Identical source copies preserve layer identity. Shared text fitting ignores aria-hidden marquee duplicates. SDK authoring guidance covers scale-safe text measurement, stable viewports, font/observer cleanup and quality/scale checks.
+
+Validation: `npm run test:themes`, `npm run test:sizing`, TypeScript and frontend production build. The exact affected `quality=2` URL was checked live after refreshing its bundle: one stationary title with no duplicate supplemental title. Native watcher behavior is covered with mocked Tauri events, including invalid saves and late listener cleanup; a full Tauri build was left to the user.

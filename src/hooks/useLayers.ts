@@ -8,7 +8,8 @@ import {
   sanitizeDesktopLayers 
 } from "../types/layers";
 import { ThemeId } from "../types/themes";
-import {LIBRARY_EVENT,libraryForSync,receiveThemeLibrary,refreshBuiltTheme} from "../theme-sdk/library";
+import {LIBRARY_EVENT,libraryForSync,receiveThemeLibrary,refreshBuiltTheme,resolveLayerThemes} from "../theme-sdk/library";
+import { useThemeWorkspaceSync } from "../theme-sdk/useThemeWorkspaceSync";
 import {receiveBigProject} from "../big-studio/layers";
 
 const LAYERS_STORAGE_KEY = "mpo_layers_v2";
@@ -160,6 +161,7 @@ export function useLayers() {
   }, [history]);
 
   const [serverLoaded, setServerLoaded] = useState(false);
+  useThemeWorkspaceSync(serverLoaded);
   useEffect(()=>{const sync=()=>{const themes=libraryForSync();if(!themes)return;isRemoteSync.current=false;setLayers(old=>old.map(layer=>refreshBuiltTheme(layer,themes)));setDesktopLayers(old=>old.map(layer=>refreshBuiltTheme(layer,themes)));setLibraryRevision(old=>old+1)};window.addEventListener(LIBRARY_EVENT,sync);return()=>window.removeEventListener(LIBRARY_EVENT,sync)},[]);
 
   // 2. Fetch saved layers from Axum API server on mount
@@ -173,7 +175,7 @@ export function useLayers() {
         receiveThemeLibrary(data?.themeLibrary);
         receiveBigProject(data?.bigProject);
         if (data && Array.isArray(data.desktopLayers) && data.desktopLayers.length > 0) {
-          const clean = sanitizeDesktopLayers(data.desktopLayers);
+          const clean = resolveLayerThemes(sanitizeDesktopLayers(data.desktopLayers), data.themeLibrary);
           if (JSON.stringify(clean) !== localStorage.getItem(DESKTOP_LAYERS_STORAGE_KEY)) {
             isRemoteSync.current = true;
             setDesktopLayers(clean);
@@ -181,7 +183,7 @@ export function useLayers() {
           }
         }
         if (data && Array.isArray(data.layers) && data.layers.length > 0) {
-          const cleanLayers = sanitizeLayers(data.layers);
+          const cleanLayers = resolveLayerThemes(sanitizeLayers(data.layers), data.themeLibrary);
           const localJson = localStorage.getItem(LAYERS_STORAGE_KEY);
           if (!localJson || JSON.stringify(cleanLayers) !== localJson) {
             isRemoteSync.current = true;
@@ -214,7 +216,7 @@ export function useLayers() {
       receiveBigProject(data?.bigProject);
       if (data?.clientId && data.clientId === clientId.current) return;
       if (data && Array.isArray(data.desktopLayers) && data.desktopLayers.length > 0) {
-        const clean = sanitizeDesktopLayers(data.desktopLayers);
+        const clean = resolveLayerThemes(sanitizeDesktopLayers(data.desktopLayers), data.themeLibrary);
         setDesktopLayers(prev => { if (JSON.stringify(prev) === JSON.stringify(clean)) return prev; isRemoteSync.current = true; return clean; });
         if (data.activeDesktopLayerId) setActiveDesktopLayerIdState(data.activeDesktopLayerId);
       }
@@ -223,7 +225,7 @@ export function useLayers() {
         if (data.clientId && data.clientId === clientId.current) {
           return;
         }
-        const cleanLayers = sanitizeLayers(data.layers);
+        const cleanLayers = resolveLayerThemes(sanitizeLayers(data.layers), data.themeLibrary);
         setLayers((prev) => {
           if (JSON.stringify(prev) === JSON.stringify(cleanLayers)) {
             return prev;

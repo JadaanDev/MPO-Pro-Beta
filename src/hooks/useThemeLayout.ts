@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
 import type { ThemeConfig, TextElement } from '../types/themes';
 import { roleTarget, roleTargets, type ArrangeRole } from '../utils/themeRoles';
 import { constrainedDelta, contentWidth } from '../utils/arrangeGeometry';
+import { themeText } from '../utils/themeText';
 const useClientLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 const textRoles: TextElement[] = ['title', 'artist', 'album', 'themeLabel', 'badge', 'timestamps', 'status'];
 export interface LayoutPaint {
@@ -38,7 +39,7 @@ export function useThemeLayout(container: RefObject<HTMLDivElement>, config?: Th
                 return el.scrollWidth;
             context.font = `${style.fontStyle} ${style.fontWeight} ${font}px ${style.fontFamily}`;
             context.direction = style.direction === 'rtl' ? 'rtl' : 'ltr';
-            let text = el.textContent || '';
+            let text = themeText(el);
             if (style.textTransform === 'uppercase')
                 text = text.toLocaleUpperCase();
             if (style.textTransform === 'lowercase')
@@ -107,7 +108,7 @@ export function useThemeLayout(container: RefObject<HTMLDivElement>, config?: Th
                     if (mode === 'marquee') {
                         const overflow = Math.max(0, natural - available);
                         const sign = cs.direction === 'rtl' ? 1 : -1;
-                        marker(el, 'data-mpo-marquee-text', el.textContent || '');
+                        marker(el, 'data-mpo-marquee-text', themeText(el));
                         marker(el, 'data-mpo-marquee-active', overflow > 1 ? 'true' : 'false');
                         variable(el, '--mpo-marquee-distance', `${sign * overflow}px`);
                         variable(el, '--mpo-marquee-duration', `${Math.max(3, overflow / Math.max(1, appearance?.marqueeSpeed ?? 30) + 3)}s`);

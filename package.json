@@ -11,7 +11,7 @@
     "test:themes": "node scripts/test-theme-parity.cjs && node scripts/test-artwork-colors.cjs && node scripts/test-element-css.cjs && node scripts/test-theme-sdk.cjs && node scripts/test-sdk-controls.cjs && node scripts/test-theme-effects.cjs && node scripts/test-sdk-arrange.cjs",
     "test:popover": "node scripts/test-popover-position.mjs",
     "test:media": "node scripts/test-media-timeline.cjs",
-    "test:sizing": "node scripts/test-sizing-arrange.cjs"
+    "test:sizing": "node scripts/test-sizing-arrange.cjs && node scripts/test-sdk-refresh.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.2.0",

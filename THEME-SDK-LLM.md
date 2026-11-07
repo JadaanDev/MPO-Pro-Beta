@@ -427,6 +427,14 @@ The host owns data-mpo-* sizing/fitting attributes and --mpo-content-*, --mpo-fi
 
 The unlocked Desktop HUD scale grip updates independent desktop scale and copies active dimensions when first enabling separate Desktop sizing, preserving stream output. It saves only the selected layer's Desktop sizing under the existing local write/origin policy. The 50–200% slider range is a convenience, not a hard limit on exact scale or the grip; native window/platform size limits still apply. Big Studio retains stage content scale (all layers) × selected layer scale, shows effective scale, and provides separate resets; Advanced styling no longer duplicates the selected-layer scale control.
 
+### Scale-safe native marquee
+
+Browser sources normally render at `quality=2`. Arrange zoom, layer scale and Desktop scale can add more transforms. For overflow detection compare the original text span's `scrollWidth` with the title viewport's `clientWidth`, both in unscaled CSS pixels. Never compare `getBoundingClientRect().width` with `clientWidth`: a short title can falsely overflow at 2x, starting/stopping its animation as its contents change.
+
+Keep the viewport independent of its text: use a flexible column with `min-width:0`, a stable viewport width, a `width:max-content` non-shrinking track, and `flex-shrink:0` on text copies. Mark the second copy `aria-hidden="true"`; it must not participate in measurement. Observe the viewport and font readiness rather than animated track bounds. Coalesce measurements with one requestAnimationFrame, disconnect observers, cancel the frame and guard late font promises after unmount. Key track/title transitions to stable metadata, never `media`, position, timestamps, or layer refresh counters. When `config.typography?.title?.overflow` is set to a host mode, let that mode own scrolling.
+
+Layer and library snapshots retain portable source fallbacks. Editing an installed source file must publish the validated new bundle to the shared library and linked OBS, TikTok, Desktop and Big layers; previewing disk code alone does not update an old routed snapshot.
+
 ## 11. Acceptance checklist
 
 - [ ] Default component, manifest, CSS, and optional local imports load with empty artwork and stopped media.
@@ -451,4 +459,5 @@ Do not claim desktop/OBS/Tauri visual verification without testing those surface
 - [ ] Drag, proportional and dimension resize, arrow nudging, cancel and undo work through preview fitting and overall layer scale.
 - [ ] Boundary policies preserve nominal SDK percentage geometry, include paint bounds and do not recursively enlarge the canvas.
 - [ ] Short/long/Arabic metadata, loaded fonts, auto-shrink minimums, marquee direction and reduced motion behave consistently.
+- [ ] Short titles remain single and stationary at quality=1/2, preview zoom and 50%/150% layer scale; long titles scroll continuously without restarting on playhead or identical layer updates. Installed source edits reach linked layer URLs.
 - [ ] Builder design dimensions, exported manifests and live studio canvases agree; generated visual projects reopen without overwriting external code edits.

@@ -26,16 +26,19 @@ export interface FileChangeEvent {
 }
 
 const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
-
-let isWatcherListening = false;
+const themeApiBase = () => typeof window !== "undefined" && (window.location.port === "4849" || window.location.hostname === "mpobeta.local")
+  ? window.location.origin : "http://127.0.0.1:4849";
 
 export function setupThemeWatcher(onChanged: (event: FileChangeEvent) => void) {
-  if (!isTauri || isWatcherListening) return;
-  isWatcherListening = true;
+  if (!isTauri) return () => {};
+  let disposed = false;
+  let unlisten: (() => void) | undefined;
   listen<FileChangeEvent>("theme-files-changed", (evt) => {
+    if (disposed) return;
     onChanged(evt.payload);
     window.dispatchEvent(new CustomEvent("mpo_theme_disk_changed", { detail: evt.payload }));
-  }).catch(() => {});
+  }).then(stop => { if (disposed) stop(); else unlisten = stop; }).catch(() => {});
+  return () => { disposed = true; unlisten?.(); };
 }
 
 export async function getThemesWorkspacePath(): Promise<string> {
@@ -125,7 +128,7 @@ export async function listAllThemes(): Promise<ThemeDefinition[]> {
 
   // Fallback: browser / server HTTP / localStorage
   try {
-    const res = await fetch("http://127.0.0.1:15420/api/themes");
+    const res = await fetch(`${themeApiBase()}/api/themes`);
     if (res.ok) {
       const summaries = (await res.json()) as DiskThemeSummary[];
       if (summaries && summaries.length > 0) {
@@ -172,7 +175,7 @@ async function loadThemesFromHttp(summaries: DiskThemeSummary[]): Promise<ThemeD
   const loaded: ThemeDefinition[] = [];
   for (const s of summaries) {
     try {
-      const res = await fetch(`http://127.0.0.1:15420/api/themes/${s.folder || s.id}/bundle`);
+      const res = await fetch(`${themeApiBase()}/api/themes/${encodeURIComponent(s.folder || s.id)}/bundle`);
       if (res.ok) {
         const bundle = (await res.json()) as ThemeBundle;
         loaded.push({
