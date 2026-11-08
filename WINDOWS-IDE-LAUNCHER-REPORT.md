@@ -195,3 +195,63 @@ Return structured errors such as `not_detected`, `missing_executable`, `invalid_
 - [Google Antigravity IDE getting started](https://antigravity.google/docs/ide-getting-started)
 - [Google Antigravity IDE Codelab — IDE shell command setup](https://codelabs.developers.google.com/getting-started-agy-ide)
 
+---
+
+## Independent Architectural Evaluation & Additional Technical Insights (8 November 2026)
+
+### 1. Verdict on the Report
+
+**This report is highly valid, technically accurate, and directly matches the root causes in the current MPO-pro Beta codebase.**
+
+Cross-checking against [`src-tauri/src/themes/mod.rs`](src-tauri/src/themes/mod.rs), [`src/theme-sdk/themeStore.ts`](src/theme-sdk/themeStore.ts), [`src/theme-sdk/ThemeCompilerMonitor.tsx`](src/theme-sdk/ThemeCompilerMonitor.tsx), and [`src/theme-sdk/pages/MyThemesPage.tsx`](src/theme-sdk/pages/MyThemesPage.tsx) confirms every claim in the report:
+
+- **Silent False-Positive Launches (`cmd /C start` trap):** In [`open_theme_in_ide`](src-tauri/src/themes/mod.rs#L609-L618), when `<editor>.cmd` and `<editor>` both fail to spawn, the fallback `Command::new("cmd").args(["/C", "start", "", clean_cmd, ...]).spawn()` **always succeeds in spawning `cmd.exe`**, even when `clean_cmd` is completely uninstalled! Because `spawn()` only checks whether `cmd.exe` started, `open_theme_in_ide` returns `Ok(())` and the React UI immediately shows a false `"Launched <IDE>"` toast while Windows either pops up an asynchronous error dialog or fails silently.
+- **Why Antigravity Specifically Fails:** [`KNOWN_IDES`](src/theme-sdk/themeStore.ts#L68-L79) and [`IDE_ITEMS`](src/theme-sdk/pages/MyThemesPage.tsx#L70-L81) pass `cmd: "antigravity"`. On Windows, Antigravity's shell command is `agy` / `agy-ide` (or the per-user binary under `%LOCALAPPDATA%\Programs\Antigravity\Antigravity.exe`), not `antigravity.cmd`.
+- **Single-Source Duplication in UI:** IDE definitions are currently duplicated between [`KNOWN_IDES` in `themeStore.ts`](src/theme-sdk/themeStore.ts#L68-L79) and [`IDE_ITEMS` in `MyThemesPage.tsx`](src/theme-sdk/pages/MyThemesPage.tsx#L70-L81). Moving to a Rust-driven discovery list (`discover_ide_installations()`) will eliminate this frontend drift as well.
+
+### 2. Additional Technical Recommendations & Edge Cases to Include in Implementation
+
+While the proposed provider architecture is the right design, the following Windows-specific engineering details should be incorporated during implementation:
+
+#### A. Per-User Installer Paths (`%LOCALAPPDATA%\Programs`) Should Be First-Class Discovery Candidates
+Most modern Electron/AI editors on Windows (VS Code User Installer, Cursor, Windsurf, Antigravity, Trae) install per-user under `%LOCALAPPDATA%\Programs\<VendorOrApp>\<App>.exe` and **do not always write `App Paths` registry keys** (or their `PATH` shims may be skipped if the user unchecked "Add to PATH" or hasn't restarted their shell/explorer session).
+- **Recommendation:** Between step 2 (`App Paths`) and step 3 (`PATH` resolver), probe deterministic per-user/machine known relative paths under `%LOCALAPPDATA%\Programs\`, `%ProgramFiles%\`, and `%LOCALAPPDATA%\JetBrains\Toolbox\apps\` (since JetBrains Toolbox manages WebStorm/IntelliJ in versioned subdirectories or generated shell scripts under `%LOCALAPPDATA%\JetBrains\Toolbox\scripts`).
+
+#### B. Avoid `std::fs::canonicalize()` When Passing the Folder Path to IDEs
+In the report's `launch_folder` snippet:
+```rust
+let folder = folder.canonicalize().map_err(LauncherError::Folder)?;
+```
+On Windows, `std::fs::canonicalize` returns an extended-length verbatim UNC path (`\\?\C:\Users\...\MPO-pro-beta\themes\my-theme`).
+- **Why this matters:** Several Electron-based IDEs, Node/TypeScript language servers (`tsserver`), and CLI tools (`codex`, `claude`) mishandle `\\?\` verbatim prefixes in workspace roots—breaking relative imports, `tsconfig.json` resolution (`types.d.ts` / `mpo-sdk.d.ts`), or file watchers inside the IDE.
+- **Recommendation:** Use `canonicalize()` internally during **security validation** (to verify the target is a descendant of the active workspace root and has no symlink escapes), or strip the `\\?\` prefix (similar to the `dunce` crate pattern) before passing `folder` as a command-line argument and `current_dir` to `Command::new()`.
+
+#### C. Prevent Console Window Flashing (`CREATE_NO_WINDOW`) for `.cmd` Shims and CLI Tools
+When launching `.cmd` wrappers (such as `code.cmd`, `cursor.cmd`, or `agy-ide.cmd`) from a GUI Tauri process on Windows without a parent console, Windows allocates a transient `conhost.exe` window that flashes visibly on the user's screen.
+- **Recommendation:**
+  - For **GUI IDEs** launched via direct `.exe` (`Code.exe`, `Cursor.exe`, `Antigravity.exe`), launch the `.exe` directly (or its `bin\<cli>.cmd` with `CommandExt::creation_flags(0x08000000)` / `CREATE_NO_WINDOW`).
+  - Note on VS Code / Cursor / Windsurf / Antigravity `.exe` vs CLI shim: Invoking `Code.exe <folder>` directly attaches the child stdout/stderr or process lifetime to the parent unless detached, whereas their `bin\code.cmd` sets `ELECTRON_RUN_AS_NODE=1` on `Code.exe` with `resources\app\out\cli.js`. Passing `--new-window` or `--reuse-window` to the main `.exe` with detached stdio (`Stdio::null()`) works cleanly and avoids any `.cmd` shell overhead.
+
+#### D. Distinguish GUI Editors from Terminal/TUI Agents (`claude`, `codex`, `nvim`, `agy`)
+The current `KNOWN_IDES` list mixes **GUI IDEs** (`VS Code`, `Cursor`, `Antigravity`, `Windsurf`, `WebStorm`, `Zed`) with **Terminal/CLI coding agents and editors** (`Codex`, `Claude Code`, `Neovim`).
+- **Why this matters:** Running `claude <folder>` or `codex <folder>` with `CREATE_NO_WINDOW` or detached stdio is useless because they are interactive terminal TUIs that require a visible console (`wt.exe` / Windows Terminal, PowerShell, or `cmd.exe`), and many CLI agents expect `<folder>` as the **working directory** (`current_dir(&folder)`) rather than a positional file argument.
+- **Recommendation:** Add an `execution_mode` field to `IdeCapabilities` (`GuiApp` vs `TerminalInteractive`):
+  - **`GuiApp`:** Spawn executable directly with `Stdio::null()`, passing `&folder` as an argument and setting `current_dir(&folder)`.
+  - **`TerminalInteractive` (`claude`, `codex`, `nvim`):** Launch via Windows Terminal (`wt.exe -d <folder> <executable>`) if `wt.exe` is available, or a new console window (`CREATE_NEW_CONSOLE`) with `current_dir(&folder)` so the interactive session actually opens in the theme directory where `MPO-SDK-LLM.md` lives.
+
+#### E. Eagerly Materialize Theme Files Before Launching the IDE
+Currently in [`open_theme_in_ide`](src-tauri/src/themes/mod.rs#L596-L598):
+```rust
+if !target.exists() {
+  let _ = fs::create_dir_all(&target);
+}
+```
+If a user clicks "Open in IDE" on a starter or newly hydrated theme whose directory does not yet have all authoring files written, `create_dir_all(&target)` creates an **empty directory** without `Theme.tsx`, `style.css`, `tsconfig.json`, `types.d.ts`, or `MPO-SDK-LLM.md`.
+- **Recommendation:** Before launching the IDE, verify that `target.join("manifest.json")` and `target.join("MPO-SDK-LLM.md")` exist (calling `write_sdk_documents(&target)` or requiring the frontend to flush `save_disk_theme` first) so the IDE never opens an empty folder.
+
+#### F. Fast Post-Spawn Health Check (150–250 ms)
+To solve the report's observation that "`spawn()` success is treated as 'Launched' even if a shim fails immediately":
+- After `let mut child = command.spawn()?;`, wait briefly (e.g., `tokio::time::sleep(Duration::from_millis(200)).await` in an async Tauri command) and call `child.try_wait()`.
+- If the process has already exited with a **non-zero exit code** within 200 ms, capture `stderr` (or the exit code) and return `Err(LauncherError::ImmediateExit { code, stderr })` instead of reporting a false launch success. (A zero exit code within 200 ms is normal for single-instance IDE launchers that hand off the folder IPC message to an already-running IDE window and exit.)
+
+
