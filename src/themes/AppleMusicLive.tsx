@@ -40,6 +40,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
 
       <div
         className="mpo-card apple-music-card"
+        data-theme-role="frame"
         style={{
           width: cardWidth,
           height: cardHeight,
@@ -63,19 +64,19 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
               <div className="apple-music-icon-bubble" style={{ background: accent }}>
                 <Music size={11} color="#fff" />
               </div>
-              <span className="mpo-theme-label apple-music-badge-text">{config.themeLabel || "Apple Music"}</span>
+              <span className="mpo-theme-label apple-music-badge-text" data-theme-role="themeLabel">{config.themeLabel || "Apple Music"}</span>
               {media.app_name && media.app_name !== "Apple Music" && (
-                <span className="apple-music-source-tag">• {media.app_name}</span>
+                <span className="apple-music-source-tag mpo-badge" data-theme-role="badge">• {media.app_name}</span>
               )}
             </div>
 
             {/* Animated Equalizer Sound Bars */}
             {config.showVisualizer !== false && (
-              <div className="apple-eq-container" title={isPlaying ? "Playing" : "Paused"}>
-                <span className={`apple-eq-bar eq-1 ${isPlaying ? "animating" : ""}`} style={{ background: accent }} />
-                <span className={`apple-eq-bar eq-2 ${isPlaying ? "animating" : ""}`} style={{ background: accent }} />
-                <span className={`apple-eq-bar eq-3 ${isPlaying ? "animating" : ""}`} style={{ background: accent }} />
-                <span className={`apple-eq-bar eq-4 ${isPlaying ? "animating" : ""}`} style={{ background: accent }} />
+              <div className="apple-eq-container" data-theme-role="indicator" title={isPlaying ? "Playing" : "Paused"}>
+                <span className={`apple-eq-bar eq-1 ${isPlaying ? "animating" : ""}`} data-theme-role="indicator-bar" style={{ background: accent }} />
+                <span className={`apple-eq-bar eq-2 ${isPlaying ? "animating" : ""}`} data-theme-role="indicator-bar" style={{ background: accent }} />
+                <span className={`apple-eq-bar eq-3 ${isPlaying ? "animating" : ""}`} data-theme-role="indicator-bar" style={{ background: accent }} />
+                <span className={`apple-eq-bar eq-4 ${isPlaying ? "animating" : ""}`} data-theme-role="indicator-bar" style={{ background: accent }} />
               </div>
             )}
           </div>
@@ -87,6 +88,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
           {config.showArt !== false && (
             <div
               className="apple-art-box mpo-art"
+              data-theme-role="artwork"
               style={{
                 width: `${artDimension}px`,
                 height: `${artDimension}px`,
@@ -102,6 +104,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
                   src={artUrl}
                   alt={media.album_title || media.title}
                   className="apple-art-img mpo-art-img"
+                  data-theme-role="artwork-image"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -130,6 +133,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
             {config.showTitle !== false && (
               <div
                 className="mpo-title apple-title"
+                data-theme-role="title"
                 style={{
                   fontFamily: config.titleFont
                     ? `"${config.titleFont}", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`
@@ -146,6 +150,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
             {config.showArtist !== false && (
               <div
                 className="mpo-artist apple-artist"
+                data-theme-role="artist"
                 style={{
                   fontSize: config.artistSize ? `${config.artistSize}px` : "13.5px",
                   color: config.artistColor || "rgba(255, 255, 255, 0.75)",
@@ -158,6 +163,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
             {config.showAlbum !== false && media.album_title && (
               <div
                 className="mpo-album apple-album"
+                data-theme-role="album"
                 style={{
                   fontSize: config.albumSize ? `${config.albumSize}px` : "12px",
                   color: "rgba(255, 255, 255, 0.45)",
@@ -169,10 +175,11 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
 
             {/* In Horizontal mode, place scrubber right below text */}
             {!isVertical && config.showProgress !== false && positionKnown && durationKnown && (
-              <div className="apple-scrubber-section horizontal-scrubber">
-                <div className="apple-progress-bar-track">
+              <div className="apple-scrubber-section horizontal-scrubber" data-theme-role="progress">
+                <div className="apple-progress-bar-track" data-theme-role="progress-track" data-theme-part="progress-track">
                   <div
                     className="mpo-progress-fill apple-progress-bar-fill"
+                    data-theme-role="progress-fill"
                     style={{
                       width: `${Math.min(Math.max(Math.round(progress * 100), 0), 100)}%`,
                       background: `linear-gradient(90deg, ${accent}, #ffffff)`,
@@ -182,7 +189,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
                   </div>
                 </div>
 
-                <div className="apple-timestamps-row">
+                <div className="apple-timestamps-row" data-theme-role="timestamps">
                   <span className="mpo-time-current apple-time">{formattedCurrent}</span>
                   <span className="mpo-time-duration apple-time">
                     {formattedDuration}
@@ -195,10 +202,11 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
 
         {/* In Vertical mode, scrubber sits below artwork and text with balanced margin */}
         {isVertical && config.showProgress !== false && positionKnown && durationKnown && (
-          <div className="apple-scrubber-section vertical-scrubber">
-            <div className="apple-progress-bar-track">
+          <div className="apple-scrubber-section vertical-scrubber" data-theme-role="progress">
+            <div className="apple-progress-bar-track" data-theme-role="progress-track" data-theme-part="progress-track">
               <div
                 className="mpo-progress-fill apple-progress-bar-fill"
+                data-theme-role="progress-fill"
                 style={{
                   width: `${Math.min(Math.max(Math.round(progress * 100), 0), 100)}%`,
                   background: `linear-gradient(90deg, ${accent}, #ffffff)`,
@@ -208,7 +216,7 @@ export const AppleMusicLive: React.FC<ThemeProps> = ({
               </div>
             </div>
 
-            <div className="apple-timestamps-row">
+            <div className="apple-timestamps-row" data-theme-role="timestamps">
               <span className="mpo-time-current apple-time">{formattedCurrent}</span>
               <span className="mpo-time-duration apple-time">
                 {formattedDuration}

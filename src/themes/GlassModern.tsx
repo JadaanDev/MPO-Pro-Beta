@@ -35,6 +35,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
 
       <div
         className="glass-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(10, 12, 18, ${config.opacity})`
@@ -49,6 +50,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
         {/* Album Artwork */}
         <div
           className="glass-art-box mpo-art"
+          data-theme-role="artwork"
           style={{
             borderRadius: `${Math.max(config.borderRadius - 4, 6)}px`,
             borderColor: `${config.accentColor}33`,
@@ -61,6 +63,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
                 src={artUrl}
                 alt={media.title}
                 className="glass-art-img mpo-art-img"
+                data-theme-role="artwork-image"
                 initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
@@ -86,9 +89,15 @@ export const GlassModern: React.FC<ThemeProps> = ({
         {/* Track Content */}
         <div className="glass-content">
           <div className="glass-header">
+            {config.themeLabel && (
+              <span className="mpo-theme-label glass-theme-label" data-theme-role="themeLabel">
+                {config.themeLabel}
+              </span>
+            )}
             {config.showBadge && (
               <span
                 className="glass-badge mpo-badge"
+                data-theme-role="badge"
                 style={{
                   color: config.accentColor,
                   borderColor: `${config.accentColor}55`,
@@ -100,11 +109,11 @@ export const GlassModern: React.FC<ThemeProps> = ({
             )}
 
             {/* EQ Equalizer Bar Animation */}
-            <div className={`glass-eq mpo-visualizer ${isPlaying ? "playing" : "paused"}`}>
-              <span className="mpo-vis-bar" style={{ backgroundColor: config.accentColor }} />
-              <span className="mpo-vis-bar" style={{ backgroundColor: config.accentColor }} />
-              <span className="mpo-vis-bar" style={{ backgroundColor: config.accentColor }} />
-              <span className="mpo-vis-bar" style={{ backgroundColor: config.accentColor }} />
+            <div className={`glass-eq mpo-visualizer ${isPlaying ? "playing" : "paused"}`} data-theme-role="indicator">
+              <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ backgroundColor: config.accentColor }} />
+              <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ backgroundColor: config.accentColor }} />
+              <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ backgroundColor: config.accentColor }} />
+              <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ backgroundColor: config.accentColor }} />
             </div>
           </div>
 
@@ -116,6 +125,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
               exit={{ opacity: 0, y: -3 }}
               transition={{ duration: 0.2 }}
               className="glass-title mpo-title"
+              data-theme-role="title"
               title={media.title}
             >
               {media.title || "No Media Playing"}
@@ -130,6 +140,7 @@ export const GlassModern: React.FC<ThemeProps> = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="glass-artist mpo-artist"
+              data-theme-role="artist"
             >
               {media.artist || "Awaiting Windows media audio source"}
             </motion.div>
@@ -137,17 +148,18 @@ export const GlassModern: React.FC<ThemeProps> = ({
 
           {/* Scrubber Progress Bar */}
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="glass-progress-wrap mpo-progress">
-              <div className="glass-progress-track">
+            <div className="glass-progress-wrap mpo-progress" data-theme-role="progress">
+              <div className="glass-progress-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="glass-progress-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     background: `linear-gradient(90deg, ${config.accentColor}, #ec4899)`,
                   }}
                 />
               </div>
-              <div className="glass-timestamps">
+              <div className="glass-timestamps" data-theme-role="timestamps">
                 <span>{formattedCurrent}</span>
                 <span>{formattedDuration}</span>
               </div>

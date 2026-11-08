@@ -637,6 +637,9 @@ fn main() {
             themes::delete_disk_theme,
             themes::open_theme_in_explorer,
             themes::open_theme_in_ide,
+            themes::discover_ide_installations,
+            themes::validate_custom_ide,
+            themes::choose_ide_executable,
             themes::migrate_localstorage_themes
         ])
         .run(tauri::generate_context!())

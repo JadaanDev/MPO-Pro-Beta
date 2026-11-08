@@ -29,6 +29,7 @@ export const CompactTag: React.FC<ThemeProps> = ({
 
       <div
         className="tag-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(7, 9, 15, ${config.opacity})`
@@ -41,9 +42,9 @@ export const CompactTag: React.FC<ThemeProps> = ({
       >
         <ThemeSupplement media={media} config={config} album={true} badge={false} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {config.showArt && (
-          <div className="tag-art mpo-art">
+          <div className="tag-art mpo-art" data-theme-role="artwork">
             {artUrl ? (
-              <img src={artUrl} alt="" className="tag-img mpo-art-img" />
+              <img src={artUrl} alt="" className="tag-img mpo-art-img" data-theme-role="artwork-image" />
             ) : (
               <div className="tag-fallback" style={{ background: accent }}>
                 <Tag size={16} color="#fff" />
@@ -54,38 +55,44 @@ export const CompactTag: React.FC<ThemeProps> = ({
 
         <div className="tag-body">
           <div className="tag-header">
+            {config.themeLabel && (
+              <span className="mpo-theme-label tag-theme-label" data-theme-role="themeLabel">
+                {config.themeLabel}
+              </span>
+            )}
             {config.showBadge && (
-              <span className="tag-badge mpo-badge" style={{ color: accent }}>
+              <span className="tag-badge mpo-badge" data-theme-role="badge" style={{ color: accent }}>
                 {media.app_name || "MEDIA"}
               </span>
             )}
-            <span className="mpo-playback-status tag-status-text">{isPlaying ? (config.themePlayingLabel || "NOW PLAYING") : (config.themePausedLabel || "PAUSED")}</span>
+            <span className="mpo-playback-status tag-status-text" data-theme-role="status">{isPlaying ? (config.themePlayingLabel || "NOW PLAYING") : (config.themePausedLabel || "PAUSED")}</span>
           </div>
 
           {config.showTitle && (
-            <div className="tag-title mpo-title" title={media.title}>
+            <div className="tag-title mpo-title" data-theme-role="title" title={media.title}>
               {media.title || "No Track Active"}
             </div>
           )}
 
           {config.showArtist && (
-            <div className="tag-artist mpo-artist">
+            <div className="tag-artist mpo-artist" data-theme-role="artist">
               {media.artist || "Awaiting source"}
             </div>
           )}
 
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="tag-progress mpo-progress">
-              <div className="tag-track">
+            <div className="tag-progress mpo-progress" data-theme-role="progress">
+              <div className="tag-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="tag-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     background: accent,
                   }}
                 />
               </div>
-              <div className="tag-time">{formattedCurrent} / {formattedDuration}</div>
+              <div className="tag-time" data-theme-role="timestamps">{formattedCurrent} / {formattedDuration}</div>
             </div>
           )}
         </div>

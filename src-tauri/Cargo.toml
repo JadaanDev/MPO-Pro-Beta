@@ -1,6 +1,6 @@
 [package]
 name = "mpo-pro-beta"
-version = "7.0.0-beta.16"
+version = "7.0.0-beta.17"
 description = "High-Performance Windows Media Overlay for Desktop HUD and OBS/TikTok Live Studio"
 authors = ["MD-J"]
 edition = "2021"
@@ -37,5 +37,6 @@ windows = { version = "0.58", features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_Shell",
+    "Win32_UI_Controls_Dialogs",
     "Win32_Graphics_Gdi",
 ] }

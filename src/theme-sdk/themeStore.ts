@@ -61,36 +61,48 @@ export async function setThemesWorkspacePath(path: string): Promise<string> {
 export interface KnownIde {
   id: string;
   name: string;
-  cmd: string;
-  description: string;
+  executable: string;
+  source: string;
 }
 
 export const KNOWN_IDES: KnownIde[] = [
-  { id: "code", name: "VS Code", cmd: "code", description: "Visual Studio Code" },
-  { id: "cursor", name: "Cursor", cmd: "cursor", description: "AI Code Editor" },
-  { id: "codex", name: "Codex", cmd: "codex", description: "OpenAI Codex CLI / Editor" },
-  { id: "claude", name: "Claude Code", cmd: "claude", description: "Anthropic Claude Code" },
-  { id: "antigravity", name: "Antigravity", cmd: "antigravity", description: "Google Antigravity IDE" },
-  { id: "windsurf", name: "Windsurf", cmd: "windsurf", description: "Codeium Windsurf IDE" },
-  { id: "webstorm", name: "WebStorm", cmd: "webstorm", description: "JetBrains WebStorm" },
-  { id: "idea", name: "IntelliJ IDEA", cmd: "idea", description: "JetBrains IntelliJ IDEA" },
-  { id: "subl", name: "Sublime Text", cmd: "subl", description: "Sublime Text Editor" },
-  { id: "zed", name: "Zed", cmd: "zed", description: "High-performance Rust Editor" },
+  { id: "code", name: "VS Code", executable: "Code.exe", source: "Visual Studio Code" },
+  { id: "cursor", name: "Cursor", executable: "Cursor.exe", source: "AI Code Editor" },
+  { id: "codex", name: "Codex", executable: "codex", source: "OpenAI Codex CLI / Editor" },
+  { id: "claude", name: "Claude Code", executable: "claude", source: "Anthropic Claude Code" },
+  { id: "antigravity", name: "Antigravity", executable: "Antigravity.exe", source: "Google Antigravity IDE" },
+  { id: "windsurf", name: "Windsurf", executable: "Windsurf.exe", source: "Codeium Windsurf IDE" },
+  { id: "webstorm", name: "WebStorm", executable: "webstorm64.exe", source: "JetBrains WebStorm" },
+  { id: "idea", name: "IntelliJ IDEA", executable: "idea64.exe", source: "JetBrains IntelliJ IDEA" },
+  { id: "subl", name: "Sublime Text", executable: "sublime_text.exe", source: "Sublime Text Editor" },
+  { id: "zed", name: "Zed", executable: "zed.exe", source: "High-performance Rust Editor" },
 ];
 
-export function getPreferredIde(): string {
-  try {
-    return localStorage.getItem("mpo_preferred_ide") || "code";
-  } catch {
-    return "code";
+const CUSTOM_IDE_KEY = "mpo_custom_ide";
+export async function discoverIdes(): Promise<KnownIde[]> {
+  if (!isTauri) return KNOWN_IDES;
+  const found = await invoke<KnownIde[]>("discover_ide_installations");
+  const saved = localStorage.getItem(CUSTOM_IDE_KEY);
+  if (saved) {
+    try {
+      const custom = await invoke<KnownIde>("validate_custom_ide", { executable: saved });
+      const duplicate = found.findIndex(i => i.executable.toLowerCase() === custom.executable.toLowerCase());
+      if (duplicate >= 0) found.splice(duplicate, 1);
+      found.unshift(custom);
+    } catch { /* moved or removed; allow the user to locate it again */ }
   }
+  return found.length > 0 ? found : KNOWN_IDES;
 }
-
-export function setPreferredIde(ideId: string): void {
-  try {
-    localStorage.setItem("mpo_preferred_ide", ideId);
-  } catch {}
+export async function locateIde(): Promise<KnownIde | null> {
+  if (!isTauri) return null;
+  const ide = await invoke<KnownIde | null>("choose_ide_executable");
+  if (!ide) return null;
+  localStorage.setItem(CUSTOM_IDE_KEY, ide.executable);
+  setPreferredIde(ide.id);
+  return ide;
 }
+export function getPreferredIde(): string { return localStorage.getItem("mpo_preferred_ide") || ""; }
+export function setPreferredIde(ideId: string): void { localStorage.setItem("mpo_preferred_ide", ideId); }
 
 export async function openThemeFolderInExplorer(id?: string): Promise<void> {
   if (isTauri) {

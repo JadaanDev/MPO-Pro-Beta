@@ -30,6 +30,7 @@ export const AeroGlass: React.FC<ThemeProps> = ({
 
       <div
         className="aero-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(8, 11, 18, ${config.opacity})`
@@ -48,6 +49,7 @@ export const AeroGlass: React.FC<ThemeProps> = ({
         {config.showArt && (
           <div
             className="aero-art mpo-art"
+            data-theme-role="artwork"
             style={{ borderRadius: `${Math.max(config.borderRadius - 6, 6)}px` }}
           >
             <AnimatePresence mode="wait">
@@ -57,6 +59,7 @@ export const AeroGlass: React.FC<ThemeProps> = ({
                   src={artUrl}
                   alt={media.title}
                   className="aero-art-img mpo-art-img"
+                  data-theme-role="artwork-image"
                   initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
@@ -73,9 +76,15 @@ export const AeroGlass: React.FC<ThemeProps> = ({
         {/* Content */}
         <div className="aero-content">
           <div className="aero-top-row">
+            {config.themeLabel && (
+              <span className="mpo-theme-label aero-theme-label" data-theme-role="themeLabel">
+                {config.themeLabel}
+              </span>
+            )}
             {config.showBadge && (
               <span
                 className="aero-badge mpo-badge"
+                data-theme-role="badge"
                 style={{
                   color: accent,
                   borderColor: `${accent}40`,
@@ -87,10 +96,10 @@ export const AeroGlass: React.FC<ThemeProps> = ({
             )}
 
             {config.showVisualizer && (
-              <div className={`aero-wave mpo-visualizer ${isPlaying ? "playing" : "paused"}`}>
-                <span className="mpo-vis-bar" style={{ background: accent }} />
-                <span className="mpo-vis-bar" style={{ background: accent }} />
-                <span className="mpo-vis-bar" style={{ background: accent }} />
+              <div className={`aero-wave mpo-visualizer ${isPlaying ? "playing" : "paused"}`} data-theme-role="indicator">
+                <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
+                <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
+                <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
               </div>
             )}
           </div>
@@ -100,6 +109,7 @@ export const AeroGlass: React.FC<ThemeProps> = ({
               <motion.div
                 key={media.title}
                 className="aero-title mpo-title"
+                data-theme-role="title"
                 initial={{ opacity: 0, y: 2 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -115,6 +125,7 @@ export const AeroGlass: React.FC<ThemeProps> = ({
               <motion.div
                 key={`${media.artist}-${media.album_title}`}
                 className="aero-artist mpo-artist"
+                data-theme-role="artist"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -125,17 +136,18 @@ export const AeroGlass: React.FC<ThemeProps> = ({
           )}
 
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="aero-progress mpo-progress">
-              <div className="aero-track">
+            <div className="aero-progress mpo-progress" data-theme-role="progress">
+              <div className="aero-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="aero-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     background: accent,
                   }}
                 />
               </div>
-              <div className="aero-times">
+              <div className="aero-times" data-theme-role="timestamps">
                 <span>{formattedCurrent}</span>
                 <span>{formattedDuration}</span>
               </div>

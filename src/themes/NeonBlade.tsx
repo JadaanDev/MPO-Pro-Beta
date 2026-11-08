@@ -29,6 +29,7 @@ export const NeonBlade: React.FC<ThemeProps> = ({
 
       <div
         className="blade-bar mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(6, 8, 14, ${config.opacity})`
@@ -43,9 +44,9 @@ export const NeonBlade: React.FC<ThemeProps> = ({
         <ThemeSupplement media={media} config={config} album={true} badge={true} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {/* Left Glowing Art / Icon */}
         {config.showArt && (
-          <div className="blade-art mpo-art">
+          <div className="blade-art mpo-art" data-theme-role="artwork">
             {artUrl ? (
-              <img src={artUrl} alt="" className="blade-img mpo-art-img" />
+              <img src={artUrl} alt="" className="blade-img mpo-art-img" data-theme-role="artwork-image" />
             ) : (
               <div className="blade-icon" style={{ background: accent }}>
                 <Zap size={15} color="#fff" />
@@ -56,23 +57,29 @@ export const NeonBlade: React.FC<ThemeProps> = ({
 
         {/* Content */}
         <div className="blade-info">
+          {config.themeLabel && (
+            <div className="blade-theme-label mpo-theme-label" data-theme-role="themeLabel">
+              {config.themeLabel}
+            </div>
+          )}
           <div className="blade-titles">
             {config.showTitle && (
-              <span className="blade-title mpo-title" title={media.title}>
+              <span className="blade-title mpo-title" data-theme-role="title" title={media.title}>
                 {media.title || "BLADE_STANDBY"}
               </span>
             )}
             {config.showArtist && (
-              <span className="blade-artist mpo-artist">
+              <span className="blade-artist mpo-artist" data-theme-role="artist">
                 // {media.artist || "Awaiting Stream"}
               </span>
             )}
           </div>
 
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="blade-progress-line mpo-progress">
+            <div className="blade-progress-line mpo-progress" data-theme-role="progress" data-theme-part="progress-track">
               <div
                 className="blade-fill mpo-progress-fill"
+                data-theme-role="progress-fill"
                 style={{
                   transform: `scaleX(${progress})`,
                   background: `linear-gradient(90deg, ${accent}, #ec4899)`,
@@ -83,7 +90,7 @@ export const NeonBlade: React.FC<ThemeProps> = ({
         </div>
 
         {/* Timestamps */}
-        <div className="blade-time mpo-times">
+        <div className="blade-time mpo-times" data-theme-role="timestamps">
           {durationKnown ? `${formattedCurrent} / ${formattedDuration}` : formattedCurrent}
         </div>
       </div>

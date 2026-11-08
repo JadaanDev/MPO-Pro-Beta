@@ -107,31 +107,6 @@ const DEFAULT_TSCONFIG_JSON: &str = r#"{
 }
 "#;
 
-const ALLOWED_EDITORS: &[&str] = &[
-  "code",
-  "code-insiders",
-  "cursor",
-  "codex",
-  "claude",
-  "claude-code",
-  "antigravity",
-  "agy",
-  "windsurf",
-  "zed",
-  "trae",
-  "codium",
-  "idea",
-  "idea64",
-  "subl",
-  "sublime_text",
-  "notepad",
-  "notepad++",
-  "webstorm",
-  "webstorm64",
-  "gvim",
-  "nvim",
-];
-
 const ALLOWED_TEXT_EXTENSIONS: &[&str] = &[
   "tsx", "ts", "jsx", "js", "css", "json", "md", "html", "svg", "txt",
 ];
@@ -527,7 +502,7 @@ mod authoring_tests {
     fs::write(dir.join("Theme.tsx"), "Author source").unwrap();
     write_sdk_documents(&dir).unwrap();
     assert_eq!(fs::read_to_string(dir.join("MPO-SDK-LLM.md")).unwrap(), SDK_LLM_CONTRACT);
-    assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.16"));
+    assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.17"));
     assert!(fs::read_to_string(dir.join("MPO-SDK.md")).unwrap().contains("MPO-SDK-LLM.md"));
     fs::write(dir.join("MPO-SDK-LLM.md"), "Stale SDK").unwrap();
     fs::write(dir.join("MPO-SDK.md"), "Existing quick guide").unwrap();
@@ -588,44 +563,109 @@ pub fn open_theme_in_explorer(id: Option<String>) -> Result<(), String> {
   Ok(())
 }
 
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IdeInstallation { id: String, name: String, executable: String, source: String }
+
+const IDE_PROVIDERS: &[(&str, &str, &str, &[&str])] = &[
+  ("code", "VS Code", "Code.exe", &["Microsoft VS Code/Code.exe"]),
+  ("code-insiders", "VS Code Insiders", "Code - Insiders.exe", &["Microsoft VS Code Insiders/Code - Insiders.exe"]),
+  ("cursor", "Cursor", "Cursor.exe", &["Cursor/Cursor.exe"]),
+  ("antigravity-ide", "Antigravity IDE", "Antigravity.exe", &["Antigravity/Antigravity.exe"]),
+  ("windsurf", "Windsurf", "Windsurf.exe", &["Windsurf/Windsurf.exe"]),
+  ("codium", "VSCodium", "VSCodium.exe", &["VSCodium/VSCodium.exe"]),
+  ("zed", "Zed", "zed.exe", &["Zed/zed.exe"]),
+  ("webstorm", "WebStorm", "webstorm64.exe", &[]),
+  ("idea", "IntelliJ IDEA", "idea64.exe", &[]),
+  ("sublime", "Sublime Text", "sublime_text.exe", &["Sublime Text/sublime_text.exe"]),
+];
+fn validate_ide_executable(path: &Path) -> Result<PathBuf, String> {
+  if !path.is_absolute() || !path.extension().map_or(false, |e| e.to_string_lossy().eq_ignore_ascii_case("exe")) { return Err("Choose an absolute path to an IDE .exe file.".into()); }
+  let resolved = path.canonicalize().map_err(|e| format!("IDE executable is missing or inaccessible: {e}"))?;
+  if !resolved.is_file() { return Err("IDE executable is not a file.".into()); }
+  if let Ok(root) = get_active_workspace_dir().canonicalize() { if resolved.starts_with(root) { return Err("Choose an IDE executable outside the themes workspace.".into()); } }
+  Ok(resolved)
+}
 #[tauri::command]
-pub fn open_theme_in_ide(id: String, editor: Option<String>) -> Result<(), String> {
-  let safe_id = validate_theme_id(&id)?;
-  let root = get_active_workspace_dir();
-  let target = root.join(&safe_id);
-  if !target.exists() {
-    let _ = fs::create_dir_all(&target);
-  }
-
-  let cmd_raw = editor.unwrap_or_else(|| "code".to_string()).trim().to_lowercase();
-  let clean_cmd = cmd_raw.trim_end_matches(".cmd").trim_end_matches(".exe");
-
-  if !ALLOWED_EDITORS.contains(&clean_cmd) {
-    return Err(format!("Editor '{}' is not supported. Allowed editors: {}", clean_cmd, ALLOWED_EDITORS.join(", ")));
-  }
-
-  #[cfg(target_os = "windows")]
-  {
-    let mut command = Command::new(format!("{}.cmd", clean_cmd));
-    command.arg(&target);
-    if let Err(_) = command.spawn() {
-      if Command::new(clean_cmd).arg(&target).spawn().is_err() {
-        Command::new("cmd")
-          .args(["/C", "start", "", clean_cmd, &target.to_string_lossy()])
-          .spawn()
-          .map_err(|e| format!("Failed to launch IDE '{}': Make sure it is installed and in your PATH. ({})", clean_cmd, e))?;
+pub fn discover_ide_installations() -> Vec<IdeInstallation> {
+  let mut result = Vec::new();
+  let mut seen = std::collections::HashSet::new();
+  for &(id, name, exe, relative) in IDE_PROVIDERS {
+    let mut candidates: Vec<(PathBuf, &str)> = Vec::new();
+    #[cfg(windows)]
+    {
+      use winreg::{enums::*, RegKey};
+      let key_name = format!(r"Software\Microsoft\Windows\CurrentVersion\App Paths\{}", exe);
+      for hive in [HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE] {
+        for view in [KEY_READ | KEY_WOW64_64KEY, KEY_READ | KEY_WOW64_32KEY] {
+          if let Ok(key) = RegKey::predef(hive).open_subkey_with_flags(&key_name, view) {
+            if let Ok(value) = key.get_value::<String, _>("") { candidates.push((PathBuf::from(value.trim().trim_matches('"')), "App Paths")); }
+          }
+        }
+      }
+    }
+    for (variable, subdir) in [("LOCALAPPDATA", "Programs"), ("ProgramFiles", ""), ("ProgramFiles(x86)", "")] {
+      if let Some(base) = std::env::var_os(variable) { for rel in relative { candidates.push((PathBuf::from(&base).join(subdir).join(rel), "Install location")); } }
+    }
+    if let Some(paths) = std::env::var_os("PATH") { for dir in std::env::split_paths(&paths) { candidates.push((dir.join(exe), "PATH")); } }
+    for (path, source) in candidates {
+      if let Ok(resolved) = validate_ide_executable(&path) {
+        if seen.insert(resolved.to_string_lossy().to_lowercase()) {
+          result.push(IdeInstallation { id: format!("{}:{}", id, resolved.display()), name: name.into(), executable: path.to_string_lossy().into_owned(), source: source.into() });
+        }
       }
     }
   }
-
-  #[cfg(not(target_os = "windows"))]
+  result
+}
+#[tauri::command]
+pub fn validate_custom_ide(executable: String) -> Result<IdeInstallation, String> {
+  let path = PathBuf::from(&executable); validate_ide_executable(&path)?;
+  Ok(IdeInstallation { id: format!("custom:{}", executable), name: path.file_stem().unwrap_or_default().to_string_lossy().into_owned(), executable, source: "Selected executable".into() })
+}
+#[tauri::command]
+pub async fn choose_ide_executable() -> Result<Option<IdeInstallation>, String> {
+  #[cfg(windows)]
   {
-    Command::new(clean_cmd)
-      .arg(&target)
-      .spawn()
-      .map_err(|e| format!("Failed to launch IDE '{}': {}", clean_cmd, e))?;
+    return tokio::task::spawn_blocking(|| {
+      use windows::core::{PCWSTR, PWSTR};
+      use windows::Win32::UI::Controls::Dialogs::{GetOpenFileNameW, CommDlgExtendedError, OPENFILENAMEW, OFN_FILEMUSTEXIST, OFN_PATHMUSTEXIST, OFN_NOCHANGEDIR};
+      let mut buffer = vec![0u16; 32768];
+      let filter: Vec<u16> = "Applications (*.exe)\0*.exe\0\0".encode_utf16().collect();
+      let mut dialog = OPENFILENAMEW::default();
+      dialog.lStructSize = std::mem::size_of::<OPENFILENAMEW>() as u32;
+      dialog.lpstrFilter = PCWSTR(filter.as_ptr());
+      dialog.lpstrFile = PWSTR(buffer.as_mut_ptr());
+      dialog.nMaxFile = buffer.len() as u32;
+      dialog.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+      if !unsafe { GetOpenFileNameW(&mut dialog) }.as_bool() {
+        let error = unsafe { CommDlgExtendedError() };
+        return if error.0 == 0 { Ok(None) } else { Err(format!("Could not open file picker: {}", error.0)) };
+      }
+      let len = buffer.iter().position(|&c| c == 0).unwrap_or(buffer.len());
+      validate_custom_ide(String::from_utf16_lossy(&buffer[..len])).map(Some)
+    }).await.map_err(|e| format!("File picker failed: {e}"))?;
   }
+  #[cfg(not(windows))]
+  Err("The IDE picker is only available on Windows.".into())
+}
 
+#[tauri::command]
+pub async fn open_theme_in_ide(id: String, editor: Option<String>) -> Result<(), String> {
+  let safe_id = validate_theme_id(&id)?;
+  let root = get_active_workspace_dir(); let target = root.join(&safe_id);
+  let canonical_root = root.canonicalize().map_err(|e| format!("Workspace is unavailable: {e}"))?;
+  let canonical_target = target.canonicalize().map_err(|_| "Theme folder is missing. Save the theme before opening it.".to_string())?;
+  if !canonical_target.starts_with(&canonical_root) || !target.join("manifest.json").is_file() { return Err("Theme folder is invalid or has not been saved. Save it before opening an IDE.".into()); }
+  write_sdk_documents(&target)?;
+  let executable = editor.ok_or("No IDE selected. Locate an IDE or open the folder in Explorer.")?;
+  validate_ide_executable(Path::new(&executable))?;
+  let mut child = Command::new(&executable).arg(&target).current_dir(&target)
+    .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null())
+    .spawn().map_err(|e| format!("Could not start IDE ({e}). Check the executable or open the folder in Explorer."))?;
+  tokio::time::sleep(Duration::from_millis(200)).await;
+  if let Some(status) = child.try_wait().map_err(|e| format!("Could not check IDE launch: {e}"))? { if !status.success() { return Err(format!("The IDE exited immediately ({status}). Check the executable or open the folder in Explorer.")); } }
   Ok(())
 }
 
@@ -674,4 +714,21 @@ pub fn migrate_localstorage_themes(themes: Vec<Value>) -> Result<usize, String> 
     }
   }
   Ok(count)
+}
+
+#[cfg(test)]
+mod ide_launcher_tests {
+  use super::*;
+  #[test]
+  fn rejects_relative_non_executable_and_missing_paths() {
+    assert!(validate_ide_executable(Path::new("editor.exe")).is_err());
+    let base = std::env::temp_dir();
+    assert!(validate_ide_executable(&base.join("editor.cmd")).is_err());
+    assert!(validate_ide_executable(&base.join("mpo-missing-editor-test.exe")).is_err());
+  }
+  #[test]
+  fn rejects_theme_id_traversal() {
+    assert!(validate_theme_id("../outside").is_err());
+    assert!(validate_theme_id("..\\outside").is_err());
+  }
 }

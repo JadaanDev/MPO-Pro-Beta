@@ -29,6 +29,7 @@ export const FloatingOrb: React.FC<ThemeProps> = ({
 
       <div
         className="orb-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(8, 10, 16, ${config.opacity})`
@@ -49,9 +50,9 @@ export const FloatingOrb: React.FC<ThemeProps> = ({
                 style={{ borderColor: `${accent}60` }}
               />
             )}
-            <div className="orb-disc mpo-art" style={{ borderColor: accent }}>
+            <div className="orb-disc mpo-art" data-theme-role="artwork" style={{ borderColor: accent }}>
               {artUrl ? (
-                <img src={artUrl} alt="" className="orb-img mpo-art-img" />
+                <img src={artUrl} alt="" className="orb-img mpo-art-img" data-theme-role="artwork-image" />
               ) : (
                 <div className="orb-fallback" style={{ background: accent }}>
                   <Disc size={26} color="#fff" />
@@ -64,41 +65,48 @@ export const FloatingOrb: React.FC<ThemeProps> = ({
         {/* Content */}
         <div className="orb-content">
           <div className="orb-top">
+            {config.themeLabel && (
+              <span className="mpo-theme-label orb-theme-label" data-theme-role="themeLabel">
+                {config.themeLabel}
+              </span>
+            )}
             {config.showBadge && (
               <span
                 className="orb-badge mpo-badge"
+                data-theme-role="badge"
                 style={{ color: accent, borderColor: `${accent}50`, background: `${accent}15` }}
               >
                 {media.app_name || "AUDIO ORB"}
               </span>
             )}
-            <span className="mpo-playback-status orb-status">{isPlaying ? (config.themePlayingLabel || "STREAMING") : (config.themePausedLabel || "IDLE")}</span>
+            <span className="mpo-playback-status orb-status" data-theme-role="status">{isPlaying ? (config.themePlayingLabel || "STREAMING") : (config.themePausedLabel || "IDLE")}</span>
           </div>
 
           {config.showTitle && (
-            <div className="orb-title mpo-title" title={media.title}>
+            <div className="orb-title mpo-title" data-theme-role="title" title={media.title}>
               {media.title || "No Track Active"}
             </div>
           )}
 
           {config.showArtist && (
-            <div className="orb-artist mpo-artist">
+            <div className="orb-artist mpo-artist" data-theme-role="artist">
               {media.artist || "Awaiting Player"}
             </div>
           )}
 
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="orb-progress mpo-progress">
-              <div className="orb-track">
+            <div className="orb-progress mpo-progress" data-theme-role="progress">
+              <div className="orb-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="orb-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     background: accent,
                   }}
                 />
               </div>
-              <div className="orb-times">
+              <div className="orb-times" data-theme-role="timestamps">
                 <span>{formattedCurrent}</span>
                 <span>{formattedDuration}</span>
               </div>

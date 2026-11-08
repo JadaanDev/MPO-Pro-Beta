@@ -22,7 +22,9 @@ import { downloadThemePackage, readThemeFromFile } from "./templates/bundleStora
 import {
   openThemeFolderInExplorer,
   openThemeInIde,
-  KNOWN_IDES,
+  discoverIdes,
+  locateIde,
+  type KnownIde,
   getPreferredIde,
   setPreferredIde,
   getThemesWorkspacePath,
@@ -55,6 +57,10 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
 
   const [activeTab, setActiveTab] = useState<"changelog" | "logs" | "errors">("changelog");
   const [selectedIde, setSelectedIde] = useState<string>(() => getPreferredIde());
+  const [ides, setIdes] = useState<KnownIde[]>([]);
+  const refreshIdes = () => discoverIdes().then(setIdes).catch(e => alert(`Could not discover editors: ${e}`));
+  useEffect(() => { refreshIdes(); }, []);
+  const handleLocateIde = async () => { try { const ide = await locateIde(); if (ide) { await refreshIdes(); handleSelectIde(ide.id); } } catch (e) { alert(`Could not use editor: ${e}`); } };
   const [ideDropdownOpen, setIdeDropdownOpen] = useState(false);
   const [workspacePath, setWorkspacePath] = useState<string>("");
   const [recentlyChangedFiles, setRecentlyChangedFiles] = useState<Record<string, number>>({});
@@ -159,10 +165,11 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
   };
 
   const handleLaunchIde = async () => {
-    const ide = KNOWN_IDES.find((i) => i.id === selectedIde) || KNOWN_IDES[0];
+    const ide = ides.find((i) => i.id === selectedIde) || ides[0];
+    if (!ide) { await handleOpenExplorer(); return; }
     try {
-      await openThemeInIde(theme.id, ide.cmd);
-      setNotice(`Launched ${ide.name}`);
+      await openThemeInIde(theme.id, ide.executable);
+      setNotice(`Launch requested: ${ide.name}`);
       setTimeout(() => setNotice(null), 2500);
     } catch (e: any) {
       alert(`Could not launch ${ide.name}: ${e?.message || e}`);
@@ -220,7 +227,7 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
     });
   }, [bundle.files, recentlyChangedFiles]);
 
-  const activeIdeObj = KNOWN_IDES.find((i) => i.id === selectedIde) || KNOWN_IDES[0];
+  const activeIdeObj = ides.find((i) => i.id === selectedIde) || ides[0];
 
   return (
     <div
@@ -319,7 +326,7 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
                 fontWeight: 600,
                 cursor: "pointer",
               }}
-              title={`Open workspace in ${activeIdeObj.name}`}
+              title={`Open workspace in ${activeIdeObj?.name || "Explorer"}`}
             >
               <Code2 size={14} />
               <span>Open in {activeIdeObj.name}</span>
@@ -327,7 +334,7 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
 
             <button
               type="button"
-              onClick={() => setIdeDropdownOpen((v) => !v)}
+              onClick={() => { refreshIdes(); setIdeDropdownOpen((v) => !v); }}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -366,7 +373,10 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
                 <div style={{ padding: "6px 8px", fontSize: 10, color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>
                   Select Editor
                 </div>
-                {KNOWN_IDES.map((ide) => {
+                <button type="button" onClick={handleLocateIde}>Locate IDE…</button>
+                <button type="button" onClick={refreshIdes}>Refresh</button>
+                {ides.length === 0 && <span>No editors detected. Open the folder or locate an IDE.</span>}
+                {ides.map((ide) => {
                   const isSelected = ide.id === selectedIde;
                   return (
                     <button
@@ -387,7 +397,7 @@ export const ThemeCompilerMonitor: React.FC<ThemeCompilerMonitorProps> = ({
                         textAlign: "left",
                       }}
                     >
-                      <span>{ide.name}</span>
+                      <span title={ide.executable}>{ide.name} · {ide.source}</span>
                       {isSelected && <Check size={12} color="#38bdf8" />}
                     </button>
                   );

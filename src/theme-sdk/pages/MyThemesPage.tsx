@@ -34,6 +34,10 @@ import {
   deleteTheme,
   openThemeFolderInExplorer,
   openThemeInIde,
+  discoverIdes,
+  locateIde,
+  KNOWN_IDES,
+  type KnownIde,
   getThemesWorkspacePath,
   type FileChangeEvent,
 } from "../themeStore";
@@ -58,28 +62,6 @@ const SURFACE_META: Record<
   big: { label: "Big Studio Stage", shortLabel: "Big Stage", aspect: "720 × 405", width: 680, height: 382, icon: Monitor },
 };
 
-interface IdeItem {
-  id: string;
-  name: string;
-  cmd: string;
-  subtitle: string;
-  accent: string;
-  badge?: string;
-}
-
-const IDE_ITEMS: IdeItem[] = [
-  { id: "code", name: "VS Code", cmd: "code", subtitle: "Visual Studio Code", accent: "#007acc", badge: "Popular" },
-  { id: "cursor", name: "Cursor", cmd: "cursor", subtitle: "AI-First Code Editor", accent: "#a855f7", badge: "AI" },
-  { id: "codex", name: "Codex", cmd: "codex", subtitle: "OpenAI Codex CLI & Tools", accent: "#10b981", badge: "AI" },
-  { id: "claude", name: "Claude Code", cmd: "claude", subtitle: "Anthropic Claude Code", accent: "#f59e0b", badge: "CLI" },
-  { id: "antigravity", name: "Antigravity", cmd: "antigravity", subtitle: "Google Antigravity IDE", accent: "#38bdf8", badge: "Agentic" },
-  { id: "windsurf", name: "Windsurf", cmd: "windsurf", subtitle: "Codeium Windsurf IDE", accent: "#06b6d4" },
-  { id: "webstorm", name: "WebStorm", cmd: "webstorm", subtitle: "JetBrains WebStorm", accent: "#ec4899" },
-  { id: "idea", name: "IntelliJ IDEA", cmd: "idea", subtitle: "JetBrains IntelliJ", accent: "#f43f5e" },
-  { id: "subl", name: "Sublime Text", cmd: "subl", subtitle: "Sublime Text Editor", accent: "#f97316" },
-  { id: "zed", name: "Zed", cmd: "zed", subtitle: "High-Performance Rust Editor", accent: "#6366f1" },
-];
-
 const DEFAULT_STARTER_THEMES: ThemeDefinition[] = STARTER_BUNDLES.map(bundleToThemeDefinition);
 
 export const MyThemesPage: React.FC<MyThemesPageProps> = ({
@@ -99,6 +81,10 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
   });
   const [previewSurface, setPreviewSurface] = useState<ThemeSurface>("obs");
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(true);
+  const [ides, setIdes] = useState<KnownIde[]>(() => KNOWN_IDES);
+  const refreshIdes = () => discoverIdes().then(setIdes).catch(e => alert(`Could not discover editors: ${e}`));
+  useEffect(() => { refreshIdes(); }, []);
+  const handleLocateIde = async () => { try { const ide = await locateIde(); if (ide) await refreshIdes(); } catch (e) { alert(`Could not use editor: ${e}`); } };
   const [workspacePath, setWorkspacePath] = useState<string>("");
   const [notice, setNotice] = useState<string | null>(null);
   const [rightTab, setRightTab] = useState<"logs" | "changelog" | "errors">("logs");
@@ -221,7 +207,7 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
     if (!activeTheme) return;
     try {
       await openThemeInIde(activeTheme.id, cmd);
-      showToast(`Launched ${name}`);
+      showToast(`Launch requested: ${name}`);
     } catch (e: any) {
       alert(`Could not launch ${name}: ${e?.message || e}`);
     }
@@ -831,9 +817,11 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
                 </p>
               </div>
 
+              <div><button type="button" onClick={handleLocateIde}>Locate IDE…</button> <button type="button" onClick={refreshIdes}>Refresh</button></div>
               {/* IDE Grid Cards */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {IDE_ITEMS.map((ide) => (
+                {ides.length === 0 && <span>No editors detected. Locate an IDE or open the folder in Explorer.</span>}
+                {ides.map((ide) => (
                   <div
                     key={ide.id}
                     style={{
@@ -854,12 +842,12 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
                           width: 32,
                           height: 32,
                           borderRadius: 8,
-                          background: `${ide.accent}22`,
-                          border: `1px solid ${ide.accent}44`,
+                          background: `${"#38bdf8"}22`,
+                          border: `1px solid ${"#38bdf8"}44`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: ide.accent,
+                          color: "#38bdf8",
                           flexShrink: 0,
                         }}
                       >
@@ -868,7 +856,7 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
                       <div style={{ minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <strong style={{ fontSize: 13, color: "#f8fafc" }}>{ide.name}</strong>
-                          {ide.badge && (
+                          {false && (
                             <span
                               style={{
                                 fontSize: 9,
@@ -879,24 +867,24 @@ export const MyThemesPage: React.FC<MyThemesPageProps> = ({
                                 fontWeight: 700,
                               }}
                             >
-                              {ide.badge}
+                              {false}
                             </span>
                           )}
                         </div>
                         <div style={{ fontSize: 10.5, color: "#64748b", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                          {ide.subtitle}
+                          {ide.source}
                         </div>
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => handleLaunchIde(ide.cmd, ide.name)}
+                      onClick={() => handleLaunchIde(ide.executable, ide.name)}
                       style={{
                         padding: "6px 12px",
                         borderRadius: 6,
-                        background: `${ide.accent}20`,
-                        border: `1px solid ${ide.accent}55`,
+                        background: `${"#38bdf8"}20`,
+                        border: `1px solid ${"#38bdf8"}55`,
                         color: "#ffffff",
                         fontSize: 11.5,
                         fontWeight: 600,

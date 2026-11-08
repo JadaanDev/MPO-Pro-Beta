@@ -26,6 +26,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
 
       <div
         className="vinyl-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(18, 14, 12, ${config.opacity})`
@@ -41,7 +42,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
       >
         <ThemeSupplement label={false} media={media} config={config} album={true} badge={false} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {/* Jacket Sleeve & Vinyl Disc */}
-        <div className="vinyl-sleeve-box mpo-art">
+        <div className="vinyl-sleeve-box mpo-art" data-theme-role="artwork">
           {/* Vinyl Disc that spins out */}
           <div className={`vinyl-spinning-disc ${isPlaying ? "spinning" : "paused"}`}>
             <div className="vinyl-center-hole" />
@@ -55,6 +56,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
                   src={artUrl}
                   alt={media.title}
                   className="vinyl-cover-img mpo-art-img"
+                  data-theme-role="artwork-image"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -71,8 +73,8 @@ export const VinylRetro: React.FC<ThemeProps> = ({
         {/* Content */}
         <div className="vinyl-content">
           <div className="vinyl-header">
-            <span className="vinyl-badge mpo-badge"><span className="mpo-theme-label">{config.themeLabel || "ANALOG"}</span> // {media.app_name || "STEREO"}</span>
-            <span className={`mpo-playback-status vinyl-needle ${isPlaying ? "engaged" : "lifted"}`}>
+            <span className="vinyl-badge mpo-badge" data-theme-role="badge"><span className="mpo-theme-label" data-theme-role="themeLabel">{config.themeLabel || "ANALOG"}</span> // {media.app_name || "STEREO"}</span>
+            <span className={`mpo-playback-status vinyl-needle ${isPlaying ? "engaged" : "lifted"}`} data-theme-role="status">
               {isPlaying ? (config.themePlayingLabel || "PLAYING") : (config.themePausedLabel || "STOPPED")}
             </span>
           </div>
@@ -81,6 +83,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
             <motion.div
               key={media.title}
               className="vinyl-title mpo-title"
+              data-theme-role="title"
               initial={{ opacity: 0, y: 2 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -94,6 +97,7 @@ export const VinylRetro: React.FC<ThemeProps> = ({
             <motion.div
               key={media.artist}
               className="vinyl-artist mpo-artist"
+              data-theme-role="artist"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -103,16 +107,17 @@ export const VinylRetro: React.FC<ThemeProps> = ({
 
           {/* Golden Grooves Progress */}
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="vinyl-progress mpo-progress">
-              <div className="vinyl-track">
+            <div className="vinyl-progress mpo-progress" data-theme-role="progress">
+              <div className="vinyl-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="vinyl-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                   }}
                 />
               </div>
-              <div className="vinyl-times">
+              <div className="vinyl-times" data-theme-role="timestamps">
                 <span>{formattedCurrent}</span>
                 <span>{formattedDuration}</span>
               </div>

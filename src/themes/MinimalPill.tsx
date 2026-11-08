@@ -26,6 +26,7 @@ export const MinimalPill: React.FC<ThemeProps> = ({
 
       <div
         className="pill-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(8, 8, 12, ${config.opacity})`
@@ -40,7 +41,7 @@ export const MinimalPill: React.FC<ThemeProps> = ({
       >
         <ThemeSupplement media={media} config={config} album={true} badge={true} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {/* Mini Round Art */}
-        <div className="pill-art-circle mpo-art">
+        <div className="pill-art-circle mpo-art" data-theme-role="artwork">
           <AnimatePresence mode="wait">
             {artUrl ? (
               <motion.img
@@ -48,6 +49,7 @@ export const MinimalPill: React.FC<ThemeProps> = ({
                 src={artUrl}
                 alt={media.title}
                 className="pill-img mpo-art-img"
+                data-theme-role="artwork-image"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -62,29 +64,35 @@ export const MinimalPill: React.FC<ThemeProps> = ({
 
         {/* Text Details */}
         <div className="pill-details">
+          {config.themeLabel && (
+            <div className="pill-theme-label mpo-theme-label" data-theme-role="themeLabel">
+              {config.themeLabel}
+            </div>
+          )}
           <div className="pill-text-row">
-            <span className="pill-title mpo-title" title={media.title}>
+            <span className="pill-title mpo-title" data-theme-role="title" title={media.title}>
               {media.title || "No Track Active"}
             </span>
             <span className="pill-dot">•</span>
-            <span className="pill-artist mpo-artist">
+            <span className="pill-artist mpo-artist" data-theme-role="artist">
               {media.artist || "Awaiting Stream"}
             </span>
           </div>
 
           {/* Micro Progress Bar */}
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="pill-progress-row mpo-progress">
-              <div className="pill-track">
+            <div className="pill-progress-row mpo-progress" data-theme-role="progress">
+              <div className="pill-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="pill-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     backgroundColor: config.accentColor,
                   }}
                 />
               </div>
-              <span className="pill-time">{formattedCurrent} / {formattedDuration}</span>
+              <span className="pill-time" data-theme-role="timestamps">{formattedCurrent} / {formattedDuration}</span>
             </div>
           )}
         </div>

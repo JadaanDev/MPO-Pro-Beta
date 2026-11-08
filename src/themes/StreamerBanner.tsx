@@ -26,6 +26,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
 
       <div
         className="streamer-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(6, 8, 14, ${config.opacity})`
@@ -41,7 +42,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
       >
         <ThemeSupplement label={false} media={media} config={config} album={true} badge={false} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {/* Left Side Album Art with Live Badge */}
-        <div className="streamer-art-wrapper mpo-art">
+        <div className="streamer-art-wrapper mpo-art" data-theme-role="artwork">
           <AnimatePresence mode="wait">
             {artUrl ? (
               <motion.img
@@ -49,6 +50,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
                 src={artUrl}
                 alt={media.title}
                 className="streamer-art mpo-art-img"
+                data-theme-role="artwork-image"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -63,7 +65,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
           {/* Live EQ Badge */}
           <div className="streamer-live-tag">
             <span className={`live-dot ${isPlaying ? "active" : "paused"}`} />
-            <span className="mpo-playback-status">{isPlaying ? (config.themePlayingLabel || "LIVE") : (config.themePausedLabel || "PAUSED")}</span>
+            <span className="mpo-playback-status" data-theme-role="status">{isPlaying ? (config.themePlayingLabel || "LIVE") : (config.themePausedLabel || "PAUSED")}</span>
           </div>
         </div>
 
@@ -72,15 +74,16 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
           <div className="streamer-top-row">
             <span
               className="streamer-source mpo-badge"
+              data-theme-role="badge"
               style={{
                 color: config.accentColor,
                 borderColor: `${config.accentColor}55`,
                 backgroundColor: `${config.accentColor}18`,
               }}
             >
-              <span className="mpo-theme-label">{config.themeLabel || "NOW PLAYING"}</span> • {media.app_name || "WINDOWS MEDIA"}
+              <span className="mpo-theme-label" data-theme-role="themeLabel">{config.themeLabel || "NOW PLAYING"}</span> • {media.app_name || "WINDOWS MEDIA"}
             </span>
-            <span className="streamer-time">
+            <span className="streamer-time" data-theme-role="timestamps">
               {durationKnown ? `${formattedCurrent} / ${formattedDuration}` : formattedCurrent}
             </span>
           </div>
@@ -89,6 +92,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
             <motion.div
               key={media.title}
               className="streamer-title mpo-title"
+              data-theme-role="title"
               initial={{ opacity: 0, y: 3 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -102,6 +106,7 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
             <motion.div
               key={media.artist}
               className="streamer-artist mpo-artist"
+              data-theme-role="artist"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -112,9 +117,10 @@ export const StreamerBanner: React.FC<ThemeProps> = ({
 
         {/* Laser Bottom Scrubber */}
         {config.showProgress && positionKnown && durationKnown && (
-          <div className="streamer-progress-line mpo-progress">
+          <div className="streamer-progress-line mpo-progress" data-theme-role="progress" data-theme-part="progress-track">
             <div
               className="streamer-progress-bar mpo-progress-fill"
+              data-theme-role="progress-fill"
               style={{
                 transform: `scaleX(${progress})`,
                 backgroundColor: config.accentColor,

@@ -30,6 +30,7 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
       <motion.div
         layout
         className="island-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(0, 0, 0, ${config.opacity})`
@@ -43,9 +44,9 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
         <ThemeSupplement media={media} config={config} album={true} badge={true} currentTime={formattedCurrent} durationTime={formattedDuration} />
         {/* Left Mini Art */}
         {config.showArt && (
-          <div className="island-art mpo-art">
+          <div className="island-art mpo-art" data-theme-role="artwork">
             {artUrl ? (
-              <img src={artUrl} alt="" className="island-img mpo-art-img" />
+              <img src={artUrl} alt="" className="island-img mpo-art-img" data-theme-role="artwork-image" />
             ) : (
               <div className="island-dot" style={{ background: accent }} />
             )}
@@ -56,22 +57,23 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
         <div className="island-content">
           <div className="island-text-line">
             {config.showTitle && (
-              <span className="island-title mpo-title" title={media.title}>
+              <span className="island-title mpo-title" data-theme-role="title" title={media.title}>
                 {media.title || "Dynamic Island"}
               </span>
             )}
             {config.showArtist && (
-              <span className="island-artist mpo-artist">
+              <span className="island-artist mpo-artist" data-theme-role="artist">
                 • {media.artist || "Idle"}
               </span>
             )}
           </div>
 
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="island-scrub mpo-progress">
-              <div className="island-track">
+            <div className="island-scrub mpo-progress" data-theme-role="progress">
+              <div className="island-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="island-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                     background: accent,
@@ -84,11 +86,11 @@ export const DynamicIslandMini: React.FC<ThemeProps> = ({
 
         {/* Right EQ Soundwave Pills */}
         {config.showVisualizer && (
-          <div className={`island-wave mpo-visualizer ${isPlaying ? "playing" : "paused"}`}>
-            <span className="mpo-vis-bar" style={{ background: accent }} />
-            <span className="mpo-vis-bar" style={{ background: accent }} />
-            <span className="mpo-vis-bar" style={{ background: accent }} />
-            <span className="mpo-vis-bar" style={{ background: accent }} />
+          <div className={`island-wave mpo-visualizer ${isPlaying ? "playing" : "paused"}`} data-theme-role="indicator">
+            <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
+            <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
+            <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
+            <span className="mpo-vis-bar" data-theme-role="indicator-bar" style={{ background: accent }} />
           </div>
         )}
       </motion.div>

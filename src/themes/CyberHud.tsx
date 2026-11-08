@@ -26,6 +26,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
 
       <div
         className="cyber-card mpo-card"
+        data-theme-role="frame"
         style={{
           backgroundColor: config.highContrast
             ? `rgba(4, 7, 14, ${config.opacity})`
@@ -47,7 +48,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
         <div className="cyber-corner bottom-right" />
 
         {/* High-Tech Art Frame */}
-        <div className="cyber-art-box mpo-art">
+        <div className="cyber-art-box mpo-art" data-theme-role="artwork">
           <AnimatePresence mode="wait">
             {artUrl ? (
               <motion.img
@@ -55,6 +56,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
                 src={artUrl}
                 alt={media.title}
                 className="cyber-art-img mpo-art-img"
+                data-theme-role="artwork-image"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -71,13 +73,13 @@ export const CyberHud: React.FC<ThemeProps> = ({
         {/* Content */}
         <div className="cyber-content">
           <div className="cyber-header">
-            <div className="cyber-tag mpo-badge">
+            <div className="cyber-tag mpo-badge" data-theme-role="badge">
               <Activity size={12} color="#00f0ff" />
-              <span><span className="mpo-theme-label">{config.themeLabel || "SYS_AUDIO"}</span> // {media.app_name || "GSMTC"}</span>
+              <span><span className="mpo-theme-label" data-theme-role="themeLabel">{config.themeLabel || "SYS_AUDIO"}</span> // {media.app_name || "GSMTC"}</span>
             </div>
             <div className={`cyber-status-pill ${isPlaying ? "online" : "idle"}`}>
               <span className="blink-dot" />
-              <span className="mpo-playback-status">{media.status.toUpperCase()}</span>
+              <span className="mpo-playback-status" data-theme-role="status">{media.status.toUpperCase()}</span>
             </div>
           </div>
 
@@ -85,6 +87,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
             <motion.div
               key={media.title}
               className="cyber-title mpo-title"
+              data-theme-role="title"
               initial={{ opacity: 0, x: -4 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 4 }}
@@ -98,6 +101,7 @@ export const CyberHud: React.FC<ThemeProps> = ({
             <motion.div
               key={media.artist}
               className="cyber-artist mpo-artist"
+              data-theme-role="artist"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -107,16 +111,17 @@ export const CyberHud: React.FC<ThemeProps> = ({
 
           {/* Segmented HUD Progress */}
           {config.showProgress && positionKnown && durationKnown && (
-            <div className="cyber-progress-section mpo-progress">
-              <div className="cyber-track">
+            <div className="cyber-progress-section mpo-progress" data-theme-role="progress">
+              <div className="cyber-track" data-theme-role="progress-track" data-theme-part="progress-track">
                 <div
                   className="cyber-fill mpo-progress-fill"
+                  data-theme-role="progress-fill"
                   style={{
                     transform: `scaleX(${progress})`,
                   }}
                 />
               </div>
-              <div className="cyber-timestamps">
+              <div className="cyber-timestamps" data-theme-role="timestamps">
                 <span>POS: {formattedCurrent}</span>
                 <span>DUR: {formattedDuration}</span>
               </div>

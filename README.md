@@ -1,4 +1,4 @@
-# MPO-PRO-BETA (`v7.0.0-beta.16`)
+# MPO-PRO-BETA (`v7.0.0-beta.17`)
 
 High-Performance Windows Media Overlay for OBS Studio, TikTok Live, Big Presentation Stages, and Desktop HUD.
 
@@ -7,6 +7,8 @@ This repository hosts the standalone **MPO-PRO-BETA** codebase featuring:
 - **Dynamic React Theme SDK**: On-the-fly Sucrase transpiler (< 2ms) with full scoped CSS and motion support.
 - **Creator Dev Hub**: Split 50/50 IDE workspace launcher (VS Code, Cursor, Codex, Claude Code, Antigravity, etc.) with real-time compiler watcher terminal and file changelogs.
 - **Native Windows GSMTC Hook**: Low-latency WinRT multimedia telemetry without cloud dependencies or telemetry tracking.
+
+Beta 17 achieves complete SDK compliance across all 44 system themes (14 built-in system themes and 30 collection designs across OBS, TikTok, and Desktop). Every system theme is annotated with explicit `data-theme-role` attributes across all 11 semantic roles (`frame`, `artwork`, `artwork-image`, `title`, `artist`, `album`, `themeLabel`, `badge`, `status`, `timestamps`, `progress`, `progress-track`/`progress-fill`, `indicator`, `indicator-bar`), with motion separation on positioning wrappers, custom kicker (`themeLabel`) support, and universal timeline compliance. See [beta 17 release notes](BETA17-NOTES.md).
 
 Beta 16 includes the complete SDK/LLM contract in every new/saved theme folder and exported package as `MPO-SDK-LLM.md`, alongside the quick-start guide and types. Arrange starts with movement locked by default across all four studios: click to style, then unlock explicitly to move or resize. The preference is available before entering Arrange and persists across studio switches and restarts. See [beta 16 release notes](BETA16-NOTES.md).
 

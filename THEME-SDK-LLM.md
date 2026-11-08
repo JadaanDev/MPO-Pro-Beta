@@ -1,6 +1,6 @@
 # MPO-pro Theme SDK: complete authoring and Arrange contract
 
-Release target: **`7.0.0-beta.16`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
+Release target: **`7.0.0-beta.17`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
 
 You are creating a portable React theme for MPO-pro. Deliver `manifest.json`, `Theme.tsx`, and `style.css`, with optional local component files. Support the four studio surfaces, semantic element selection, independent shared controls, Arrange offsets and scale, and soft transparent outer edges. Follow the contract below and the acceptance checklist. Preserve the author's native design as the fallback when no layer configuration is supplied.
 
@@ -456,6 +456,15 @@ Arrange selects a semantic element on a normal primary pointer press. A click, l
 Movement locked is the safe default and can be selected before entering Arrange. A click selects the semantic role and opens styling while dragging, resizing, arrow nudging, explicit placement and Arrange geometry undo/redo are disabled. Unlocking restores those tools. Locking during a gesture cancels it and restores its starting placement. Do not create a private theme drag handler that bypasses this host control.
 
 Colors, typography, visibility, borders and material appearance remain editable. Typography/content changes can naturally reflow the layout; the movement lock preserves explicit geometry, not playback animation frames or advanced source/CSS edits. This editor setting is separate from the live Desktop HUD window lock.
+
+### Beta 17 SDK compliance across system themes
+
+All 44 system themes (14 built-in system themes and 30 collection designs across OBS, TikTok, and Desktop) adhere fully to the SDK semantic specification:
+- Explicit `data-theme-role` annotations for all 11 semantic roles (`frame`, `artwork`, `artwork-image`, `title`, `artist`, `album`, `themeLabel`, `badge`, `status`, `timestamps`, `progress`, `progress-track`, `progress-fill`, `indicator`, `indicator-bar`).
+- Direct integration with `ThemeStyleEngine.ts` and `ContextualThemeEditor` without relying on heuristic class matching.
+- Motion separation: semantic role attributes sit on stable positioning wrappers while animation transitions animate child elements.
+- Custom `themeLabel` (kicker) support across all built-in themes.
+- Universal timeline compliance: elapsed-only rendering when total duration is unknown, with no fake progress or private interpolation loops.
 
 ## 11. Acceptance checklist
 
