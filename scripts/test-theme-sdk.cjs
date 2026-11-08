@@ -44,7 +44,7 @@ const mount = {};
 const fakeBuiltTitle = {closest:()=>mount, matches:(selector)=>selector === '[data-theme-element="title"]', parentElement:mount};
 if (findThemeElement(fakeBuiltTitle as any) !== 'title') throw Error('Arrange mode did not recognize built theme element');
 const arrangeHtml = renderToStaticMarkup(React.createElement(ContextualThemeEditor, {
-  selected: 'title',
+  selected: 'title', movementLocked:false,
   config: {} as any,
   onConfigChange: () => {},
   onClose: () => {},
@@ -75,5 +75,5 @@ for (const bundle of STARTER_BUNDLES) {
 console.log('Theme schema validation, HTML-like SDK markup, unified Builder & My Themes, Arrange mode editing, and 4-studio routing OK');
 console.log('React in-app live compiler, multi-file starter bundles, and .mpotheme.json packages OK');
 `;
-const result=esbuild.buildSync({stdin:{contents:"import React from 'react';\n"+source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'sdk-test.ts',loader:'ts'},bundle:true,jsx:'automatic',loader:{'.css':'empty'},platform:'node',format:'cjs',write:false,packages:'external'});
+const result=esbuild.buildSync({stdin:{contents:"import React from 'react';\n"+source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'sdk-test.ts',loader:'ts'},bundle:true,jsx:'automatic',loader:{'.css':'empty','.md':'text'},platform:'node',format:'cjs',write:false,packages:'external'});
 new Function('require','module','exports',result.outputFiles[0].text)(require,{exports:{}},{});

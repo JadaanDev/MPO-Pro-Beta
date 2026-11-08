@@ -25,6 +25,7 @@ function effectivePlacement(el: HTMLElement, position: {
 }
 interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
     enabled: boolean;
+    movementLocked?: boolean;
     selected: ArrangeRole | null;
     onSelect: (role: ArrangeRole | null) => void;
     config: ThemeConfig;
@@ -32,11 +33,13 @@ interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
     onCommitHistory?: (description?: string) => void;
     layerKey: string;
 }
-export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigChange, onCommitHistory, layerKey, children, ...props }: Props) {
+export function ArrangeCanvas({ enabled, movementLocked = true, selected, onSelect, config, onConfigChange, onCommitHistory, layerKey, children, ...props }: Props) {
     const host = useRef<HTMLDivElement>(null), latest = useRef(config);
     latest.current = config;
     const stop = useRef<(() => void) | null>(null), abort = useRef<(() => void) | null>(null);
     const historyFrames = useRef(new Set<number>());
+    const locked = useRef(movementLocked);
+    locked.current = movementLocked;
     const [box, setBox] = useState<{
         left: number;
         top: number;
@@ -48,6 +51,12 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
     const [dragging, setDragging] = useState(false);
     useEffect(() => { setPast([]); setFuture([]); }, [layerKey]);
     useEffect(() => { setDragging(false); return () => { stop.current?.(); historyFrames.current.forEach(frame => cancelAnimationFrame(frame)); historyFrames.current.clear(); }; }, [enabled, layerKey]);
+    useClientLayoutEffect(() => {
+        if (!movementLocked) return;
+        abort.current?.();
+        historyFrames.current.forEach(frame => cancelAnimationFrame(frame));
+        historyFrames.current.clear();
+    }, [movementLocked]);
     useClientLayoutEffect(() => {
         if (!enabled || !selected || !host.current) {
             setBox(null);
@@ -82,7 +91,7 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
         historyFrames.current.add(frame);
     };
     const restore = (redo = false) => { const source = redo ? future : past, edit = source[source.length - 1]; if (!edit)
-        return; if (redo) {
+        return; if (locked.current) return; if (redo) {
         setFuture(source.slice(0, -1));
         setPast(v => [...v, edit]);
     }
@@ -98,12 +107,13 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
         if (!resize) onSelect(role);
         if (!role)
             return;
-        const target = roleTarget(host.current, role), frame = roleTarget(host.current, 'frame');
-        if (!target || !frame)
-            return;
         event.preventDefault();
         event.stopPropagation();
         host.current.focus({ preventScroll: true });
+        if (locked.current) return;
+        const target = roleTarget(host.current, role), frame = roleTarget(host.current, 'frame');
+        if (!target || !frame)
+            return;
         const before = latest.current, p = effectivePlacement(target, before.elementPositions?.[role] || { x: 0, y: 0, scale: 1 }, before.layoutBoundary);
         const snapshot: EditSnapshot = { current: before };
         const root = host.current.querySelector<HTMLElement>('[data-theme-layout-root],.mpo-theme-container') || frame;
@@ -116,6 +126,7 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
         const width = target.offsetWidth, height = target.offsetHeight, font = parseFloat(getComputedStyle(target).fontSize) || 16;
         let pending: PointerEvent | null = null, raf = 0, changed = false;
         const apply = (e: PointerEvent, capturePointer = true) => {
+            if (locked.current) return;
             let delta = pointerDelta({ x: startX, y: startY }, { x: e.clientX, y: e.clientY }, zoom);
             if (!changed) {
                 const threshold = event.pointerType === 'touch' ? 8 : DRAG_THRESHOLD;
@@ -172,14 +183,14 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
         window.addEventListener('blur', cancel);
         window.addEventListener('keydown', key, true);
     };
-    return <div {...props} className={`arrange-canvas ${props.className || ''}`} ref={host} tabIndex={enabled ? 0 : undefined} data-arrange-dragging={enabled && dragging || undefined} aria-label={enabled ? 'Arrange canvas: click to select; drag to move; arrows to nudge; Escape to cancel' : undefined} onPointerDownCapture={event => {
+    return <div {...props} className={`arrange-canvas ${props.className || ''}`} ref={host} tabIndex={enabled ? 0 : undefined} data-arrange-movement-locked={enabled && movementLocked || undefined} data-arrange-dragging={enabled && dragging || undefined} aria-label={enabled ? movementLocked ? 'Arrange canvas: movement locked; click to style' : 'Arrange canvas: click to select; drag to move; arrows to nudge; Escape to cancel' : undefined} onPointerDownCapture={event => {
         const target = event.target as Element;
         if (host.current?.contains(target) && !target.closest(UI_TARGET)) start(event);
     }} onClickCapture={event => {
         const target = event.target as Element;
         if (enabled && host.current?.contains(target) && !target.closest(UI_TARGET)) { event.preventDefault(); event.stopPropagation(); }
     }} onClick={enabled ? undefined : props.onClick} onLostPointerCapture={() => abort.current?.()} onKeyDown={event => { if (!enabled || (event.target as Element).closest('input,textarea,select,button,[data-arrange-ui],[contenteditable="true"]'))
-        return; if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+        return; if (locked.current) return; if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
         event.preventDefault();
         restore(event.shiftKey);
         return;
@@ -205,12 +216,12 @@ export function ArrangeCanvas({ enabled, selected, onSelect, config, onConfigCha
     } change(c => { const p = effective || c.elementPositions?.[selected] || { x: 0, y: 0, scale: 1 }; return { ...c, elementPositions: { ...c.elementPositions, [selected]: { ...p, x: p.x + dx, y: p.y + dy } } }; }, snapshot); record(before, 'Nudged Arrange element', snapshot); }}>
     {enabled && <div className="arrange-gesture-toolbar" data-arrange-ui data-arrange-handle>
       <span className="arrange-selected-name">{selected ? ARRANGE_ROLE_LABELS[selected] : 'Select an element'}</span>
-      <StudioSelect aria-label="Resize behavior" disabled={!selected} value={mode} onChange={e => setMode(e.target.value as typeof mode)}><option value="scale">Proportional scale</option><option value="size">Edit dimensions / font size</option></StudioSelect>
-      <button type="button" disabled={!past.length} onClick={() => restore()}>Undo</button><button type="button" disabled={!future.length} onClick={() => restore(true)}>Redo</button>
+      {movementLocked ? <span className="arrange-lock-hint">Movement locked — click to style</span> : <StudioSelect aria-label="Resize behavior" disabled={!selected} value={mode} onChange={e => setMode(e.target.value as typeof mode)}><option value="scale">Proportional scale</option><option value="size">Edit dimensions / font size</option></StudioSelect>}
+      <button type="button" disabled={movementLocked || !past.length} onClick={() => restore()}>Undo</button><button type="button" disabled={movementLocked || !future.length} onClick={() => restore(true)}>Redo</button>
     </div>}
     <div className="arrange-preview-content">{children}</div>
     {enabled && typeof document !== 'undefined' && box && createPortal(<div className="arrange-selection-box" style={box} data-arrange-ui>
-      <button className="arrange-resize-grip" data-arrange-handle aria-label="Drag to resize selected element" title="Drag to resize; Escape cancels" onPointerDown={e => start(e, true)}>↘</button>
+      {!movementLocked && <button className="arrange-resize-grip" data-arrange-handle aria-label="Drag to resize selected element" title="Drag to resize; Escape cancels" onPointerDown={e => start(e, true)}>↘</button>}
     </div>, document.body)}
   </div>;
 }

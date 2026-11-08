@@ -73,7 +73,9 @@ export function parseThemePackageJson(rawJson: string): ThemeDefinition {
 
   // If bundle is present, run a verification compile
   if (theme.bundle) {
-    const check = compileThemeBundle(theme.bundle);
+    const bundle = withBundleAuthoringFiles(theme.bundle);
+    theme = { ...theme, bundle };
+    const check = compileThemeBundle(bundle);
     if (!check.success) {
       const err = check.diagnostics.find((d) => d.severity === "error");
       throw new Error(`Theme bundle has compilation errors: ${err?.message || "Invalid syntax"}`);

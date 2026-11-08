@@ -1,3 +1,5 @@
+import { useArrangeMovementLock } from "../hooks/useArrangeMovementLock";
+import { ArrangeMovementLock } from "../components/dashboard/ArrangeMovementLock";
 import React, { useEffect, useRef, useState } from "react";
 import {
   MonitorPlay,
@@ -55,6 +57,7 @@ export function BigStudio({
   const [editName, setEditName] = useState("");
   const [copiedLayerId,setCopiedLayerId] = useState<string | null>(null);
   const [replay, setReplay] = useState(0);
+  const [movementLocked, setMovementLocked] = useArrangeMovementLock();
   const [arrangeMode,setArrangeMode] = useState(() => {try {return localStorage.getItem("mpo_always_arrange") === "true";} catch {return false;}});
   const [selectedElement,setSelectedElement] = useState<ThemeElement | null>(null);
   const [hoveredElement,setHoveredElement] = useState<ThemeElement | null>(null);
@@ -313,6 +316,7 @@ export function BigStudio({
             <strong>Big Studio</strong>
             <span>Presentation · 16:9</span>
           </div>
+          <ArrangeMovementLock locked={movementLocked} onChange={setMovementLocked}/>
           <button type="button" className={`themes-panel-toggle-btn arrange-toggle ${arrangeMode ? "active" : ""}`} onClick={toggleArrange} aria-pressed={arrangeMode}><MousePointer2 size={14}/> Arrange <span className="panel-state-pill">{arrangeMode ? "ON" : "OFF"}</span></button>
           <button className="big-launch" onClick={open} style={{ padding: "7px 14px", fontSize: "12px" }}>
             <MonitorPlay size={15} /> Open presentation
@@ -450,7 +454,7 @@ export function BigStudio({
               </div>
               <div className="canvas-viewport-v4 auto-fit-viewport" style={{ padding: "16px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "14px" }}>
                 <div className="checkerboard-bg" />
-                <ArrangeCanvas enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={presentationEditorConfig(active.config)} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} layerKey={active.id} className={`big-preview-stage ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={event => {if(arrangeMode)setHoveredElement(findThemeElement(event.target as Element));}} onPointerLeave={()=>setHoveredElement(null)}>
+                <ArrangeCanvas movementLocked={movementLocked} enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={presentationEditorConfig(active.config)} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} layerKey={active.id} className={`big-preview-stage ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={event => {if(arrangeMode)setHoveredElement(findThemeElement(event.target as Element));}} onPointerLeave={()=>setHoveredElement(null)}>
                 <BigPreview>
                   <BigStage
                     theme={theme}
@@ -468,7 +472,7 @@ export function BigStudio({
                 <span className="big-preview-hint">Live presentation preview · press F11 in the presentation window for full screen</span>
               </div>
               {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
-              {arrangeMode && selectedElement && <ContextualThemeEditor key={`${active.id}-${selectedElement}`} presentationMode selected={selectedElement} config={presentationEditorConfig(active.config)} extractedColor={effectiveExtractedColor} customCss={active.customCss} builtTheme={active.builtTheme} surface="big" onUpdateBuiltTheme={fn=>update(layer=>({...layer,builtTheme:layer.builtTheme ? fn(layer.builtTheme) : undefined}))} onCustomCssChange={css=>update(layer=>({...layer,customCss:css}))} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} onClose={()=>setSelectedElement(null)} />}
+              {arrangeMode && selectedElement && <ContextualThemeEditor movementLocked={movementLocked} key={`${active.id}-${selectedElement}`} presentationMode selected={selectedElement} config={presentationEditorConfig(active.config)} extractedColor={effectiveExtractedColor} customCss={active.customCss} builtTheme={active.builtTheme} surface="big" onUpdateBuiltTheme={fn=>update(layer=>({...layer,builtTheme:layer.builtTheme ? fn(layer.builtTheme) : undefined}))} onCustomCssChange={css=>update(layer=>({...layer,customCss:css}))} onConfigChange={fn=>update(layer=>({...layer,config:applyPresentationEdit(layer.config,fn)}))} onClose={()=>setSelectedElement(null)} />}
             </div>
           </main>
         )}
@@ -485,8 +489,8 @@ export function BigStudio({
         {/* COLUMN 3: Dedicated Overlay Styling Accordion (100% Card Customizer Options) */}
         {showInspector && (
           <div className="big-inspector-column" style={{ width: !showPreview && !showLeftPanel ? "100%" : !showPreview ? `${layoutWidths.right + layoutWidths.center}%` : `${layoutWidths.right}%` }}>
-          <BigStyleInspector stageScale={settings.scale} onStageScaleChange={scale => {const next={...settings,scale};setSettings(next);writeBigSettings(next);}} config={active.config} onChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))} />
-          <details><summary>Advanced styling</summary><SharedStyleInspector
+          <BigStyleInspector movementLocked={arrangeMode && movementLocked} stageScale={settings.scale} onStageScaleChange={scale => {if(arrangeMode && movementLocked)return;const next={...settings,scale};setSettings(next);writeBigSettings(next);}} config={active.config} onChange={(fn) => update((layer) => ({ ...layer, config: fn(layer.config) }))} />
+          <details><summary>Advanced styling</summary><SharedStyleInspector movementLocked={arrangeMode && movementLocked}
             presentationMode
             hideScaleControl
             config={presentationEditorConfig(active.config)}

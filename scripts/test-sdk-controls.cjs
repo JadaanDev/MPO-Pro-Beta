@@ -134,7 +134,7 @@ for (const surface of ["obs","tiktok","desktop","big"]) {
   else for (const expected of ['font-family:Georgia','font-weight:800','opacity:0.42','border:3px solid #abcdef','text-shadow:','display:none','data-theme-default-hidden="true"','mpoGeneratedSpin 10s linear infinite','&lt;script&gt;']) check(rendered.includes(expected),"Generator lost authored styling: " + expected);
 }
 const portable = withBundleAuthoringFiles({...generated,manifest:{...generated.manifest,canvasSizes:{obs:{width:1100,height:260},desktop:{width:600,height:200}}},files:{...generated.files,"custom-note.txt":"keep me"}});
-for (const filename of ["manifest.json","types.d.ts","mpo-sdk.d.ts","MPO-SDK.md","README.md"]) check(portable.files[filename],"Portable theme missing " + filename);
+for (const filename of ["manifest.json","types.d.ts","mpo-sdk.d.ts","MPO-SDK.md","MPO-SDK-LLM.md","README.md"]) check(portable.files[filename],"Portable theme missing " + filename);
 const imported = parseThemePackageJson(exportThemePackageJson({...generatedTheme,bundle:portable}));
 check(imported.bundle.manifest.canvasSizes.obs.width === 1100 && imported.bundle.files["custom-note.txt"] === "keep me","Theme export/import lost sizing or custom files");
 const nominal = {obs:[1100,260],tiktok:[360,640],desktop:[600,200],big:[1280,720]};
@@ -148,7 +148,7 @@ for (const surface of ["obs","tiktok","desktop","big"]) {
 }
 const hiddenAlbum = renderToStaticMarkup(React.createElement(ThemeRenderer,{theme:{schemaVersion:1,id:"hidden",name:"Hidden",elements:[{id:"album",type:"album",x:0,y:0,width:100,height:20,visible:false}]},surface:"desktop",media:MOCK_MEDIA_STATE,artUrl:"",config:{...DEFAULT_THEME_CONFIG,showAlbum:true}}));
 check(!hiddenAlbum.includes('data-theme-role="album"'),"A supplement must not reveal an author-hidden element");
-const editor = renderToStaticMarkup(React.createElement(ContextualThemeEditor,{selected:"frame",builtTheme:imported,config:DEFAULT_THEME_CONFIG,onConfigChange:()=>{},onClose:()=>{},customCss:"",onCustomCssChange:()=>{},extractedColor:null}));
+const editor = renderToStaticMarkup(React.createElement(ContextualThemeEditor,{selected:"frame",movementLocked:false,builtTheme:imported,config:DEFAULT_THEME_CONFIG,onConfigChange:()=>{},onClose:()=>{},customCss:"",onCustomCssChange:()=>{},extractedColor:null}));
 check(editor.includes("Arrange placement") && editor.includes("Frame &amp; Canvas Dimensions"),"React SDK frame lost the shared controls or exact placement editor");
 const fakeMount={};const semanticTitle={closest:()=>fakeMount,getAttribute:()=>"title",matches:()=>false,parentElement:fakeMount};
 check(findThemeElement(semanticTitle) === "title","Arrange must recognize semantic SDK roles without legacy CSS classes");
@@ -156,5 +156,5 @@ const dotCss=generateEffectiveThemeCss({...DEFAULT_THEME_CONFIG,showVisualizer:t
 check(!dotCss.includes("max-height: 31px !important; height: 31px !important"),"Visualizer height must not force dot and pulse bars to fill their container");
 console.log("Legacy SDK role normalization, independent controls, all-studio shared styling, generated layout fidelity, and portable package parity OK");
 `;
-const result = esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,".."),sourcefile:"sdk-controls-test.ts",loader:"ts"},bundle:true,jsx:"automatic",loader:{".css":"empty"},platform:"node",format:"cjs",write:false,packages:"external"});
+const result = esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,".."),sourcefile:"sdk-controls-test.ts",loader:"ts"},bundle:true,jsx:"automatic",loader:{".css":"empty",".md":"text"},platform:"node",format:"cjs",write:false,packages:"external"});
 new Function("require","module","exports",result.outputFiles[0].text)(require,{exports:{}},{});

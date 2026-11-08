@@ -31,7 +31,7 @@ const sectionFields = {
 for (const [kind, theme] of [["compiled", compiled], ["declarative", declarative]]) {
   for (const selected of roles) {
     const html = renderToStaticMarkup(React.createElement(ContextualThemeEditor, {
-      selected, config, onConfigChange: noop, onCommitHistory: noop, onClose: noop,
+      selected, movementLocked:false, config, onConfigChange: noop, onCommitHistory: noop, onClose: noop,
       extractedColor: "#112233", customCss: ".keep-existing { color: red; }", onCustomCssChange: noop,
       builtTheme: theme, onUpdateBuiltTheme: noop, onOpenBuilder: noop, surface: "desktop",
     }));
@@ -114,7 +114,7 @@ console.log("SDK Arrange: all 11 shared editors, authored geometry, role picker/
 `;
 
 (async () => {
-  const output = await esbuild.build({ stdin: { contents: source, resolveDir: path.resolve(__dirname, ".."), sourcefile: "sdk-arrange.test.tsx", loader: "tsx" }, bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty" } });
+  const output = await esbuild.build({ stdin: { contents: source, resolveDir: path.resolve(__dirname, ".."), sourcefile: "sdk-arrange.test.tsx", loader: "tsx" }, bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty", ".md": "text" } });
   const mod = { exports: {} };
   new Function("require", "module", "exports", output.outputFiles[0].text)(require, mod, mod.exports);
 })().catch(error => { console.error(error); process.exitCode = 1; });

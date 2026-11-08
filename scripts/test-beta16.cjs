@@ -1,0 +1,52 @@
+const esbuild=require('esbuild'),path=require('path'),assert=require('node:assert/strict');
+const source=`
+import React from 'react';import {renderToStaticMarkup} from 'react-dom/server';
+import contract from './THEME-SDK-LLM.md?raw';
+import {withBundleAuthoringFiles} from './src/theme-sdk/templates/bundleAuthoring';
+import {generateBundleFromDeclarative} from './src/theme-sdk/templates/bundleGenerator';
+import {STARTER_BUNDLES} from './src/theme-sdk/templates/starterBundles';
+import {exportThemePackageJson,parseThemePackageJson} from './src/theme-sdk/templates/bundleStorage';
+import {saveTheme} from './src/theme-sdk/themeStore';
+import {compileThemeBundle} from './src/theme-sdk/compiler/themeCompiler';
+import {preserveArrangeGeometry} from './src/utils/arrangeLock';
+import {ContextualThemeEditor} from './src/components/dashboard/ContextualThemeEditor';
+import {BigStyleInspector} from './src/big-studio/BigStyleInspector';
+import {DEFAULT_THEME_CONFIG} from './src/types/themes';
+import {readArrangeMovementLock,setArrangeMovementLock,useArrangeMovementLock,ARRANGE_LOCK_KEY} from './src/hooks/useArrangeMovementLock';
+export default async function run(assert,writes){
+ const visual={schemaVersion:1,id:'docs-test',name:'Documentation test',elements:[{id:'title',type:'title',x:0,y:0,width:70,height:25,visible:true,fontSize:24}]};
+ const generated=generateBundleFromDeclarative(visual);
+ for(const bundle of [...STARTER_BUNDLES,generated]){assert.equal(bundle.files['MPO-SDK-LLM.md'],contract);assert.ok(bundle.files['MPO-SDK.md'].includes('MPO-SDK-LLM.md'));assert.ok(bundle.files['mpo-sdk.d.ts']);}
+ const raw={manifest:{schemaVersion:2,id:'raw',name:'Raw'},files:{'Theme.tsx':'export default function Theme(){return <div>Original</div>}','style.css':'.original{color:red}','README.md':'Author readme','custom.md':'Author notes','MPO-SDK-LLM.md':'stale SDK'}};
+ const normalized=withBundleAuthoringFiles(raw);
+ assert.equal(normalized.files['MPO-SDK-LLM.md'],contract);assert.equal(normalized.files['README.md'],'Author readme');assert.equal(normalized.files['Theme.tsx'],raw.files['Theme.tsx']);assert.equal(normalized.files['custom.md'],'Author notes');
+ assert.deepEqual(withBundleAuthoringFiles(normalized),normalized,'generated docs are deterministic');
+ const imported=parseThemePackageJson(exportThemePackageJson({...visual,id:'raw',bundle:raw}));assert.equal(imported.bundle.files['MPO-SDK-LLM.md'],contract);assert.equal(imported.bundle.files['custom.md'],'Author notes');
+ const original=compileThemeBundle(raw),documents=compileThemeBundle({...raw,files:{...raw.files,'README.md':'updated','MPO-SDK-LLM.md':contract,'mpo-sdk.d.ts':'invalid declaration text'}});
+ assert.ok(original.success);assert.equal(documents.Component,original.Component,'SDK docs/types do not remount theme');
+ assert.notEqual(compileThemeBundle({...raw,files:{...raw.files,'style.css':'.original{color:blue}'}}).Component,original.Component);
+ assert.notEqual(compileThemeBundle({...raw,files:{...raw.files,'Theme.tsx':raw.files['Theme.tsx'].replace('Original','Changed')}}).Component,original.Component);
+ await saveTheme({...visual,id:'raw',bundle:raw});assert.equal(writes.at(-1).bundle.files['MPO-SDK-LLM.md'],contract);let saved=JSON.parse(localStorage.getItem('mpo_theme_library_v1'));assert.deepEqual(saved.find(t=>t.id==='raw').bundle,writes.at(-1).bundle,'disk and library share normalized compiled source');
+ await saveTheme(visual);assert.equal(writes.at(-1).bundle.files['MPO-SDK-LLM.md'],contract);saved=JSON.parse(localStorage.getItem('mpo_theme_library_v1'));assert.ok(!saved.find(t=>t.id===visual.id).bundle,'saving docs keeps visual Builder mode');assert.equal(saved.find(t=>t.id===visual.id).sourceBundle.files['MPO-SDK-LLM.md'],contract);
+ const libraryBeforeFailure=localStorage.getItem('mpo_theme_library_v1');window.failNextSave=true;const logError=console.error;let failureLogged=false;console.error=()=>{failureLogged=true};try{await assert.rejects(()=>saveTheme({...visual,name:'Failed save'}),/Disk unavailable/);}finally{console.error=logError;window.failNextSave=false;}assert.ok(failureLogged);assert.equal(localStorage.getItem('mpo_theme_library_v1'),libraryBeforeFailure,'failed native saves do not publish a library success');
+ const before={...DEFAULT_THEME_CONFIG,customWidth:500,elementPositions:{title:{x:12,y:8,scale:1.2}}};
+ const after=preserveArrangeGeometry(before,{...before,customWidth:999,scale:2,artSize:90,bigCustomWidth:2000,elementPositions:{title:{x:500,y:0}},titleColor:'#abcdef',typography:{title:{size:30}},showArtist:false});
+ assert.equal(after.customWidth,500);assert.equal(after.scale,before.scale);assert.equal(after.artSize,before.artSize);assert.equal(after.elementPositions,before.elementPositions);assert.ok(!('bigCustomWidth' in after));assert.equal(after.titleColor,'#abcdef');assert.equal(after.typography.title.size,30);assert.equal(after.showArtist,false);
+ const editor=renderToStaticMarkup(React.createElement(ContextualThemeEditor,{selected:'title',config:before,onConfigChange:()=>{},onClose:()=>{},customCss:'',onCustomCssChange:()=>{},extractedColor:null,builtTheme:visual,onUpdateBuiltTheme:()=>{}}));
+ assert.ok(!editor.includes('Arrange placement')&&!editor.includes('sdk-authored-layout'),'safe default hides geometry');assert.ok(editor.includes('Typography')||editor.includes('Text overflow'));assert.ok(editor.includes('Show Track title'));
+ const big=renderToStaticMarkup(React.createElement(BigStyleInspector,{movementLocked:true,config:before,onChange:()=>{}}));assert.ok(!big.includes('Presentation size'));assert.ok(big.includes('Branding'));
+ assert.equal(readArrangeMovementLock(),true);setArrangeMovementLock(false);assert.equal(readArrangeMovementLock(),false);assert.equal(localStorage.getItem(ARRANGE_LOCK_KEY),'false');setArrangeMovementLock(true);assert.equal(readArrangeMovementLock(),true);const writeItem=localStorage.setItem;localStorage.setItem=()=>{throw Error('Storage unavailable')};setArrangeMovementLock(false);assert.equal(readArrangeMovementLock(),false,'session lock works when storage writes fail');localStorage.setItem=writeItem;setArrangeMovementLock(true);
+ let subscriber;const storageListeners=new Map();const savedAdd=window.addEventListener,savedRemove=window.removeEventListener;
+ window.addEventListener=(key,fn)=>{storageListeners.set(key,fn)};window.removeEventListener=(key,fn)=>{if(storageListeners.get(key)===fn)storageListeners.delete(key)};
+ useArrangeMovementLock();subscriber=window.testSubscription;let notifications=0;const stop=subscriber(()=>notifications++);storageListeners.get('storage')({key:ARRANGE_LOCK_KEY});storageListeners.get('storage')({key:'unrelated'});storageListeners.get('mpo-arrange-movement-lock')();assert.equal(notifications,2);stop();assert.equal(storageListeners.size,0);window.addEventListener=savedAdd;window.removeEventListener=savedRemove;
+ console.log('Beta 16: complete canonical SDK in starters, visual/source saves and packages; docs-only cache identity; locked geometry/style separation; default, persistence and cross-window lock subscription OK');
+}
+`;
+const result=esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,'..'),loader:'tsx'},bundle:true,platform:'node',format:'cjs',write:false,packages:'external',loader:{'.css':'empty','.md':'text'}});
+const globals=['window','localStorage'].map(key=>[key,global[key]]),values=new Map(),writes=[];
+global.localStorage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};
+global.window={__TAURI_INTERNALS__:{},dispatchEvent(){},addEventListener(){},removeEventListener(){}};
+const React=require('react'),mod={exports:{}};
+const request=name=>name==='@tauri-apps/api/core'?{invoke:async(command,args)=>{assert.equal(command,'save_disk_theme');if(window.failNextSave)throw Error('Disk unavailable');writes.push(args)}}:name==='react'?{...React,useLayoutEffect:React.useEffect,useSyncExternalStore:(subscribe,getSnapshot)=>{window.testSubscription=subscribe;return getSnapshot()}}:require(name);
+new Function('require','module','exports',result.outputFiles[0].text)(request,mod,mod.exports);
+mod.exports.default(assert,writes).catch(error=>{console.error(error);process.exitCode=1}).finally(()=>{for(const[key,value]of globals)if(value===undefined)delete global[key];else global[key]=value});

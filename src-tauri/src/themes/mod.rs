@@ -11,6 +11,21 @@ use serde_json::Value;
 use tauri::{AppHandle, Emitter};
 
 static ACTIVE_INTERNAL_WRITES: Mutex<Option<HashMap<String, Instant>>> = Mutex::new(None);
+const SDK_LLM_CONTRACT: &str = include_str!("../../../THEME-SDK-LLM.md");
+
+fn write_sdk_documents(theme_dir: &Path) -> Result<(), String> {
+  safe_write_file(&theme_dir.join("MPO-SDK-LLM.md"), SDK_LLM_CONTRACT)?;
+  let sdk_types = theme_dir.join("mpo-sdk.d.ts");
+  if !sdk_types.exists() {
+    let types = fs::read_to_string(theme_dir.join("types.d.ts")).unwrap_or_else(|_| DEFAULT_TYPES_D_TS.to_string());
+    safe_write_file(&sdk_types, &types)?;
+  }
+  let quick_start = theme_dir.join("MPO-SDK.md");
+  if !quick_start.exists() {
+    safe_write_file(&quick_start, "# Theme SDK quick start\n\nRead MPO-SDK-LLM.md before asking an LLM to edit this theme. It contains the complete SDK contract, props, working examples and acceptance checklist. Edit Theme.tsx and style.css; preserve manifest.json and author files. Preview all four studios, test Arrange selection with movement locked and unlocked, then export the theme. No copying from the app is needed.\n")?;
+  }
+  Ok(())
+}
 
 fn mark_internal_write_start(theme_id: &str) {
   if let Ok(mut lock) = ACTIVE_INTERNAL_WRITES.lock() {
@@ -495,7 +510,35 @@ pub fn save_disk_theme(id: String, bundle: ThemeBundleDto) -> Result<(), String>
     safe_write_file(&tsconfig_file, DEFAULT_TSCONFIG_JSON)?;
   }
 
+  write_sdk_documents(&theme_dir)?;
+
   Ok(())
+}
+
+#[cfg(test)]
+mod authoring_tests {
+  use super::*;
+  #[test]
+  fn sdk_documents_are_complete_and_preserve_author_files() {
+    let nonce = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+    let dir = std::env::temp_dir().join(format!("mpo-sdk-docs-{}-{}", std::process::id(), nonce));
+    fs::create_dir_all(&dir).unwrap();
+    fs::write(dir.join("README.md"), "Author notes").unwrap();
+    fs::write(dir.join("Theme.tsx"), "Author source").unwrap();
+    write_sdk_documents(&dir).unwrap();
+    assert_eq!(fs::read_to_string(dir.join("MPO-SDK-LLM.md")).unwrap(), SDK_LLM_CONTRACT);
+    assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.16"));
+    assert!(fs::read_to_string(dir.join("MPO-SDK.md")).unwrap().contains("MPO-SDK-LLM.md"));
+    fs::write(dir.join("MPO-SDK-LLM.md"), "Stale SDK").unwrap();
+    fs::write(dir.join("MPO-SDK.md"), "Existing quick guide").unwrap();
+    write_sdk_documents(&dir).unwrap();
+    assert_eq!(fs::read_to_string(dir.join("MPO-SDK-LLM.md")).unwrap(), SDK_LLM_CONTRACT);
+    assert_eq!(fs::read_to_string(dir.join("MPO-SDK.md")).unwrap(), "Existing quick guide");
+    assert_eq!(fs::read_to_string(dir.join("README.md")).unwrap(), "Author notes");
+    assert_eq!(fs::read_to_string(dir.join("Theme.tsx")).unwrap(), "Author source");
+    assert_eq!(dir.canonicalize().unwrap().parent().unwrap(), std::env::temp_dir().canonicalize().unwrap());
+    fs::remove_dir_all(&dir).unwrap();
+  }
 }
 
 #[tauri::command]

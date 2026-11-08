@@ -1,4 +1,5 @@
 import type { ThemeBundle } from "../compiler/types";
+import sdkLlmContract from '../../../THEME-SDK-LLM.md?raw';
 import { DEFAULT_THEME_CANVAS_SIZES } from '../canvasSizes';
 export { DEFAULT_THEME_CANVAS_SIZES } from '../canvasSizes';
 
@@ -81,6 +82,8 @@ export function withBundleAuthoringFiles(bundle: ThemeBundle): ThemeBundle {
 
 Edit Theme.tsx and style.css, then save to refresh the running preview. types.d.ts describes the props, semantic roles, and manifest sizing contract. Exported .mpotheme.json packages retain these source files and manifest settings.
 
+For an LLM or IDE assistant, read MPO-SDK-LLM.md and mpo-sdk.d.ts in this folder first. They contain the complete SDK contract, working examples and validation checklist; no copying from the app is needed. Ask the assistant to preserve your source files and implement all four studio surfaces. Preview the theme in each studio and check the acceptance checklist before exporting it.
+
 ## Canvas and layer controls
 
 manifest.json canvasSizes declares the unscaled design canvas for each studio. The layer inspector can override width, height, and scale. Use width:100%;height:100%;box-sizing:border-box on a full-canvas card; avoid fixed min/max sizes or another root scale that defeats those controls. Adapt the inner layout using the surface prop.
@@ -105,6 +108,10 @@ Optional layer controls include layoutBoundary (legacy, constrain, overflow, gro
 
 A normal click selects an element without editing its placement. The shared host starts movement only after 5 screen pixels (8 for touch), independent of preview and theme scale. Keep semantic roles on stable positioning wrappers. Do not add long-press selection, a second drag system or click handlers that fight the host. The host protects inspector fields and portal dropdowns from canvas gestures.
 
+## Beta 16 movement lock
+
+Movement is locked by default. Use the Movement locked/unlocked control before the Arrange button in any studio. While locked, clicking a role opens styling; drag, resize, nudging, explicit placement and geometry history are disabled. Unlock deliberately to test full manipulation. Locking an active gesture restores its starting placement. Typography and content can still reflow naturally; the editor lock does not freeze playback animation or intentional advanced CSS/source edits. Never implement theme gestures that bypass the host lock.
+
 ## Scale-safe title scrolling
 
 Browser URLs normally use quality=2; studio previews, Arrange scale and Desktop scale can add more transforms. Compare the original text span's scrollWidth to its viewport's clientWidth (both unscaled CSS pixels). Never compare getBoundingClientRect().width with clientWidth. Give the title viewport a stable width (for example flex:1;min-width:0) independent of the scrolling track. Use a non-shrinking, max-content track and non-shrinking text spans; mark duplicate copies aria-hidden="true". Observe the viewport and fonts, not the animating track; cancel pending animation frames and ignore late fonts.ready callbacks after unmount. Key title transitions only to track metadata, never the media object, playhead or layer refresh. When shared typography overflow is not theme, let the host own text scrolling. Test a short title, a long title, late fonts and Arabic text at quality=1 and quality=2, preview zoom and 50%/150% layer scale. A short title must remain single and stationary through repeated layer refreshes.
@@ -121,6 +128,7 @@ media.position_ms, progress and formattedTime use the shared host clock. Do not 
       "README.md": readme,
       ...bundle.files,
       "MPO-SDK.md": readme,
+      "MPO-SDK-LLM.md": sdkLlmContract,
       "mpo-sdk.d.ts": AUTHORING_TYPES,
       "manifest.json": JSON.stringify(manifest, null, 2),
     },

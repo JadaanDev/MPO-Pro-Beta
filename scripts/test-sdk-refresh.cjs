@@ -7,7 +7,7 @@ const bundle = source => ({schemaVersion:2,manifest:{schemaVersion:2,id:'linked'
 const good = bundle('export default function Theme(){return <div data-theme-role="frame">Updated</div>}');
 const stale = {schemaVersion:1,id:'linked',name:'Linked',elements:[],bundle:bundle('export default function Theme(){return <div>Old</div>}')};
 const diskTheme = {...stale,bundle:good};
-const build = esbuild.buildSync({stdin:{contents:`export {useThemeWorkspaceSync} from './src/theme-sdk/useThemeWorkspaceSync';export {resolveLayerThemes} from './src/theme-sdk/library';export {themeText} from './src/utils/themeText';export {listAllThemes,setupThemeWatcher} from './src/theme-sdk/themeStore';`,resolveDir:path.resolve(__dirname,'..'),loader:'ts'},bundle:true,platform:'node',format:'cjs',write:false,packages:'external'});
+const build = esbuild.buildSync({stdin:{contents:`export {useThemeWorkspaceSync} from './src/theme-sdk/useThemeWorkspaceSync';export {resolveLayerThemes} from './src/theme-sdk/library';export {themeText} from './src/utils/themeText';export {listAllThemes,setupThemeWatcher} from './src/theme-sdk/themeStore';`,resolveDir:path.resolve(__dirname,'..'),loader:'ts'},bundle:true,platform:'node',format:'cjs',write:false,loader:{'.md':'text'},packages:'external'});
 (async () => {
  try {
   const values=new Map([['mpo_theme_library_v1',JSON.stringify([stale])]]),events=[],timers=new Map();

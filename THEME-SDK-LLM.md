@@ -1,14 +1,26 @@
 # MPO-pro Theme SDK: complete authoring and Arrange contract
 
-Release target: **`7.0.0-beta.15`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
+Release target: **`7.0.0-beta.16`**. This document is also the full prompt copied from **SDK Docs & API** inside the app.
 
 You are creating a portable React theme for MPO-pro. Deliver `manifest.json`, `Theme.tsx`, and `style.css`, with optional local component files. Support the four studio surfaces, semantic element selection, independent shared controls, Arrange offsets and scale, and soft transparent outer edges. Follow the contract below and the acceptance checklist. Preserve the author's native design as the fallback when no layer configuration is supplied.
+
+## Start here when this document is inside a theme folder
+
+New themes and saved/exported packages include this complete contract as `MPO-SDK-LLM.md`, a quick-start `MPO-SDK.md`, authoring types and the theme source. Give the folder to your IDE/LLM assistant and ask it to read this file and `mpo-sdk.d.ts` before editing. No copying from the app is required.
+
+1. Read `manifest.json`, `Theme.tsx`, `style.css` and any local components to understand the existing design. Preserve author files and IDs. SDK Markdown is reference material; editing it does not update the runtime SDK.
+2. Implement the requested source/style changes using the props, roles and examples below. Keep all four studio surfaces working; preserve optional `mpo-builder.json` so generated visual layouts can reopen safely.
+3. Save source files, inspect compilation errors in Code Studio, and preview OBS, TikTok, Desktop and Big Studio. The host uses valid disk edits to refresh linked themes; an incomplete save keeps the last working version.
+4. Start Arrange with Movement locked to select each role and verify styling controls. Unlock movement deliberately to test drag, resize, placement, cancellation and undo. Test short/long/Arabic titles, late fonts, empty artwork, pause/seek and unknown timing.
+5. Test browser quality=1/2 and preview/layer scaling. Follow the acceptance checklist, then export the theme from the app. Source themes do not require building the full app; report the actual checks performed.
+
+The application maintains these SDK reference files on create/save/export without replacing custom README or source files. Documentation-only updates must not restart theme animations.
 
 ## 1. Files, runtime, and props
 
 Themes are source bundles with `schemaVersion: 2`, a manifest, and a filename-to-source map. The entry point defaults to `Theme.tsx`; export a default React component. The in-app compiler resolves local files and type-only imports. Do not import the app's internal source files or browser DOM globals during module initialization.
 
-Supported imports include `react`, `lucide-react`, and `motion/react` (`motion` and `framer-motion` compatibility are also available). External ESM URLs and manifest dependency URLs can load optional modules. Styles are scoped to the theme instance. Use local classes and semantic attributes; do not style the studio UI, `html`, or `body`.
+Supported imports include `react`, `lucide-react`, and `motion/react` (`motion` and `framer-motion` compatibility are also available). The runtime resolves bundled local code and these built-in libraries; manifest dependencies do not install packages or fetch ESM/CDN URLs. Optional external modules must already be supplied by the host as matching window globals. Use supported imports for portable themes. Styles are scoped to the theme instance. Use local classes and semantic attributes; do not style the studio UI, `html`, or `body`.
 
 ```ts
 export type ThemeSurface = "obs" | "tiktok" | "desktop" | "big";
@@ -439,6 +451,12 @@ Layer and library snapshots retain portable source fallbacks. Editing an install
 
 Arrange selects a semantic element on a normal primary pointer press. A click, long press without movement, or small hand jitter does not change layout or add history. Movement begins only after 5 screen pixels (8 for touch), independent of preview and theme scaling. Do not add a competing click-to-select handler, long-press timer or private drag system to a theme. Animate children inside semantic positioning wrappers so selecting and moving the wrapper remains stable. App inspector inputs and portal dropdowns preserve selection; theme playback buttons are treated as selectable content while Arrange is enabled.
 
+### Beta 16 movement lock
+
+Movement locked is the safe default and can be selected before entering Arrange. A click selects the semantic role and opens styling while dragging, resizing, arrow nudging, explicit placement and Arrange geometry undo/redo are disabled. Unlocking restores those tools. Locking during a gesture cancels it and restores its starting placement. Do not create a private theme drag handler that bypasses this host control.
+
+Colors, typography, visibility, borders and material appearance remain editable. Typography/content changes can naturally reflow the layout; the movement lock preserves explicit geometry, not playback animation frames or advanced source/CSS edits. This editor setting is separate from the live Desktop HUD window lock.
+
 ## 11. Acceptance checklist
 
 - [ ] Default component, manifest, CSS, and optional local imports load with empty artwork and stopped media.
@@ -465,3 +483,5 @@ Do not claim desktop/OBS/Tauri visual verification without testing those surface
 - [ ] Short/long/Arabic metadata, loaded fonts, auto-shrink minimums, marquee direction and reduced motion behave consistently.
 - [ ] Short titles remain single and stationary at quality=1/2, preview zoom and 50%/150% layer scale; long titles scroll continuously without restarting on playhead or identical layer updates. Installed source edits reach linked layer URLs.
 - [ ] Builder design dimensions, exported manifests and live studio canvases agree; generated visual projects reopen without overwriting external code edits.
+- [ ] The theme folder/package contains the complete MPO-SDK-LLM.md; docs-only saves preserve component identity and playback animations.
+- [ ] Locked Arrange selects and styles every role without editing geometry; unlocking restores manipulation and locking mid-gesture cancels it safely.

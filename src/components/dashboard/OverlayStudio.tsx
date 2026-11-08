@@ -1,3 +1,5 @@
+import { useArrangeMovementLock } from "../../hooks/useArrangeMovementLock";
+import { ArrangeMovementLock } from "./ArrangeMovementLock";
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { ThemeId, ThemeConfig } from "../../types/themes";
 import { THEME_REGISTRY, THEME_COMPONENTS } from "../../themes/ThemeRegistry";
@@ -112,6 +114,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
   const [hoveredElement, setHoveredElement] = useState<ThemeElement | null>(null);
   const [tiktokWidthOverride, setTiktokWidthOverride] = useState<number | null>(null);
   useEffect(() => { setTiktokWidthOverride(null); setSelectedElement(null); setHoveredElement(null); }, [currentTheme, activeLayerId]);
+  const [movementLocked, setMovementLocked] = useArrangeMovementLock();
   const [arrangeMode, setArrangeMode] = useState(() => { try { return localStorage.getItem("mpo_always_arrange") === "true"; } catch { return false; } });
   const [sourceCopyStatus, setSourceCopyStatus] = useState("");
   const [sourceSize, setSourceSize] = useState<{ width: number; height: number } | null>(null);
@@ -362,7 +365,8 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
           </div>}
           {headerRightActions}
         </div>
-        <button type="button" className={`themes-panel-toggle-btn arrange-toggle ${arrangeMode ? "active" : ""}`} onClick={toggleArrange} aria-pressed={arrangeMode} title="Select elements to style them"><MousePointer2 size={14} aria-hidden="true" /> Arrange <span className="panel-state-pill">{arrangeMode ? "ON" : "OFF"}</span></button>
+        <ArrangeMovementLock locked={movementLocked} onChange={setMovementLocked}/>
+          <button type="button" className={`themes-panel-toggle-btn arrange-toggle ${arrangeMode ? "active" : ""}`} onClick={toggleArrange} aria-pressed={arrangeMode} title="Select elements to style them"><MousePointer2 size={14} aria-hidden="true" /> Arrange <span className="panel-state-pill">{arrangeMode ? "ON" : "OFF"}</span></button>
       </div>
 
       {/* =========================================================================
@@ -505,7 +509,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
                 <div className="source-guide-row"><span>URL for this layer</span><code title={sourceUrl}>{sourceUrl}</code><button type="button" onClick={() => copySource(sourceUrl, "URL")}>Copy URL</button>{sourceCopyStatus && <span role="status">{sourceCopyStatus}</span>}</div>
                 <small>Set your Browser Source in {activeSurface === "tiktok" ? "TikTok LIVE Studio" : "OBS"} to this exact Width &amp; Height to eliminate dead space. For full-screen canvases (1920×1080 / 1080×1920), add <code>&amp;align=bottom</code> to pin the overlay to the bottom.</small>
               </div>}
-              <ArrangeCanvas enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={config} onConfigChange={onConfigChange} onCommitHistory={onCommitHistory} layerKey={activeLayerId} className={`canvas-viewport-v4 auto-fit-viewport ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={(event) => { if (arrangeMode) setHoveredElement(findThemeElement(event.target as Element)); }} onPointerLeave={() => setHoveredElement(null)}><div className="checkerboard-bg" />
+              <ArrangeCanvas movementLocked={movementLocked} enabled={arrangeMode} selected={selectedElement} onSelect={setSelectedElement} config={config} onConfigChange={onConfigChange} onCommitHistory={onCommitHistory} layerKey={activeLayerId} className={`canvas-viewport-v4 auto-fit-viewport ${arrangeMode ? "arrange-mode" : ""}`} data-arrange-selected={arrangeMode ? selectedElement || undefined : undefined} data-arrange-hovered={arrangeMode ? hoveredElement || undefined : undefined} onPointerMove={(event) => { if (arrangeMode) setHoveredElement(findThemeElement(event.target as Element)); }} onPointerLeave={() => setHoveredElement(null)}><div className="checkerboard-bg" />
                 <AutoFitPreview config={previewConfig} configScale={config.scale} contentKey={currentTheme + JSON.stringify(config)} onContentSize={receiveSourceSize}>
                   <div className={`single-preview-mount preview-canvas-scope ${format === "vertical" ? "vertical-viewport" : ""}`}>
                     {singlePreviewGeneratedCss && <style>{singlePreviewGeneratedCss}</style>}
@@ -517,7 +521,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
               </ArrangeCanvas>
               {arrangeMode && <div className="arrange-accessible-tools"><ArrangeElementPicker selected={selectedElement} onSelect={setSelectedElement}/><small>Choose any element, including one that is currently hidden.</small></div>}
               {arrangeMode && (selectedElement ? (
-                <ContextualThemeEditor
+                <ContextualThemeEditor movementLocked={movementLocked}
                   key={`${activeLayerId}-${selectedElement}`}
                   selected={selectedElement}
                   config={config}
@@ -547,7 +551,7 @@ export const OverlayStudio: React.FC<OverlayStudioProps> = ({
 
         {/* COLUMN 3: Dedicated Overlay Styling Accordion */}
         {showInspector && (
-          <SharedStyleInspector
+          <SharedStyleInspector movementLocked={arrangeMode && movementLocked}
             studioSurface={activeSurface}
             arrangePlacement
             config={config}

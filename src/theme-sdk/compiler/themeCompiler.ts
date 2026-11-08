@@ -90,8 +90,12 @@ function computeBundleHash(bundle: ThemeBundle): string {
   const parts: string[] = [
     bundle.manifest.id || "",
     bundle.manifest.entryPoint || "",
+    JSON.stringify(Object.entries(bundle.manifest.dependencies || {}).sort(([a], [b]) => a.localeCompare(b))),
+    JSON.stringify(bundle.manifest.stylesheets || []),
   ];
-  const keys = Object.keys(bundle.files || {}).sort();
+  // Authoring documents/types do not execute. Refreshing SDK instructions must
+  // not remount a playing theme and restart its title/artwork animations.
+  const keys = Object.keys(bundle.files || {}).filter(file => /\.(tsx?|jsx?|css)$/i.test(file) && !/\.d\.ts$/i.test(file)).sort();
   for (const k of keys) {
     parts.push(k, bundle.files[k] || "");
   }
@@ -127,7 +131,7 @@ export function compileThemeBundle(bundle: ThemeBundle): CompilationResult {
   // 1. Transpile all code files
   const compiledFiles: Record<string, string> = {};
   for (const [filename, sourceCode] of Object.entries(bundle.files)) {
-    if (/\.(tsx|ts|jsx|js)$/i.test(filename)) {
+    if (/\.(tsx|ts|jsx|js)$/i.test(filename) && !/\.d\.ts$/i.test(filename)) {
       try {
         const result = transform(sourceCode, {
           transforms: ["typescript", "jsx", "imports"],

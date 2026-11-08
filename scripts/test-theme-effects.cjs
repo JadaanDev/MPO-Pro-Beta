@@ -42,7 +42,7 @@ const root = (width, height, nominal = true) => ({
   try {
     const output = await esbuild.build({
       stdin: { contents: 'export { ThemeEffectBoundary } from "./src/components/common/ThemeEffectBoundary"; export { themeLayoutSize, themeEffectSize } from "./src/utils/themeEffects";', resolveDir: path.resolve(__dirname, ".."), loader: "tsx" },
-      bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty" },
+      bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty", ".md": "text" },
     });
     const mod = { exports: {} };
     const testRequire = name => name === "react" ? {

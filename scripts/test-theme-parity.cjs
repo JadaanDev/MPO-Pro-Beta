@@ -179,7 +179,7 @@ for (const [name, Theme] of Object.entries(THEME_COMPONENTS)) {
       cssVariants.add(css);
     }
   }
-  const output = await esbuild.build({ stdin: { contents: source, resolveDir: path.resolve(__dirname, ".."), sourcefile: "theme-parity.tsx", loader: "tsx" }, bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty" } });
+  const output = await esbuild.build({ stdin: { contents: source, resolveDir: path.resolve(__dirname, ".."), sourcefile: "theme-parity.tsx", loader: "tsx" }, bundle: true, platform: "node", format: "cjs", write: false, packages: "external", loader: { ".css": "empty", ".md": "text" } });
   const mod = { exports: {} };
   new Function("require", "module", "exports", output.outputFiles[0].text)(require, mod, mod.exports);
 })().catch(error => { console.error(error); process.exitCode = 1; });

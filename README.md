@@ -1,4 +1,4 @@
-# MPO-PRO-BETA (`v7.0.0-beta.15`)
+# MPO-PRO-BETA (`v7.0.0-beta.16`)
 
 High-Performance Windows Media Overlay for OBS Studio, TikTok Live, Big Presentation Stages, and Desktop HUD.
 
@@ -8,7 +8,9 @@ This repository hosts the standalone **MPO-PRO-BETA** codebase featuring:
 - **Creator Dev Hub**: Split 50/50 IDE workspace launcher (VS Code, Cursor, Codex, Claude Code, Antigravity, etc.) with real-time compiler watcher terminal and file changelogs.
 - **Native Windows GSMTC Hook**: Low-latency WinRT multimedia telemetry without cloud dependencies or telemetry tracking.
 
-Beta 15 fixes Arrange selection: a normal click selects without moving or clearing the element, and dragging starts only after deliberate pointer movement. Inspector edits and floating menus preserve selection. Arrange and shared inspector dropdowns now use styled, keyboard-accessible studio popups that fit the viewport. See [beta 15 release notes](BETA15-NOTES.md).
+Beta 16 includes the complete SDK/LLM contract in every new/saved theme folder and exported package as `MPO-SDK-LLM.md`, alongside the quick-start guide and types. Arrange starts with movement locked by default across all four studios: click to style, then unlock explicitly to move or resize. The preference is available before entering Arrange and persists across studio switches and restarts. See [beta 16 release notes](BETA16-NOTES.md).
+
+Arrange retains beta 15's single-click selection, deliberate drag threshold, styled keyboard-accessible menus and independent placement history. Inspector edits preserve selection.
 
 The sizing controls include direct canvas dragging, proportional or dimension resize handles, keyboard nudging, Escape cancellation, and gesture undo/redo. Frame policies can constrain content, reserve overflow capture space, or extend the frame surface without reflowing its layout. Bounded content width, ellipsis, minimum-size auto-shrink, and RTL/reduced-motion marquee are shared controls. The unlocked HUD has an independent scale grip; Big Studio labels and resets stage/layer scales separately.
 

@@ -6,6 +6,7 @@ import { LIBRARY_KEY, LIBRARY_EVENT } from "./library";
 import { STARTER_BUNDLES, bundleToThemeDefinition } from "./templates/starterBundles";
 import { generateBundleFromDeclarative } from "./templates/bundleGenerator";
 import { migrateThemeCanvases } from './canvasSizes';
+import { withBundleAuthoringFiles } from './templates/bundleAuthoring';
 
 export interface DiskThemeSummary {
   id: string;
@@ -225,8 +226,9 @@ async function initializeOrMigrateDiskThemes() {
 }
 
 export async function saveTheme(theme: ThemeDefinition): Promise<void> {
-  const bundle: ThemeBundle = theme.bundle || generateBundleFromDeclarative(theme);
+  const bundle: ThemeBundle = withBundleAuthoringFiles(theme.bundle || generateBundleFromDeclarative(theme));
   const themeId = theme.id || bundle.manifest.id;
+  const savedTheme: ThemeDefinition = theme.bundle ? { ...theme, bundle } : { ...theme, sourceBundle: bundle };
 
   if (isTauri) {
     try {
@@ -236,6 +238,7 @@ export async function saveTheme(theme: ThemeDefinition): Promise<void> {
       });
     } catch (err) {
       console.error(`Failed writing theme "${theme.name}" to disk:`, err);
+      throw err;
     }
   }
 
@@ -243,8 +246,8 @@ export async function saveTheme(theme: ThemeDefinition): Promise<void> {
   try {
     const existing = JSON.parse(localStorage.getItem(LIBRARY_KEY) || "[]") as ThemeDefinition[];
     const next = existing.some((t) => t.id === theme.id)
-      ? existing.map((t) => (t.id === theme.id ? theme : t))
-      : [theme, ...existing];
+      ? existing.map((t) => (t.id === theme.id ? savedTheme : t))
+      : [savedTheme, ...existing];
     localStorage.setItem(LIBRARY_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event(LIBRARY_EVENT));
   } catch {}

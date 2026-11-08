@@ -22,6 +22,6 @@ for (const expected of ['.mount .mpo-title', '.mount .mpo-art[data-test="a,b"]::
 if(css.includes('@import')) throw Error('Global import was retained');
 console.log('Legacy CSS migration and element scope OK');
 `;
-const result=esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'element-css-test.ts',loader:'ts'},bundle:true,loader:{'.css':'empty'},platform:'node',format:'cjs',write:false,packages:'external'});
+const result=esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'element-css-test.ts',loader:'ts'},bundle:true,loader:{'.css':'empty','.md':'text'},platform:'node',format:'cjs',write:false,packages:'external'});
 new Function('require','module','exports',result.outputFiles[0].text)(require,{exports:{}},{});
 

@@ -9,6 +9,7 @@ import { setVisibility, type VisibilityKey } from "../../utils/visibility";
 import type { ThemeDefinition, ThemeSurface, ThemeElement as SdkElement } from "../../theme-sdk/schema";
 import "./contextual-theme-editor.css";
 import { ARRANGE_ROLE_LABELS, ROLE_SELECTORS as selectors, roleFromTarget } from "../../utils/themeRoles";
+import { preserveArrangeGeometry } from '../../utils/arrangeLock';
 
 export type ThemeElement = keyof typeof selectors;
 export const THEME_ELEMENT_LABELS = ARRANGE_ROLE_LABELS;
@@ -26,6 +27,7 @@ const useClientLayoutEffect = typeof window === "undefined" ? useEffect : useLay
 
 type Props = {
   selected: ThemeElement;
+  movementLocked?: boolean;
   config: ThemeConfig;
   onConfigChange: (updater:(prev:ThemeConfig)=>ThemeConfig)=>void;
   onCommitHistory?: (description?:string)=>void;
@@ -43,7 +45,7 @@ type Props = {
 export function ContextualThemeEditor({
   selected,
   config,
-  onConfigChange,
+  onConfigChange: changeConfig,
   onCommitHistory,
   onClose,
   extractedColor,
@@ -54,7 +56,9 @@ export function ContextualThemeEditor({
   onUpdateBuiltTheme,
   surface = "obs",
   onOpenBuilder,
+  movementLocked = true,
 }: Props) {
+  const onConfigChange: Props['onConfigChange'] = updater => changeConfig(before => movementLocked ? preserveArrangeGeometry(before, updater(before)) : updater(before));
   const surfaceKey = surface;
   const surfaceElements: SdkElement[] = builtTheme
     ? (builtTheme.layouts?.[surfaceKey] ?? builtTheme.elements)
@@ -86,7 +90,7 @@ export function ContextualThemeEditor({
     ...previous, elementPositions: { ...previous.elementPositions, [selected]: { ...(previous.elementPositions?.[selected] || { x: 0, y: 0, scale: 1 }), ...patch } },
   })); onCommitHistory?.(`Adjusted ${labels[selected]} placement`); };
 
-  const authoredEditor = builtTheme && !builtTheme.bundle && onUpdateBuiltTheme && builtEl ? (() => {
+  const authoredEditor = !movementLocked && builtTheme && !builtTheme.bundle && onUpdateBuiltTheme && builtEl ? (() => {
     const handleUpdateElement = (updates: Partial<SdkElement>) => {
       onUpdateBuiltTheme((currTheme) => {
         const hasOverride = Boolean(currTheme.layouts?.[surfaceKey]);
@@ -254,11 +258,11 @@ export function ContextualThemeEditor({
 
       {visibilityKey && !textElements.includes(selected) && <div className="context-editor-section" style={{ padding: "12px 14px" }}><Toggle label={`Show ${labels[selected]}`} checked={Boolean(inspectorConfig[visibilityKey])} onChange={checked => { onConfigChange(previous => setVisibility(previous,visibilityKey,checked)); onCommitHistory?.(`Changed ${labels[selected]} visibility`); }}/></div>}
       {builtTheme?.bundle && onOpenBuilder && <button type="button" className="context-builder-btn" onClick={onOpenBuilder}><Sparkles size={13}/> Open Code Studio</button>}
-      <div className="context-editor-section arrange-placement">
+      {!movementLocked && <div className="context-editor-section arrange-placement">
         <strong>Arrange placement</strong>
         {([ ["x", "Horizontal offset", "px"], ["y", "Vertical offset", "px"], ["scale", "Element scale", "×"] ] as const).map(([key, name, unit]) => <div key={key} className="arrange-placement-row"><span>{name}</span><EditableValueBadge tooltip={`Edit ${name.toLowerCase()}`} value={placement[key] ?? (key === "scale" ? 1 : 0)} min={key === "scale" ? 0 : undefined} step={key === "scale" ? .05 : 1} unit={unit} onChange={value => updatePlacement({ [key]: value })}/></div>)}
         <button type="button" onClick={() => { onConfigChange(previous => { const positions = { ...previous.elementPositions }; delete positions[selected]; return { ...previous, elementPositions: positions }; }); onCommitHistory?.("Reset element placement"); }}>Reset placement</button>
-      </div>
+      </div>}
 
       {/* Theme Text Content Editor in Arrange Mode */}
       {selected === "themeLabel" && (
@@ -392,6 +396,7 @@ export function ContextualThemeEditor({
       {selected === "title" && <div className="context-editor-section" style={{padding:"12px 14px"}}><Toggle label="Title glow" checked={Boolean(config.titleGlow)} onChange={checked=>{onConfigChange(previous=>({...previous,titleGlow:checked}));onCommitHistory?.("Changed title glow");}}/></div>}
       {!textElements.includes(selected) && (
         <SharedStyleInspector
+          movementLocked={movementLocked}
           presentationMode={presentationMode}
           arrangePlacement
           focusedElement={selected}

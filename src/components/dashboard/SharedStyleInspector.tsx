@@ -1,4 +1,5 @@
 import { StudioSelect } from "../common/StudioSelect";
+import { preserveArrangeGeometry } from '../../utils/arrangeLock';
 import { LayoutSizingControls, studioSizePresets } from "./LayoutSizingControls";
 import { TypographyControls } from "./TypographyControls";
 import { ArtworkColorControls } from "./ArtworkColorControls";
@@ -16,6 +17,7 @@ import { TRACK_TRANSITION_OPTIONS, TRACK_TRANSITION_DIRECTIONS, TRACK_TRANSITION
 import { Sliders, Monitor, Type, Image as ImageIcon, Code2, ChevronDown, BookOpen, Music2, BarChart3, Check, Radio, Sparkles, Play, Palette } from "lucide-react";
 
 interface Props {
+  movementLocked?: boolean;
   config: ThemeConfig; extractedColor: string | null; customCss: string;
   onConfigChange: (updater: (prev: ThemeConfig) => ThemeConfig) => void;
   onCustomCssChange: (css: string) => void;
@@ -23,7 +25,8 @@ interface Props {
   onReplay?: () => void; width?: string; presentationMode?: boolean; arrangePlacement?: boolean; focusedElement?: string; hideScaleControl?: boolean; studioSurface?: "obs" | "tiktok" | "desktop" | "big";
 }
 const PRESET_COLORS = ["#6366f1", "#00f0ff", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#38bdf8", "#ffffff"];
-export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, customCss, onConfigChange, onCustomCssChange, onCommitHistory, onOpenCssReference, onReplay, width, presentationMode = false, arrangePlacement = false, focusedElement, hideScaleControl = false, studioSurface }) => {
+export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, customCss, onConfigChange: changeConfig, onCustomCssChange, onCommitHistory, onOpenCssReference, onReplay, width, presentationMode = false, arrangePlacement = false, focusedElement, hideScaleControl = false, studioSurface, movementLocked = false }) => {
+  const onConfigChange: Props['onConfigChange'] = updater => changeConfig(before => movementLocked ? preserveArrangeGeometry(before, updater(before)) : updater(before));
   // Custom Google Font input
   const [customFontInput, setCustomFontInput] = useState("");
   const [fontLoadedNotice, setFontLoadedNotice] = useState<string | null>(null);
@@ -129,6 +132,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
   const activeColor = artwork && accentMode === "artwork" ? readableArtworkColor(artwork, reference, 3) : artwork && accentMode === "contrast" ? bestContrastColor(reference) : config.autoAlbumColor && extractedColor ? extractedColor : config.accentColor;
   return (
         <aside
+          data-arrange-movement-locked={movementLocked || undefined}
           className={`studio-right-column ${arrangePlacement ? "arrange-sidebar" : ""} ${focusedElement ? `focused-inspector focus-${focusedElement}` : ""}`}
           style={width ? { width } : undefined}
         >
@@ -183,7 +187,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
               {openAccordions.frame && (
                 <div className="style-accordion-body">
-                  <LayoutSizingControls config={config} onChange={onConfigChange} onCommit={onCommitHistory}/><div className="beta-frame-controls"><div><strong>Fine styling</strong><small>Refine the frame for this layer</small></div>
+                  {!movementLocked && <LayoutSizingControls config={config} onChange={onConfigChange} onCommit={onCommitHistory}/>}<div className="beta-frame-controls"><div><strong>Fine styling</strong><small>Refine the frame for this layer</small></div>
                     <label>Border width <output>{config.frameBorderWidth === undefined ? "Theme default" : `${config.frameBorderWidth}px`}</output><input type="range" min="0" max="12" step="1" value={config.frameBorderWidth ?? 0} onChange={(e) => onConfigChange(c => ({...c, frameBorderWidth: Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed frame border")} /></label>
                     <BigNumberInput label="Exact border width" unit="px" value={config.frameBorderWidth} onCommit={value => onConfigChange(c => ({ ...c, frameBorderWidth: value }))} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}><span style={{ fontSize: 11, color: "inherit" }}>Border color</span><HexColorPicker value={config.frameBorderColor || "#FFFFFF"} onChange={(color) => onConfigChange(c => ({...c, frameBorderColor: color}))} onBlur={() => onCommitHistory?.("Changed frame border color")} /></div>
@@ -194,9 +198,9 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       <button type="button" onClick={() => { onConfigChange(c => ({...c, frameShadow:undefined})); onCommitHistory?.("Reset shadow"); }}>Reset shadow</button>
                     </div>
                   </div>
-                  {!presentationMode && <div className="style-control-group"><span>Size presets (changes scale, width and height)</span><div className="shared-size-presets">{studioSizePresets(studioSurface).map(preset => <button type="button" key={preset.label} onClick={() => { onConfigChange(c => ({...c, customWidth:preset.width, customHeight:preset.height, scale:preset.scale, widthMode:"fixed"})); onCommitHistory?.(`Applied ${preset.label} size`); }}>{preset.label}</button>)}</div></div>}
+                  {!movementLocked && !presentationMode && <div data-arrange-geometry className="style-control-group"><span>Size presets (changes scale, width and height)</span><div className="shared-size-presets">{studioSizePresets(studioSurface).map(preset => <button type="button" key={preset.label} onClick={() => { onConfigChange(c => ({...c, customWidth:preset.width, customHeight:preset.height, scale:preset.scale, widthMode:"fixed"})); onCommitHistory?.(`Applied ${preset.label} size`); }}>{preset.label}</button>)}</div></div>}
                   {/* Card Scale */}
-                  {!hideScaleControl && <div className="style-control-group">
+                  {!hideScaleControl && <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>{presentationMode ? "Selected layer scale" : "Card Scale"}</span>
                       <EditableValueBadge
@@ -225,7 +229,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   }
                   {/* Dimensions: Width & Height */}
                   {!presentationMode && <>
-                  <div className="style-control-group">
+                  <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>Custom Width</span>
                       <EditableValueBadge
@@ -250,7 +254,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                     />
                   </div>
 
-                  <div className="style-control-group">
+                  <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>Custom Height</span>
                       <EditableValueBadge
@@ -277,7 +281,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
                   {/* Frame Padding */}
                   </>}
-                  <div className="style-control-group">
+                  <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>Inner Frame Padding (0 = theme default)</span>
                       <EditableValueBadge
@@ -399,7 +403,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   {!presentationMode && <>
                   <div className="style-divider" style={{ margin: "14px 0 10px 0", borderTop: "1px dashed rgba(255, 255, 255, 0.1)" }} />
 
-                  <div className="style-toggle-card">
+                  <div data-arrange-geometry className="style-toggle-card">
                     <Toggle
                       checked={Boolean(config.useSeparateDesktopSize)}
                       onChange={(checked) => {
@@ -413,14 +417,14 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   </div>
 
                   {config.useSeparateDesktopSize && (
-                    <div className="desktop-size-subcontrols" style={{ background: "rgba(56, 189, 248, 0.05)", border: "1px solid rgba(56, 189, 248, 0.18)", borderRadius: 12, padding: "14px 16px", marginTop: 8, display: "flex", flexDirection: "column", gap: 14 }}>
+                    <div data-arrange-geometry className="desktop-size-subcontrols" style={{ background: "rgba(56, 189, 248, 0.05)", border: "1px solid rgba(56, 189, 248, 0.18)", borderRadius: 12, padding: "14px 16px", marginTop: 8, display: "flex", flexDirection: "column", gap: 14 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#38bdf8", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                         <Monitor size={14} />
                         <span>Desktop HUD Dimensions</span>
                       </div>
 
                       {/* Desktop Card Scale */}
-                      <div className="style-control-group">
+                      <div data-arrange-geometry className="style-control-group">
                         <div className="group-label-row">
                           <span>Desktop Card Scale</span>
                           <EditableValueBadge
@@ -447,7 +451,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       </div>
 
                       {/* Desktop Custom Width */}
-                      <div className="style-control-group">
+                      <div data-arrange-geometry className="style-control-group">
                         <div className="group-label-row">
                           <span>Desktop Custom Width</span>
                           <EditableValueBadge
@@ -473,7 +477,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                       </div>
 
                       {/* Desktop Custom Height */}
-                      <div className="style-control-group">
+                      <div data-arrange-geometry className="style-control-group">
                         <div className="group-label-row">
                           <span>Desktop Custom Height</span>
                           <EditableValueBadge
@@ -826,7 +830,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   <div className="style-toggle-card"><Toggle checked={config.artGlow !== false} onChange={(value) => { onConfigChange(c => ({...c, artGlow:value})); onCommitHistory?.("Changed artwork glow"); }} label="Artwork glow" size="md" /></div>
                   <div className="style-toggle-card"><Toggle checked={Boolean(config.spinningVinyl)} onChange={(value) => { onConfigChange(c => ({...c, spinningVinyl:value})); onCommitHistory?.("Changed artwork rotation"); }} label="Rotate artwork" size="md" /></div>
                   {/* Art Size */}
-                  <div className="style-control-group">
+                  <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>Artwork Size</span>
                       <EditableValueBadge
@@ -925,7 +929,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
 
               {openAccordions.progress && (
                 <div className="style-accordion-body">
-                  <div className="style-control-group"><label>Progress thickness · {config.progressHeight ?? 4}px<input type="range" min="2" max="16" step="1" value={config.progressHeight ?? 4} onChange={(e) => onConfigChange(c => ({...c, progressHeight:Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed progress thickness")} /></label>{presentationMode && <BigNumberInput label="Exact progress thickness" unit="px" value={config.progressHeight} onCommit={value => onConfigChange(c => ({ ...c, progressHeight: value }))} />}</div>
+                  <div data-arrange-geometry className="style-control-group"><label>Progress thickness · {config.progressHeight ?? 4}px<input type="range" min="2" max="16" step="1" value={config.progressHeight ?? 4} onChange={(e) => onConfigChange(c => ({...c, progressHeight:Number(e.target.value)}))} onPointerUp={() => onCommitHistory?.("Changed progress thickness")} /></label>{presentationMode && <BigNumberInput label="Exact progress thickness" unit="px" value={config.progressHeight} onCommit={value => onConfigChange(c => ({ ...c, progressHeight: value }))} />}</div>
 
                   <div className="style-control-group">
                     <label>Progress shape <StudioSelect value={config.progressShape ?? "theme"} onChange={event => { const shape = event.target.value as NonNullable<ThemeConfig["progressShape"]>; onConfigChange(c => ({ ...c, progressShape: shape })); onCommitHistory?.("Changed progress shape"); }}><option value="theme">Theme default</option><option value="square">Square</option><option value="rounded">Rounded</option><option value="pill">Pill</option></StudioSelect></label>
@@ -1007,7 +1011,7 @@ export const SharedStyleInspector: React.FC<Props> = ({ config, extractedColor, 
                   </div>
 
                   {/* Max Height */}
-                  <div className="style-control-group">
+                  <div data-arrange-geometry className="style-control-group">
                     <div className="group-label-row">
                       <span>Indicator height</span>
                       <EditableValueBadge

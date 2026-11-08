@@ -21,7 +21,7 @@ export const SettingsTabAbout: React.FC<SettingsTabAboutProps> = ({
           <div className="settings-card-title-group">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div className="settings-card-title">Production Core Telemetry & Status</div>
-              <span className="settings-version-tag">v7.0.0-beta.15 Build</span>
+              <span className="settings-version-tag">v7.0.0-beta.16 Build</span>
             </div>
             <div className="settings-card-desc">
               Real-time monitoring of Windows WinRT multimedia pipeline and low-latency audio hooks.
@@ -32,7 +32,7 @@ export const SettingsTabAbout: React.FC<SettingsTabAboutProps> = ({
         <div className="telemetry-grid">
           <div className="telemetry-item">
             <span className="telemetry-label">App Release</span>
-            <span className="telemetry-val" style={{ color: "#38bdf8" }}>MPO-pro v7.0.0-beta.15</span>
+            <span className="telemetry-val" style={{ color: "#38bdf8" }}>MPO-pro v7.0.0-beta.16</span>
           </div>
 
           <div className="telemetry-item">
@@ -116,10 +116,10 @@ export const SettingsTabAbout: React.FC<SettingsTabAboutProps> = ({
 
         <div className="credits-footer-strip">
           <span className="credits-footer-text">
-            MPO-pro Studio v7.0.0-beta.15 Build
+            MPO-pro Studio v7.0.0-beta.16 Build
           </span>
           <span className="credits-footer-release">
-            الإصدار: 7.0.0-beta.15
+            الإصدار: 7.0.0-beta.16
           </span>
         </div>
       </div>

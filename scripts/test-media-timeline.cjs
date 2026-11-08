@@ -84,5 +84,5 @@ const probe=renderToStaticMarkup(React.createElement(ThemeRenderer,{theme:bundle
 check(probe.includes('20000|20000|elapsed|0:20|--:--|0'),'compiled SDK projected/raw/semantic props contract');
 console.log('Shared timeline: rates, five-minute projection, transport ordering, pause/resume, seeks, recovery, source identity, bounds, unknown data and all renderer families OK');
 `;
-const result = esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'media-timeline-test.ts',loader:'ts'},bundle:true,jsx:'automatic',loader:{'.css':'empty'},platform:'node',format:'cjs',write:false,packages:'external'});
+const result = esbuild.buildSync({stdin:{contents:source,resolveDir:path.resolve(__dirname,'..'),sourcefile:'media-timeline-test.ts',loader:'ts'},bundle:true,jsx:'automatic',loader:{'.css':'empty','.md':'text'},platform:'node',format:'cjs',write:false,packages:'external'});
 new Function('require','module','exports',result.outputFiles[0].text)(require,{exports:{}},{});
