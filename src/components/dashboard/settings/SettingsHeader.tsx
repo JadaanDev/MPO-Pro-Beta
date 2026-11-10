@@ -56,7 +56,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = ({
           <div className="settings-header-title-wrap">
             <div className="settings-header-title">
               <span>Settings & Configuration</span>
-              <span className="settings-version-tag">v7.0.0-beta.17</span>
+              <span className="settings-version-tag">v7.0.0-beta.18</span>
             </div>
             <span className="settings-header-subtitle">
               Manage streaming feed URLs, audio sources, global shortcuts, and system integration

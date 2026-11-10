@@ -172,6 +172,29 @@
   cursor: pointer;
 }
 
+/* =========================================================================
+   Beta 18: Clean Native Scaling & Anti-Blur Vector Rendering
+   Replaces blurry GPU texture downsampling with DirectWrite layout zoom
+   so Desktop Overlay remains razor-sharp, crisp, and comfortable at any scale.
+   ========================================================================= */
+.desktop-overlay-container,
+.desktop-overlay-content {
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  text-rendering: geometricPrecision !important;
+}
+
+.desktop-overlay-container :is(.mpo-theme-container, [class*="-root"], .mpo-built-theme-mount) {
+  transform: none !important;
+  zoom: var(--desktop-hud-scale, 1) !important;
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  text-rendering: geometricPrecision !important;
+  backface-visibility: hidden;
+}
+
+.desktop-overlay-container :is([data-theme-role="artwork-image"], [data-theme-role="artwork"] img, .mpo-art img, .collection-art img, [class*="-art"] img) {
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: high-quality !important;
+}
 
 /* Overlay controls stay inside the transparent window and remain reachable while moving the pointer. */
 .desktop-overlay-container{width:100%;height:100%;min-width:0;min-height:0;box-sizing:border-box;transition:opacity .2s ease}

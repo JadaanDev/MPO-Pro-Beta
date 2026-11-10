@@ -304,7 +304,10 @@ export const DesktopOverlayWidget: React.FC<DesktopOverlayWidgetProps> = ({
     <div
       ref={container}
       className={`desktop-overlay-container ${format} ${isLocked ? "locked" : "unlocked"} ${isGhostPeekActive ? "ghost-peek" : ""}`}
-      style={isGhostPeekActive ? { opacity: 0.18, pointerEvents: "none" } : undefined}
+      style={{
+        ...(isGhostPeekActive ? { opacity: 0.18, pointerEvents: "none" } : undefined),
+        ["--desktop-hud-scale" as any]: Number.isFinite(scale) && scale > 0 ? scale : 1,
+      }}
       onMouseEnter={() => {
         if (isLocked && fadeOnHoverLocked) {
           setIsHoveredWhileLocked(true);

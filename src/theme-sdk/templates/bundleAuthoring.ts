@@ -116,6 +116,10 @@ Movement is locked by default. Use the Movement locked/unlocked control before t
 
 All 44 built-in and collection system themes follow the SDK semantic role contract. Use data-theme-role for all 11 semantic roles (frame, artwork, artwork-image, title, artist, album, themeLabel, badge, status, timestamps, progress, progress-track/progress-fill, indicator, indicator-bar). Animate child nodes inside semantic positioning wrappers, support custom kicker themeLabel content, and honor independent position/duration validity.
 
+## Beta 18 clean native vector scaling
+
+Desktop Overlay HUD uses DirectWrite layout zoom and subpixel antialiasing instead of GPU texture downsampling, ensuring text, borders, and artwork remain crisp and legible at any scale (small or big).
+
 ## Scale-safe title scrolling
 
 Browser URLs normally use quality=2; studio previews, Arrange scale and Desktop scale can add more transforms. Compare the original text span's scrollWidth to its viewport's clientWidth (both unscaled CSS pixels). Never compare getBoundingClientRect().width with clientWidth. Give the title viewport a stable width (for example flex:1;min-width:0) independent of the scrolling track. Use a non-shrinking, max-content track and non-shrinking text spans; mark duplicate copies aria-hidden="true". Observe the viewport and fonts, not the animating track; cancel pending animation frames and ignore late fonts.ready callbacks after unmount. Key title transitions only to track metadata, never the media object, playhead or layer refresh. When shared typography overflow is not theme, let the host own text scrolling. Test a short title, a long title, late fonts and Arabic text at quality=1 and quality=2, preview zoom and 50%/150% layer scale. A short title must remain single and stationary through repeated layer refreshes.

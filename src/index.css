@@ -93,6 +93,13 @@ html, body, #root {
 }
 
 /* Base HUD Container */
+.desktop-overlay-container,
+.desktop-overlay-content,
+.overlay-viewport {
+  position: relative;
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: geometricPrecision;
+}
 .overlay-viewport {
   position: relative;
   width: 100vw;

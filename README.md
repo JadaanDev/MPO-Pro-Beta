@@ -1,4 +1,4 @@
-# MPO-PRO-BETA (`v7.0.0-beta.17`)
+# MPO-PRO-BETA (`v7.0.0-beta.18`)
 
 High-Performance Windows Media Overlay for OBS Studio, TikTok Live, Big Presentation Stages, and Desktop HUD.
 
@@ -7,6 +7,8 @@ This repository hosts the standalone **MPO-PRO-BETA** codebase featuring:
 - **Dynamic React Theme SDK**: On-the-fly Sucrase transpiler (< 2ms) with full scoped CSS and motion support.
 - **Creator Dev Hub**: Split 50/50 IDE workspace launcher (VS Code, Cursor, Codex, Claude Code, Antigravity, etc.) with real-time compiler watcher terminal and file changelogs.
 - **Native Windows GSMTC Hook**: Low-latency WinRT multimedia telemetry without cloud dependencies or telemetry tracking.
+
+Beta 18 ensures that the Desktop Overlay HUD is always clean and razor-sharp regardless of whether it is scaled small (e.g. 50%–80%) or enlarged. Blurry GPU bilinear texture downsampling is replaced with DirectWrite layout zoom, subpixel ClearType antialiasing, geometric precision text rendering, and high-quality bicubic downscaling for artwork. See [beta 18 release notes](BETA18-NOTES.md).
 
 Beta 17 achieves complete SDK compliance across all 44 system themes (14 built-in system themes and 30 collection designs across OBS, TikTok, and Desktop). Every system theme is annotated with explicit `data-theme-role` attributes across all 11 semantic roles (`frame`, `artwork`, `artwork-image`, `title`, `artist`, `album`, `themeLabel`, `badge`, `status`, `timestamps`, `progress`, `progress-track`/`progress-fill`, `indicator`, `indicator-bar`), with motion separation on positioning wrappers, custom kicker (`themeLabel`) support, and universal timeline compliance. See [beta 17 release notes](BETA17-NOTES.md).
 

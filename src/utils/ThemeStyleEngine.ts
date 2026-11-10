@@ -68,6 +68,26 @@ export function generateEffectiveThemeCss(
     }
   `);
 
+  // 1b. Crisp Layout Scaling & Anti-Blur Vector Rendering (Beta 18)
+  // Replaces blurry GPU texture downsampling with DirectWrite layout zoom
+  const effectiveThemeScale = Number.isFinite(config.scale) && config.scale > 0 ? config.scale : 1;
+  rules.push(`
+    :is(${scope}, .desktop-overlay-container) :is(.mpo-theme-container, [class*="-root"], .mpo-built-theme-mount) {
+      --desktop-hud-scale: ${effectiveThemeScale};
+    }
+    .desktop-overlay-container :is(.mpo-theme-container, [class*="-root"], .mpo-built-theme-mount) {
+      transform: none !important;
+      zoom: var(--desktop-hud-scale, ${effectiveThemeScale}) !important;
+      -webkit-font-smoothing: subpixel-antialiased !important;
+      text-rendering: geometricPrecision !important;
+      backface-visibility: hidden;
+    }
+    .desktop-overlay-container :is([data-theme-role="artwork-image"], [data-theme-role="artwork"] img, .mpo-art img, .collection-art img, [class*="-art"] img) {
+      image-rendering: -webkit-optimize-contrast !important;
+      image-rendering: high-quality !important;
+    }
+  `);
+
   // 2. Custom Dimensions (Width & Height) & Responsive Aspect-Ratio Adaptation
   if (config.widthMode!=='content' && config.customWidth && config.customWidth > 0) {
     rules.push(`

@@ -502,7 +502,7 @@ mod authoring_tests {
     fs::write(dir.join("Theme.tsx"), "Author source").unwrap();
     write_sdk_documents(&dir).unwrap();
     assert_eq!(fs::read_to_string(dir.join("MPO-SDK-LLM.md")).unwrap(), SDK_LLM_CONTRACT);
-    assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.17"));
+    assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.18"));
     assert!(fs::read_to_string(dir.join("MPO-SDK.md")).unwrap().contains("MPO-SDK-LLM.md"));
     fs::write(dir.join("MPO-SDK-LLM.md"), "Stale SDK").unwrap();
     fs::write(dir.join("MPO-SDK.md"), "Existing quick guide").unwrap();

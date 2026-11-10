@@ -1,7 +1,7 @@
 {
   "name": "mpo-pro-beta",
   "private": true,
-  "version": "7.0.0-beta.17",
+  "version": "7.0.0-beta.18",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,8 @@
     "test:media": "node scripts/test-media-timeline.cjs",
     "test:sizing": "node scripts/test-sizing-arrange.cjs && node scripts/test-sdk-refresh.cjs",
     "test:beta16": "node scripts/test-beta16.cjs",
-    "test:beta17": "node scripts/test-beta17.cjs"
+    "test:beta17": "node scripts/test-beta17.cjs",
+    "test:beta18": "node scripts/test-beta18.cjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.2.0",

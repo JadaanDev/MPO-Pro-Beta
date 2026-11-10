@@ -4,26 +4,27 @@ const fs = require("node:fs");
 const assert = require("node:assert/strict");
 
 // 1. Version string verification
+const isBeta17OrLater = (ver) => /^7\.0\.0-beta\.(1[7-9]|[2-9][0-9])$/.test(ver);
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf8"));
-assert.equal(pkg.version, "7.0.0-beta.17", "package.json version must be 7.0.0-beta.17");
+assert.ok(isBeta17OrLater(pkg.version), "package.json version must be 7.0.0-beta.17 or later");
 
 const pkgLock = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package-lock.json"), "utf8"));
-assert.equal(pkgLock.version, "7.0.0-beta.17", "package-lock.json version must be 7.0.0-beta.17");
+assert.ok(isBeta17OrLater(pkgLock.version), "package-lock.json version must be 7.0.0-beta.17 or later");
 
 const cargoToml = fs.readFileSync(path.resolve(__dirname, "../src-tauri/Cargo.toml"), "utf8");
-assert.ok(cargoToml.includes('version = "7.0.0-beta.17"'), "Cargo.toml version must be 7.0.0-beta.17");
+assert.ok(/version\s*=\s*"7\.0\.0-beta\.(1[7-9]|[2-9][0-9])"/.test(cargoToml), "Cargo.toml version must be 7.0.0-beta.17 or later");
 
 const tauriConf = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../src-tauri/tauri.conf.json"), "utf8"));
-assert.equal(tauriConf.version, "7.0.0-beta.17", "tauri.conf.json version must be 7.0.0-beta.17");
+assert.ok(isBeta17OrLater(tauriConf.version), "tauri.conf.json version must be 7.0.0-beta.17 or later");
 
 const sdkDoc = fs.readFileSync(path.resolve(__dirname, "../THEME-SDK.md"), "utf8");
-assert.ok(sdkDoc.includes("7.0.0-beta.17"), "THEME-SDK.md must reference 7.0.0-beta.17");
+assert.ok(/7\.0\.0-beta\.(1[7-9]|[2-9][0-9])/.test(sdkDoc), "THEME-SDK.md must reference 7.0.0-beta.17 or later");
 
 const sdkLlmDoc = fs.readFileSync(path.resolve(__dirname, "../THEME-SDK-LLM.md"), "utf8");
-assert.ok(sdkLlmDoc.includes("7.0.0-beta.17"), "THEME-SDK-LLM.md must reference 7.0.0-beta.17");
+assert.ok(/7\.0\.0-beta\.(1[7-9]|[2-9][0-9])/.test(sdkLlmDoc), "THEME-SDK-LLM.md must reference 7.0.0-beta.17 or later");
 
 const modRs = fs.readFileSync(path.resolve(__dirname, "../src-tauri/src/themes/mod.rs"), "utf8");
-assert.ok(modRs.includes('assert!(SDK_LLM_CONTRACT.contains("7.0.0-beta.17"))'), "mod.rs test must assert 7.0.0-beta.17");
+assert.ok(/assert!\(SDK_LLM_CONTRACT\.contains\("7\.0\.0-beta\.(1[7-9]|[2-9][0-9])"\)\)/.test(modRs), "mod.rs test must assert 7.0.0-beta.17 or later");
 
 // 2. System themes SDK compliance check via static rendering
 const source = `
